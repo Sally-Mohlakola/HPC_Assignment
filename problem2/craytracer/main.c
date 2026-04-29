@@ -1,6 +1,4 @@
 #define HYPATIA_IMPLEMENTATION
-// #define STB_IMAGE_IMPLEMENTATION
-
 #include <assert.h>
 #include <omp.h>
 #include <stdalign.h>
@@ -32,30 +30,6 @@ RGBColorU8 writeColor(CFLOAT r, CFLOAT g, CFLOAT b, int sample_per_pixel) {
 
     return COLOR_U8CREATE(r, g, b);
 }
-/*
-HitRecord* hittableList(int n, Sphere sphere[n], Ray ray, LinearAllocFC *
-restrict hrAlloc, CFLOAT t_min, CFLOAT t_max){ HitRecord * r = (HitRecord *)
-alloc_linearAllocFCAllocate(hrAlloc); HitRecord * h = NULL;
-
-    for(int i = 0; i < n; i++){
-        obj_sphereHit(sphere + i, ray, t_min, t_max, r);
-
-        if(r->valid){
-
-            if(h == NULL ){
-                h = r;
-                r = (HitRecord *) alloc_linearAllocFCAllocate(hrAlloc);
-            }else if(r->distanceFromOrigin < h->distanceFromOrigin){
-                // alloc_poolAllocFree(hrAlloc, h);
-                h = r;
-                r = (HitRecord *) alloc_linearAllocFCAllocate(hrAlloc);
-            }
-        }
-    }
-    return h;
-}
-*/
-
 RGBColorF ray_c(Ray r, const ObjectLL *world, int depth) {
 
     if (depth <= 0) {
@@ -65,8 +39,7 @@ RGBColorF ray_c(Ray r, const ObjectLL *world, int depth) {
     HitRecord rec;
     rec.valid = false;
     // checks if the ray hits an object
-    /*HitRecord *  rec =*/bool checkHit =
-        obj_objLLHit(world, r, 0.00001, FLT_MAX, &rec);
+    bool checkHit = obj_objLLHit(world, r, 0.00001, FLT_MAX, &rec);
 
     if (checkHit) {
         // the scattered ray
@@ -146,10 +119,6 @@ void randomSpheres(ObjectLL *world, DynamicStackAlloc *dsa) {
 
     materialGround->lambTexture.tex = c;
     materialGround->lambTexture.texType = CHECKER;
-
-    /*materialGround->albedo.r = 0.5;
-    materialGround->albedo.g = 0.5;
-    materialGround->albedo.b = 0.5;*/
 
     obj_objLLAddSphere(world,
                        (Sphere){.center = {.x = 0, .y = -1000, .z = 0},
@@ -243,11 +212,6 @@ void randomSpheres(ObjectLL *world, DynamicStackAlloc *dsa) {
     sc->color = (RGBColorF){.r = 0.4, .g = 0.2, .b = 0.1};
     material2->lambTexture.tex = sc;
     material2->lambTexture.texType = SOLID_COLOR;
-    /*material2->albedo.r = 0.4;
-    material2->albedo.g = 0.2;
-    material2->albedo.b = 0.1;
-    */
-
     obj_objLLAddSphere(world,
                        (Sphere){.center = {.x = -4, .y = 1, .z = 0},
                                 .radius = 1.0,
@@ -307,10 +271,6 @@ void randomSpheres2(ObjectLL *world, DynamicStackAlloc *dsa, int n,
 
     materialGround->lambTexture.tex = c;
     materialGround->lambTexture.texType = CHECKER;
-
-    /*materialGround->albedo.r = 0.5;
-    materialGround->albedo.g = 0.5;
-    materialGround->albedo.b = 0.5;*/
 
     obj_objLLAddSphere(world,
                        (Sphere){.center = {.x = 0, .y = -1000, .z = 0},
@@ -383,11 +343,6 @@ void randomSpheres2(ObjectLL *world, DynamicStackAlloc *dsa, int n,
 
     material2->lambTexture.tex = &imgs[0];
     material2->lambTexture.texType = IMAGE;
-    /*material2->albedo.r = 0.4;
-    material2->albedo.g = 0.2;
-    material2->albedo.b = 0.1;
-    */
-
     obj_objLLAddSphere(world,
                        (Sphere){.center = {.x = -4, .y = 1, .z = 0},
                                 .radius = 1.0,
@@ -398,11 +353,6 @@ void randomSpheres2(ObjectLL *world, DynamicStackAlloc *dsa, int n,
 
     material2->lambTexture.tex = &imgs[1];
     material2->lambTexture.texType = IMAGE;
-    /*material2->albedo.r = 0.4;
-    material2->albedo.g = 0.2;
-    material2->albedo.b = 0.1;
-    */
-
     obj_objLLAddSphere(world,
                        (Sphere){.center = {.x = -4, .y = 1, .z = -2.2},
                                 .radius = 1.0,
@@ -413,11 +363,6 @@ void randomSpheres2(ObjectLL *world, DynamicStackAlloc *dsa, int n,
 
     material2->lambTexture.tex = &imgs[2];
     material2->lambTexture.texType = IMAGE;
-    /*material2->albedo.r = 0.4;
-    material2->albedo.g = 0.2;
-    material2->albedo.b = 0.1;
-    */
-
     obj_objLLAddSphere(world,
                        (Sphere){.center = {.x = -4, .y = 1, .z = +2.2},
                                 .radius = 1.0,
@@ -428,11 +373,6 @@ void randomSpheres2(ObjectLL *world, DynamicStackAlloc *dsa, int n,
 
     material2->lambTexture.tex = &imgs[3];
     material2->lambTexture.texType = IMAGE;
-    /*material2->albedo.r = 0.4;
-    material2->albedo.g = 0.2;
-    material2->albedo.b = 0.1;
-    */
-
     obj_objLLAddSphere(world,
                        (Sphere){.center = {.x = -4, .y = 1, .z = -4.2},
                                 .radius = 1.0,
@@ -440,111 +380,8 @@ void randomSpheres2(ObjectLL *world, DynamicStackAlloc *dsa, int n,
 }
 #undef randomFloat
 
-int main(int argc, char *argv[]) {
-
-    if (argc < 2) {
-        printf("FATAL ERROR: Output file name not provided.\n");
-        printf("EXITING ...\n");
-        return 0;
-    }
-
-    srand(time(NULL));
-
-//    const CFLOAT aspect_ratio = 16.0 / 9.0;
-//    const int WIDTH = 1024;
-//    const int HEIGHT = (int)(WIDTH / aspect_ratio);
-    const CFLOAT aspect_ratio = 16.0 / 9.0;
-    const int WIDTH = 640;
-    const int HEIGHT = 640;
-    const int SAMPLES_PER_PIXEL = 100;
-    const int MAX_DEPTH = 50;
-    RGBColorU8 *image =
-        (RGBColorU8 *)malloc(sizeof(RGBColorF) * HEIGHT * WIDTH);
-
-    CFLOAT start = omp_get_wtime();
-
-    uint32_t stepSize = 500;
-    uint32_t totalSteps = (WIDTH * HEIGHT) / stepSize + 1;
-    size_t stepsCompleted = 0;
-
-#pragma omp parallel num_threads(1)
-    {
-        size_t localSteps = 0;
-
-        int seed = 100;
-
-        // set camera parameters
-        vec3 lookFrom = {.x = 13.0, .y = 2.0, .z = 3.0};
-        vec3 lookAt = {.x = 0.0, .y = 0.0, .z = 0.0};
-        vec3 up = {.x = 0.0, .y = 1.0, .z = 0.0};
-
-        CFLOAT distToFocus = 10.0;
-        CFLOAT aperture = 0.1;
-
-        Camera c;
-        cam_setLookAtCamera(&c, lookFrom, lookAt, up, 20, aspect_ratio,
-                            aperture, distToFocus);
-
-        Ray r;
-        RGBColorF temp;
-
-        // memory allocation for the objects in the world
-        DynamicStackAlloc *dsa = alloc_createDynamicStackAllocD(1024, 100);
-        // DynamicStackAlloc * dsa1 = alloc_createDynamicStackAllocD(1024, 100);
-        DynamicStackAlloc *dsa0 = alloc_createDynamicStackAllocD(1024, 10);
-        ObjectLL *world = obj_createObjectLL(dsa0, dsa);
-
-        Image img[4];
-
-        tex_loadImage(&img[0], "./test_textures/kitchen_probe.jpg");
-        tex_loadImage(&img[1], "./test_textures/campus_probe.jpg");
-        tex_loadImage(&img[2], "./test_textures/building_probe.jpg");
-        tex_loadImage(&img[3], "./test_textures/kitchen_probe.jpg");
-
-        randomSpheres2(world, dsa, 4, img, &seed);
-        printf("Scene initialized\n");
-
-#pragma omp barrier
-        /*
-        const char * file =
-        "/home/lenovo/VTOP/pdc/project/pdc_project/testtextures/img2.png";
-
-        Image img = {0};
-        tex_loadImage(&img, file);
-
-        Texture t = {
-            .tex = &img,
-            .texType = IMAGE
-        };
-
-
-        LambertianMat* matgnd = alloc_dynamicStackAllocAllocate(dsa,
-                                        sizeof(LambertianMat),
-                                        alignof(LambertianMat));
-
-        matgnd->lambTexture = t;
-
-
-        obj_objLLAddSphere(world, (Sphere){
-            .center = {.x = 0, .y = 0, .z = 0}, .radius = 2, .sphMat =
-        MAT_CREATE_LAMB_IP(matgnd)
-        });*/
-
-        // BVH * bvh = obj_createBVH(dsa0, dsa1);
-        // obj_fillBVH(bvh, world, 0, world->numObjects - 1);
-
-        LinearAllocFC *lafc =
-            alloc_createLinearAllocFC(MAX_DEPTH * world->numObjects,
-                                      sizeof(HitRecord), alignof(HitRecord));
-
-        world->hrAlloc = lafc;
-
-        CFLOAT pcR, pcG, pcB;
-
-#pragma omp for
-        for (int l = 0; l < WIDTH * HEIGHT; l++) {
-            // int z = omp_get_thread_num();
-
+__global__ cuRaytracer-base(int height, int width)
+for (int l = 0; l < WIDTH * HEIGHT; l++) {
             int j = (HEIGHT - 1) - l / WIDTH;
             int i = l % WIDTH;
             pcR = pcG = pcB = 0.0;
@@ -581,12 +418,112 @@ int main(int argc, char *argv[]) {
                            100.0 * (CFLOAT)stepsCompleted / totalSteps);
                 }
             }
-            /*#pragma omp single
-            {
-            } */
+        }
 
-            // if(i == WIDTH - 1)
-            // printProgressBar(HEIGHT - 1 - j, HEIGHT - 1);
+int main(int argc, char *argv[]) {
+
+    if (argc < 2) {
+        printf("FATAL ERROR: Output file name not provided.\n");
+        printf("EXITING ...\n");
+        return 0;
+    }
+
+    srand(time(NULL));
+
+    const CFLOAT aspect_ratio = 16.0 / 9.0;
+    const int WIDTH = 640;
+    const int HEIGHT = 640;
+    const int SAMPLES_PER_PIXEL = 100;
+    const int MAX_DEPTH = 50;
+    RGBColorU8 *image =
+        (RGBColorU8 *)malloc(sizeof(RGBColorF) * HEIGHT * WIDTH);
+
+    CFLOAT start = omp_get_wtime();
+
+    uint32_t stepSize = 500;
+    uint32_t totalSteps = (WIDTH * HEIGHT) / stepSize + 1;
+    size_t stepsCompleted = 0;
+
+    size_t localSteps = 0;
+
+    int seed = 100;
+
+    // set camera parameters
+    vec3 lookFrom = {.x = 13.0, .y = 2.0, .z = 3.0};
+    vec3 lookAt = {.x = 0.0, .y = 0.0, .z = 0.0};
+    vec3 up = {.x = 0.0, .y = 1.0, .z = 0.0};
+
+    CFLOAT distToFocus = 10.0;
+    CFLOAT aperture = 0.1;
+
+    Camera c;
+    cam_setLookAtCamera(&c, lookFrom, lookAt, up, 20, aspect_ratio,
+                        aperture, distToFocus);
+
+    Ray r;
+    RGBColorF temp;
+
+    // memory allocation for the objects in the world
+    DynamicStackAlloc *dsa = alloc_createDynamicStackAllocD(1024, 100);
+    DynamicStackAlloc *dsa0 = alloc_createDynamicStackAllocD(1024, 10);
+    ObjectLL *world = obj_createObjectLL(dsa0, dsa);
+
+    Image img[4];
+
+    tex_loadImage(&img[0], "./test_textures/kitchen_probe.jpg");
+    tex_loadImage(&img[1], "./test_textures/campus_probe.jpg");
+    tex_loadImage(&img[2], "./test_textures/building_probe.jpg");
+    tex_loadImage(&img[3], "./test_textures/kitchen_probe.jpg");
+
+    randomSpheres2(world, dsa, 4, img, &seed);
+    printf("Scene initialized\n");
+
+    LinearAllocFC *lafc =
+        alloc_createLinearAllocFC(MAX_DEPTH * world->numObjects,
+                                    sizeof(HitRecord), alignof(HitRecord));
+
+    world->hrAlloc = lafc;
+
+    CFLOAT pcR, pcG, pcB;
+
+#pragma omp for
+        for (int l = 0; l < WIDTH * HEIGHT; l++) {
+            int j = (HEIGHT - 1) - l / WIDTH;
+            int i = l % WIDTH;
+            pcR = pcG = pcB = 0.0;
+
+            for (int k = 0; k < SAMPLES_PER_PIXEL; k++) {
+                CFLOAT u =
+                    ((CFLOAT)i + util_randomFloat(0.0, 1.0)) / (WIDTH - 1);
+                CFLOAT v =
+                    ((CFLOAT)j + util_randomFloat(0.0, 1.0)) / (HEIGHT - 1);
+                r = cam_getRay(&c, u, v);
+
+                temp = ray_c(r, world, MAX_DEPTH);
+
+                pcR += temp.r;
+                pcG += temp.g;
+                pcB += temp.b;
+
+                alloc_linearAllocFCFreeAll(lafc);
+            }
+
+            image[i + WIDTH * (HEIGHT - 1 - j)] =
+                writeColor(pcR, pcG, pcB, SAMPLES_PER_PIXEL);
+
+            localSteps += 1;
+
+            if (localSteps % stepSize == stepSize - 1) {
+#pragma omp atomic
+                stepsCompleted += 1;
+
+                if (stepsCompleted % 100 == 1) {
+#pragma omp critical
+                    printf("Progress %lu of %u (%0.2lf%%)\n", stepsCompleted,
+                           totalSteps,
+                           100.0 * (CFLOAT)stepsCompleted / totalSteps);
+                }
+            }
         }
 
         alloc_freeLinearAllocFC(lafc);
@@ -600,34 +537,5 @@ int main(int argc, char *argv[]) {
 
     writeToPPM(argv[1], WIDTH, HEIGHT, image);
     free(image);
-    // alloc_freeDynamicStackAllocD(dsa1);
-
     return 0;
 }
-
-/*    for (int j = HEIGHT - 1; j >= 0; j--){
-        for (int i = 0; i < WIDTH; i++){
-
-            pcR = pcG = pcB = 0.0;
-
-            for(int k = 0; k < SAMPLES_PER_PIXEL; k++){
-                CFLOAT u = ((CFLOAT)i + util_randomFloat(0.0, 1.0)) / (WIDTH -
-   1); CFLOAT v = ((CFLOAT)j + util_randomFloat(0.0, 1.0)) / (HEIGHT - 1); r =
-   cam_getRay(&c, u, v);
-
-                temp = ray_c(r, world, MAX_DEPTH);
-
-                pcR += temp.r;
-                pcG += temp.g;
-                pcB += temp.b;
-
-                alloc_linearAllocFCFreeAll(lafc);
-            }
-
-            image[i + WIDTH * (HEIGHT - 1 - j)] = writeColor(pcR, pcG, pcB,
-   SAMPLES_PER_PIXEL);
-        }
-
-        printProgressBar(HEIGHT - 1 - j, HEIGHT - 1);
-    }
-*/
