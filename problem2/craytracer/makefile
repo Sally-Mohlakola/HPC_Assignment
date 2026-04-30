@@ -5,7 +5,6 @@ LDFLAGS = -lm
 
 # Source files
 SRCS = main.c \
-       openmp_helper.c \
        sources/allocator.c \
        sources/camera.c \
        sources/color.c \
