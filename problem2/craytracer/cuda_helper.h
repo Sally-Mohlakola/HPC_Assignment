@@ -9,18 +9,17 @@
 
 #include "camera.h"
 #include "color.h"
-#include "hitRecord.h"
 #include "hypatiaINC.h"
 #include "ray.h"
 #include "types.h"
 #include "util.h"
 
-#define MAT_LAMBERTIAN 0
-#define MAT_METAL      1
-#define MAT_DIELECTRIC 2
-
 #define MAX_SPHERES   512
 #define MAX_MATERIALS 512
+
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
 
 typedef struct {
     vec3 center;
@@ -28,19 +27,366 @@ typedef struct {
     int materialIndex;
 } DeviceSphere;
 
+enum TextureType {
+    TEX_SOLID = 0,
+    TEX_CHECKER = 1,
+    TEX_IMAGE = 2
+};
+
+enum MaterialType {
+    MAT_LAMBERTIAN = 0,
+    MAT_METAL = 1,
+    MAT_DIELECTRIC = 2
+};
+
 typedef struct {
     int type;
+
+    RGBColorF solidColor;
+
+    RGBColorF checkerEven;
+    RGBColorF checkerOdd;
+    float checkerScale;
+
+    int imageIndex;
+} DeviceTexture;
+
+typedef struct {
+    cudaTextureObject_t texObj;
+    int width;
+    int height;
+} DeviceImageTexture;
+
+typedef struct {
+    int type;
+
+    int albedoTextureIndex;
+
     RGBColorF albedo;
-    CFLOAT fuzz;
-    CFLOAT ir;
+    float fuzz;
+    float ir;
 } DeviceMaterial;
 
-CFLOAT lcg(int *n);
-RGBColorU8 writeColor(CFLOAT r, CFLOAT g, CFLOAT b, int sample_per_pixel);
+typedef struct {
+    vec3 point;
+    vec3 normal;
 
-__device__ CFLOAT cuRand(unsigned int *rngState);
-__device__ vec3 cuRandomUnitVector(unsigned int *rngState);
-__device__ bool cuNearZero(vec3 v);
+    CFLOAT distanceFromOrigin;
+
+    int materialIndex;
+
+    CFLOAT u;
+    CFLOAT v;
+
+    bool frontFace;
+    bool valid;
+} DeviceHitRecord;
+
+CFLOAT lcg(int *n);
+
+__device__ CFLOAT cuVector3Dot(vec3 a, vec3 b)
+{
+    return a.x * b.x + a.y * b.y + a.z * b.z;
+}
+
+__device__ vec3 *cuVector3Normalize(vec3 *v)
+{
+    CFLOAT length = sqrt(v->x * v->x + v->y * v->y + v->z * v->z);
+
+    if (length == 0.0) {
+        return v;
+    }
+
+    v->x /= length;
+    v->y /= length;
+    v->z /= length;
+
+    return v;
+}
+
+__device__ vec3 *cuVector3Add(vec3 *self, const vec3 *other)
+{
+    self->x += other->x;
+    self->y += other->y;
+    self->z += other->z;
+
+    return self;
+}
+
+__device__ vec3 *cuVector3Subtract(vec3 *self, const vec3 *other)
+{
+    self->x -= other->x;
+    self->y -= other->y;
+    self->z -= other->z;
+
+    return self;
+}
+
+__device__ vec3 *cuVector3MultiplyScalar(vec3 *self, CFLOAT scalar)
+{
+    self->x *= scalar;
+    self->y *= scalar;
+    self->z *= scalar;
+
+    return self;
+}
+
+__device__ vec3 *cuVector3DivideScalar(vec3 *self, CFLOAT scalar)
+{
+    self->x /= scalar;
+    self->y /= scalar;
+    self->z /= scalar;
+
+    return self;
+}
+
+__device__ RGBColorF cuColorfMultiply(RGBColorF x, RGBColorF y)
+{
+    return (RGBColorF){
+        .r = x.r * y.r,
+        .g = x.g * y.g,
+        .b = x.b * y.b
+    };
+}
+
+__device__ Ray cuRayCreate(vec3 origin, vec3 direction)
+{
+    cuVector3Normalize(&direction);
+
+    return (Ray){
+        .origin = origin,
+        .direction = direction
+    };
+}
+
+__device__ vec3 cuRayAt(Ray r, CFLOAT t)
+{
+    vec3 point = r.direction;
+    cuVector3MultiplyScalar(&point, t);
+    cuVector3Add(&point, &r.origin);
+
+    return point;
+}
+
+__device__ RGBColorU8 cuWriteColor(CFLOAT r, CFLOAT g, CFLOAT b, int samplesPerPixel)
+{
+    CFLOAT scale = 1.0 / samplesPerPixel;
+
+    r = sqrt(scale * r);
+    g = sqrt(scale * g);
+    b = sqrt(scale * b);
+
+    return (RGBColorU8){
+        .r = (uint8_t)(fmin(r * 256.0, 255.0)),
+        .g = (uint8_t)(fmin(g * 256.0, 255.0)),
+        .b = (uint8_t)(fmin(b * 256.0, 255.0))
+    };
+}
+
+__device__ CFLOAT cuRand(unsigned int *state)
+{
+    *state = (*state * 1664525u) + 1013904223u;
+    return (CFLOAT)(*state & 0x00FFFFFF) / (CFLOAT)0x01000000;
+}
+
+__device__ vec3 cuRandomUnitDisk(unsigned int *rngState)
+{
+    while (true) {
+        vec3 p = {
+            .x = 2.0 * cuRand(rngState) - 1.0,
+            .y = 2.0 * cuRand(rngState) - 1.0,
+            .z = 0.0
+        };
+
+        if (cuVector3Dot(p, p) < 1.0) {
+            return p;
+        }
+    }
+}
+
+__device__ RGBColorF cuSampleTexture(
+    const DeviceTexture *textures,
+    const DeviceImageTexture *imageTextures,
+    int textureIndex,
+    CFLOAT u,
+    CFLOAT v,
+    vec3 point
+) {
+    if (textureIndex < 0) {
+        return (RGBColorF){1.0, 0.0, 1.0};
+    }
+
+    DeviceTexture tex = textures[textureIndex];
+
+    if (tex.type == TEX_SOLID) {
+        return tex.solidColor;
+    }
+
+    if (tex.type == TEX_CHECKER) {
+        CFLOAT s = tex.checkerScale;
+
+        CFLOAT value =
+            sin(s * point.x) *
+            sin(s * point.y) *
+            sin(s * point.z);
+
+        if (value < 0.0) {
+            return tex.checkerOdd;
+        }
+
+        return tex.checkerEven;
+    }
+
+    if (tex.type == TEX_IMAGE) {
+        DeviceImageTexture img = imageTextures[tex.imageIndex];
+
+        u = fmin(fmax(u, 0.0), 1.0);
+        v = fmin(fmax(v, 0.0), 1.0);
+
+        v = 1.0 - v;
+
+        float4 c = tex2D<float4>(img.texObj, (float)u, (float)v);
+
+        return (RGBColorF){
+            .r = c.x,
+            .g = c.y,
+            .b = c.z
+        };
+    }
+
+    return (RGBColorF){1.0, 0.0, 1.0};
+}
+
+__device__ Ray cuCamGetRay(const Camera *cam, CFLOAT u, CFLOAT v, unsigned int *rngState)
+{
+    vec3 randOnDisk = cuRandomUnitDisk(rngState);
+    cuVector3MultiplyScalar(&randOnDisk, cam->lensRadius);
+
+    CFLOAT x = randOnDisk.x;
+    CFLOAT y = randOnDisk.y;
+
+    vec3 offset = {
+        .x = x * cam->u.x + y * cam->v.x,
+        .y = x * cam->u.y + y * cam->v.y,
+        .z = x * cam->u.z + y * cam->v.z
+    };
+
+    vec3 origin = cam->origin;
+    cuVector3Add(&origin, &offset);
+
+    vec3 horizontal = cam->horizontal;
+    cuVector3MultiplyScalar(&horizontal, u);
+
+    vec3 vertical = cam->vertical;
+    cuVector3MultiplyScalar(&vertical, v);
+
+    vec3 direction = cam->lowerLeftCorner;
+    cuVector3Add(&direction, &horizontal);
+    cuVector3Add(&direction, &vertical);
+    cuVector3Subtract(&direction, &cam->origin);
+    cuVector3Subtract(&direction, &offset);
+
+    return cuRayCreate(origin, direction);
+}
+
+__device__ vec3 cuRandomInUnitSphere(unsigned int *rngState)
+{
+    while (true) {
+        vec3 p = {
+            .x = 2.0 * cuRand(rngState) - 1.0,
+            .y = 2.0 * cuRand(rngState) - 1.0,
+            .z = 2.0 * cuRand(rngState) - 1.0
+        };
+
+        if (cuVector3Dot(p, p) < 1.0) {
+            return p;
+        }
+    }
+}
+
+__device__ vec3 cuRandomUnitVector(unsigned int *rngState)
+{
+    vec3 p = cuRandomInUnitSphere(rngState);
+    cuVector3Normalize(&p);
+    return p;
+}
+
+__device__ bool cuNearZero(vec3 v)
+{
+    const CFLOAT s = 1e-8;
+    return fabs(v.x) < s && fabs(v.y) < s && fabs(v.z) < s; 
+}
+
+__device__ void cuGetSphereUV(vec3 outwardNormal, CFLOAT *u, CFLOAT *v)
+{
+    CFLOAT theta = acos(-outwardNormal.y);
+    CFLOAT phi = atan2(-outwardNormal.z, outwardNormal.x) + M_PI;
+
+    *u = phi / (2.0 * M_PI);
+    *v = theta / M_PI;
+}
+
+__device__ void cuSetFaceNormal(DeviceHitRecord *rec, Ray r, vec3 outwardNormal)
+{
+    rec->frontFace = cuVector3Dot(r.direction, outwardNormal) < 0.0;
+
+    if (rec->frontFace) {
+        rec->normal = outwardNormal;
+    } else {
+        rec->normal = outwardNormal;
+        cuVector3MultiplyScalar(&rec->normal, -1.0);
+    }
+}
+
+__device__ bool cuHitSphere(
+    const DeviceSphere *sphere,
+    Ray r,
+    CFLOAT tMin,
+    CFLOAT tMax,
+    DeviceHitRecord *rec
+)
+{
+    vec3 oc = r.origin;
+    cuVector3Subtract(&oc, &sphere->center);
+
+    CFLOAT a = cuVector3Dot(r.direction, r.direction);
+    CFLOAT halfB = cuVector3Dot(oc, r.direction);
+    CFLOAT c = cuVector3Dot(oc, oc) - sphere->radius * sphere->radius;
+
+    CFLOAT discriminant = halfB * halfB - a * c;
+
+    if (discriminant < 0.0) {
+        return false;
+    }
+
+    CFLOAT sqrtd = sqrt(discriminant);
+
+    CFLOAT root = (-halfB - sqrtd) / a;
+
+    if (root < tMin || root > tMax) {
+        root = (-halfB + sqrtd) / a;
+
+        if (root < tMin || root > tMax) {
+            return false;
+        }
+    }
+
+    rec->distanceFromOrigin = root;
+    rec->point = cuRayAt(r, root);
+
+    vec3 outwardNormal = rec->point;
+    cuVector3Subtract(&outwardNormal, &sphere->center);
+    cuVector3DivideScalar(&outwardNormal, sphere->radius);
+
+    cuSetFaceNormal(rec, r, outwardNormal);
+    cuGetSphereUV(outwardNormal, &rec->u, &rec->v);
+
+    rec->materialIndex = sphere->materialIndex;
+    rec->valid = true;
+
+    return true;
+}
+
 __device__ bool cuHitWorld(
     const DeviceSphere *spheres,
     const DeviceMaterial *materials,
@@ -48,15 +394,23 @@ __device__ bool cuHitWorld(
     Ray r,
     CFLOAT tMin,
     CFLOAT tMax,
-    HitRecord *rec
-);
-__device__ bool cuHitSphere(
-    const DeviceSphere *sphere,
-    Ray r,
-    CFLOAT tMin,
-    CFLOAT tMax,
-    HitRecord *rec
-);
+    DeviceHitRecord *rec
+)
+{
+    DeviceHitRecord tempRec;
+    bool hitAnything = false;
+    CFLOAT closestSoFar = tMax;
+
+    for (int s = 0; s < numSpheres; s++) {
+        if (cuHitSphere(&spheres[s], r, tMin, closestSoFar, &tempRec)) {
+            hitAnything = true;
+            closestSoFar = tempRec.distanceFromOrigin;
+            *rec = tempRec;
+        }
+    }
+
+    return hitAnything;
+}
 
 void cuAddSphere(
     DeviceSphere *h_spheres,
@@ -87,9 +441,9 @@ void cuAddSphere(
 
 __device__ vec3 cuReflect(vec3 v, vec3 n) {
     vec3 result = n;
-    CFLOAT scale = 2.0 * vector3_dot(v, n);
-    vector3_multiplyScalar(&result, scale);
-    vector3_subtract(&v, &result);
+    CFLOAT scale = 2.0 * cuVector3Dot(v, n);
+    cuVector3MultiplyScalar(&result, scale);
+    cuVector3Subtract(&v, &result);
     return v;
 }
 
@@ -101,16 +455,16 @@ __device__ CFLOAT cuReflectance(CFLOAT cosine, CFLOAT refIdx) {
 
 __device__ vec3 cuRefract(vec3 uv, vec3 n, CFLOAT etaiOverEtat) {
     vec3 negUv = uv;
-    vector3_multiplyScalar(&negUv, -1.0);
+    cuVector3MultiplyScalar(&negUv, -1.0);
 
-    CFLOAT cosTheta = fmin(vector3_dot(negUv, n), 1.0);
+    CFLOAT cosTheta = fmin(cuVector3Dot(negUv, n), 1.0);
 
     vec3 rOutPerp = uv;
 
     vec3 temp = n;
-    vector3_multiplyScalar(&temp, cosTheta);
-    vector3_add(&rOutPerp, &temp);
-    vector3_multiplyScalar(&rOutPerp, etaiOverEtat);
+    cuVector3MultiplyScalar(&temp, cosTheta);
+    cuVector3Add(&rOutPerp, &temp);
+    cuVector3MultiplyScalar(&rOutPerp, etaiOverEtat);
 
     CFLOAT lenSq =
         rOutPerp.x * rOutPerp.x +
@@ -118,65 +472,74 @@ __device__ vec3 cuRefract(vec3 uv, vec3 n, CFLOAT etaiOverEtat) {
         rOutPerp.z * rOutPerp.z;
 
     vec3 rOutParallel = n;
-    vector3_multiplyScalar(&rOutParallel, -sqrt(fabs(1.0 - lenSq)));
+    cuVector3MultiplyScalar(&rOutParallel, -sqrt(fabs(1.0 - lenSq)));
 
-    vector3_add(&rOutPerp, &rOutParallel);
+    cuVector3Add(&rOutPerp, &rOutParallel);
 
     return rOutPerp;
 }
 
 __device__ bool cuScatterLambertian(
     Ray rayIn,
-    HitRecord rec,
+    DeviceHitRecord rec,
     DeviceMaterial mat,
+    const DeviceTexture *textures,
+    const DeviceImageTexture *imageTextures,
     RGBColorF *attenuation,
     Ray *scattered,
     unsigned int *rngState
 ) {
     vec3 scatterDirection = rec.normal;
     vec3 randomVec = cuRandomUnitVector(rngState);
-    vector3_add(&scatterDirection, &randomVec);
+    cuVector3Add(&scatterDirection, &randomVec);
 
     if (cuNearZero(scatterDirection)) {
         scatterDirection = rec.normal;
     }
 
-    scattered->origin = rec.p;
+    scattered->origin = rec.point;
     scattered->direction = scatterDirection;
 
-    *attenuation = mat.albedo;
+    *attenuation = cuSampleTexture(
+        textures,
+        imageTextures,
+        mat.albedoTextureIndex,
+        rec.u,
+        rec.v,
+        rec.point
+    );
 
     return true;
 }
 
 __device__ bool cuScatterMetal(
     Ray rayIn,
-    HitRecord rec,
+    DeviceHitRecord rec,
     DeviceMaterial mat,
     RGBColorF *attenuation,
     Ray *scattered,
     unsigned int *rngState
 ) {
     vec3 unitDirection = rayIn.direction;
-    vector3_normalize(&unitDirection);
+    cuVector3Normalize(&unitDirection);
 
     vec3 reflected = cuReflect(unitDirection, rec.normal);
 
     vec3 fuzzVec = cuRandomUnitVector(rngState);
-    vector3_multiplyScalar(&fuzzVec, mat.fuzz);
-    vector3_add(&reflected, &fuzzVec);
+    cuVector3MultiplyScalar(&fuzzVec, mat.fuzz);
+    cuVector3Add(&reflected, &fuzzVec);
 
-    scattered->origin = rec.p;
+    scattered->origin = rec.point;
     scattered->direction = reflected;
 
     *attenuation = mat.albedo;
 
-    return vector3_dot(scattered->direction, rec.normal) > 0.0;
+    return cuVector3Dot(scattered->direction, rec.normal) > 0.0;
 }
 
 __device__ bool cuScatterDielectric(
     Ray rayIn,
-    HitRecord rec,
+    DeviceHitRecord rec,
     DeviceMaterial mat,
     RGBColorF *attenuation,
     Ray *scattered,
@@ -193,12 +556,12 @@ __device__ bool cuScatterDielectric(
     }
 
     vec3 unitDirection = rayIn.direction;
-    vector3_normalize(&unitDirection);
+    cuVector3Normalize(&unitDirection);
 
     vec3 negUnitDirection = unitDirection;
-    vector3_multiplyScalar(&negUnitDirection, -1.0);
+    cuVector3MultiplyScalar(&negUnitDirection, -1.0);
 
-    CFLOAT cosTheta = fmin(vector3_dot(negUnitDirection, rec.normal), 1.0);
+    CFLOAT cosTheta = fmin(cuVector3Dot(negUnitDirection, rec.normal), 1.0);
     CFLOAT sinTheta = sqrt(1.0 - cosTheta * cosTheta);
     bool cannotRefract = refractionRatio * sinTheta > 1.0;
 
@@ -211,22 +574,60 @@ __device__ bool cuScatterDielectric(
         direction = cuRefract(unitDirection, rec.normal, refractionRatio);
     }
 
-    scattered->origin = rec.p;
+    scattered->origin = rec.point;
     scattered->direction = direction;
 
     return true;
 }
 
+int cuAddSolidTexture(
+    DeviceTexture *h_textures,
+    int *numTextures,
+    int maxTextures,
+    RGBColorF color
+) {
+    if (*numTextures >= maxTextures) {
+        fprintf(stderr, "Texture array is full\n");
+        exit(1);
+    }
+
+    int texIndex = *numTextures;
+
+    h_textures[texIndex] = (DeviceTexture){
+        .type = TEX_SOLID,
+        .solidColor = color,
+        .checkerEven = {0},
+        .checkerOdd = {0},
+        .checkerScale = 0.0,
+        .imageIndex = -1
+    };
+
+    (*numTextures)++;
+
+    return texIndex;
+}
+
 __device__ bool cuScatter(
     Ray rayIn,
-    HitRecord rec,
+    DeviceHitRecord rec,
     DeviceMaterial mat,
+    const DeviceTexture *textures,
+    const DeviceImageTexture *imageTextures,
     RGBColorF *attenuation,
     Ray *scattered,
     unsigned int *rngState
 ) {
     if (mat.type == MAT_LAMBERTIAN) {
-        return cuScatterLambertian(rayIn, rec, mat, attenuation, scattered, rngState);
+        return cuScatterLambertian(
+            rayIn,
+            rec,
+            mat,
+            textures,
+            imageTextures,
+            attenuation,
+            scattered,
+            rngState
+        );
     }
 
     if (mat.type == MAT_METAL) {
@@ -240,10 +641,41 @@ __device__ bool cuScatter(
     return false;
 }
 
+int cuAddCheckerTexture(
+    DeviceTexture *h_textures,
+    int *numTextures,
+    int maxTextures,
+    RGBColorF even,
+    RGBColorF odd,
+    CFLOAT scale
+) {
+    if (*numTextures >= maxTextures) {
+        fprintf(stderr, "Texture array is full\n");
+        exit(1);
+    }
+
+    int texIndex = *numTextures;
+
+    h_textures[texIndex] = (DeviceTexture){
+        .type = TEX_CHECKER,
+        .solidColor = {0},
+        .checkerEven = even,
+        .checkerOdd = odd,
+        .checkerScale = scale,
+        .imageIndex = -1
+    };
+
+    (*numTextures)++;
+
+    return texIndex;
+}
+
 __device__ RGBColorF cuRayC(
     Ray r,
     const DeviceSphere *spheres,
     const DeviceMaterial *materials,
+    const DeviceTexture *textures,
+    const DeviceImageTexture *imageTextures,
     int numSpheres,
     int maxDepth,
     unsigned int *rngState
@@ -251,22 +683,30 @@ __device__ RGBColorF cuRayC(
     RGBColorF finalColor = {1.0, 1.0, 1.0};
 
     for (int depth = 0; depth < maxDepth; depth++) {
-        HitRecord rec;
+        DeviceHitRecord rec;
 
         if (cuHitWorld(spheres, materials, numSpheres, r, 0.0001, FLT_MAX, &rec)) {
             Ray scattered;
             RGBColorF attenuation;
 
-            if (cuScatter(r, rec, materials[rec.materialIndex],
-                          &attenuation, &scattered, rngState)) {
-                finalColor = colorf_multiply(finalColor, attenuation);
+            if (cuScatter(
+                    r,
+                    rec,
+                    materials[rec.materialIndex],
+                    textures,
+                    imageTextures,
+                    &attenuation,
+                    &scattered,
+                    rngState
+                )) { {
+                finalColor = cuColorfMultiply(finalColor, attenuation);
                 r = scattered;
             } else {
                 return (RGBColorF){0.0, 0.0, 0.0};
             }
         } else {
             vec3 unitDirection = r.direction;
-            vector3_normalize(&unitDirection);
+            cuVector3Normalize(&unitDirection);
 
             CFLOAT t = 0.5 * (unitDirection.y + 1.0);
 
@@ -276,20 +716,76 @@ __device__ RGBColorF cuRayC(
                 .b = (1.0 - t) * 1.0 + t * 1.0
             };
 
-            return colorf_multiply(finalColor, background);
+            return cuColorfMultiply(finalColor, background);
         }
     }
 
     return (RGBColorF){0.0, 0.0, 0.0};
 }
 
-void cuRandomSpheres2(DeviceSphere *h_spheres,
+void cuCreateImageTextureObject(
+    const uchar4 *hostPixels,
+    int width,
+    int height,
+    DeviceImageTexture *outImageTexture,
+    cudaArray_t *outArray
+) {
+    cudaArray_t cuArray;
+
+    cudaChannelFormatDesc channelDesc = cudaCreateChannelDesc<uchar4>();
+
+    cudaMallocArray(&cuArray, &channelDesc, width, height);
+
+    cudaMemcpy2DToArray(
+        cuArray,
+        0,
+        0,
+        hostPixels,
+        width * sizeof(uchar4),
+        width * sizeof(uchar4),
+        height,
+        cudaMemcpyHostToDevice
+    );
+
+    cudaResourceDesc resDesc = {};
+    resDesc.resType = cudaResourceTypeArray;
+    resDesc.res.array.array = cuArray;
+
+    cudaTextureDesc texDesc = {};
+    texDesc.addressMode[0] = cudaAddressModeClamp;
+    texDesc.addressMode[1] = cudaAddressModeClamp;
+    texDesc.filterMode = cudaFilterModeLinear;
+    texDesc.readMode = cudaReadModeNormalizedFloat;
+    texDesc.normalizedCoords = 1;
+
+    cudaTextureObject_t texObj = 0;
+
+    cudaCreateTextureObject(
+        &texObj,
+        &resDesc,
+        &texDesc,
+        NULL
+    );
+
+    outImageTexture->texObj = texObj;
+    outImageTexture->width = width;
+    outImageTexture->height = height;
+
+    *outArray = cuArray;
+}
+
+void cuRandomSpheres2(
+    DeviceSphere *h_spheres,
     DeviceMaterial *h_materials,
+    DeviceTexture *h_textures,
     int *numSpheres,
     int *numMaterials,
+    int *numTextures,
     int maxSpheres,
     int maxMaterials,
-    int *seed) {
+    int maxTextures,
+    int *seed
+    ) {
 
     RGBColorF albedo = {
     .r = lcg(seed) / 2 + 0.5,
@@ -300,14 +796,33 @@ void cuRandomSpheres2(DeviceSphere *h_spheres,
     CFLOAT fuzz = lcg(seed) / 2 + 0.5;
 
     DeviceMaterial mat;
+
     mat.type = MAT_METAL;
     mat.albedo = albedo;
+    mat.albedoTextureIndex = -1;
     mat.fuzz = fuzz;
     mat.ir = 1.0;
+
+    int texIndex = cuAddSolidTexture(
+    h_textures,
+    numTextures,
+    maxTextures,
+    (RGBColorF){.r = 0.4, .g = 0.4, .b = 0.4}
+    );
+
+    int groundTex = cuAddCheckerTexture(
+    h_textures,
+    numTextures,
+    maxTextures,
+    (RGBColorF){.r = 0.2, .g = 0.3, .b = 0.1},
+    (RGBColorF){.r = 0.9, .g = 0.9, .b = 0.9},
+    10.0
+);
 
     DeviceMaterial groundMat;
 
     groundMat.type = MAT_LAMBERTIAN;
+    groundMat.albedoTextureIndex = groundTex;
     groundMat.albedo = (RGBColorF){.r = 0.4, .g = 0.4, .b = 0.4};
     groundMat.fuzz = 0.0;
     groundMat.ir = 1.0;
@@ -337,10 +852,18 @@ void cuRandomSpheres2(DeviceSphere *h_spheres,
                     .b = lcg(seed) * lcg(seed),
                 };
 
+                int texIndex = cuAddSolidTexture(
+                    h_textures,
+                    numTextures,
+                    maxTextures,
+                    (RGBColorF){.r = 0.4, .g = 0.4, .b = 0.4}
+                );
+
                 DeviceMaterial mat;
 
                 mat.type = MAT_LAMBERTIAN;
                 mat.albedo = albedo;
+                mat.albedoTextureIndex = texIndex;
                 mat.fuzz = 0.0;
                 mat.ir = 1.0;
 
@@ -361,6 +884,7 @@ void cuRandomSpheres2(DeviceSphere *h_spheres,
 
                 mat.type = MAT_METAL;
                 mat.albedo = albedo;
+                mat.albedoTextureIndex = -1;
                 mat.fuzz = fuzz;
                 mat.ir = 1.0;
 
@@ -381,6 +905,7 @@ void cuRandomSpheres2(DeviceSphere *h_spheres,
 
                 mat.type = MAT_DIELECTRIC;
                 mat.albedo = (RGBColorF){.r = 1.0, .g = 1.0, .b = 1.0};
+                mat.albedoTextureIndex = -1;
                 mat.fuzz = 0.0;
                 mat.ir = 1.5;
 
@@ -401,6 +926,7 @@ void cuRandomSpheres2(DeviceSphere *h_spheres,
 
     mat.type = MAT_LAMBERTIAN;
     mat.albedo = (RGBColorF){.r = 0.4, .g = 0.2, .b = 0.1};
+    groundMat.albedoTextureIndex = texIndex;
     mat.fuzz = 0.0;
     mat.ir = 1.0;
 
@@ -418,6 +944,7 @@ void cuRandomSpheres2(DeviceSphere *h_spheres,
 
     mat.type = MAT_LAMBERTIAN;
     mat.albedo = (RGBColorF){.r = 0.2, .g = 0.4, .b = 0.8};
+    groundMat.albedoTextureIndex = texIndex;
     mat.fuzz = 0.0;
     mat.ir = 1.0;
 
@@ -435,6 +962,7 @@ void cuRandomSpheres2(DeviceSphere *h_spheres,
 
     mat.type = MAT_LAMBERTIAN;
     mat.albedo = (RGBColorF){.r = 0.8, .g = 0.4, .b = 0.2};
+    groundMat.albedoTextureIndex = texIndex;
     mat.fuzz = 0.0;
     mat.ir = 1.0;
 
@@ -452,6 +980,7 @@ void cuRandomSpheres2(DeviceSphere *h_spheres,
 
     mat.type = MAT_LAMBERTIAN;
     mat.albedo = (RGBColorF){.r = 0.4, .g = 0.8, .b = 0.3};
+    groundMat.albedoTextureIndex = texIndex;
     mat.fuzz = 0.0;
     mat.ir = 1.0;
 

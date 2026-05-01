@@ -18,12 +18,23 @@
 #include "util.h"
 
 CFLOAT lcg(int *n);
+RGBColorU8 writeColor(CFLOAT r, CFLOAT g, CFLOAT b, int sample_per_pixel);
 RGBColorF ray_c(Ray r, const ObjectLL *world, int depth);
 void randomSpheres(ObjectLL *world, DynamicStackAlloc *dsa);
 void randomSpheres2(ObjectLL *world, DynamicStackAlloc *dsa, int n,
                     Image imgs[n], int *seed);
 
 #define randomFloat() util_randomFloat(0.0, 1.0)
+
+RGBColorU8 writeColor(CFLOAT r, CFLOAT g, CFLOAT b, int sample_per_pixel) {
+    CFLOAT scale = 1.0 / sample_per_pixel;
+
+    r = sqrt(scale * r);
+    g = sqrt(scale * g);
+    b = sqrt(scale * b);
+
+    return COLOR_U8CREATE(r, g, b);
+}
 
 RGBColorF ray_c(Ray r, const ObjectLL *world, int depth) {
 

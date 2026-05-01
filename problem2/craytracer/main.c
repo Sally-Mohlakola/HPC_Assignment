@@ -22,15 +22,6 @@
 #include "types.h"
 #include "util.h"
 
-RGBColorU8 writeColor(CFLOAT r, CFLOAT g, CFLOAT b, int sample_per_pixel) {
-    CFLOAT scale = 1.0 / sample_per_pixel;
-
-    r = sqrt(scale * r);
-    g = sqrt(scale * g);
-    b = sqrt(scale * b);
-
-    return COLOR_U8CREATE(r, g, b);
-}
 void printProgressBar(int i, int max) {
     int p = (int)(100 * (CFLOAT)i / max);
 
@@ -69,33 +60,57 @@ CFLOAT lcg(int *n) {
 
 #include "cuda_helper.h"
 
-__global__ void cuRaytracerBase(int HEIGHT, int WIDTH) {
+__global__ void cuRaytracerBase(
+    RGBColorU8 *dImage,
+    Camera dCamera,
+    const DeviceSphere *dSpheres,
+    const DeviceMaterial *dMaterials,
+    int numSpheres,
+    int width,
+    int height,
+    int samplesPerPixel,
+    int maxDepth,
+    unsigned int seed
+) {
     int l = blockIdx.x * blockDim.x + threadIdx.x;
 
+    if (l >= width * height) {
+        return;
+    }
 
-    int j = (HEIGHT - 1) - l / WIDTH;
-    int i = l % WIDTH;
+    int j = (height - 1) - l / width;
+    int i = l % width;
+
+    unsigned int rngState = seed ^ l;
+
     CFLOAT pcR, pcG, pcB;
     pcR = pcG = pcB = 0.0;
 
-    for (int k = 0; k < SAMPLES_PER_PIXEL; k++) {
+    for (int k = 0; k < samplesPerPixel; k++) {
         CFLOAT u =
-            ((CFLOAT)i + util_randomFloat(0.0, 1.0)) / (WIDTH - 1);
+            ((CFLOAT)i + cuRand(&rngState)) / (width - 1);
         CFLOAT v =
-            ((CFLOAT)j + util_randomFloat(0.0, 1.0)) / (HEIGHT - 1);
-        r = cam_getRay(&dC, u, v);
+            ((CFLOAT)j + cuRand(&rngState)) / (height - 1);
+        Ray r = cuCamGetRay(&dCamera, u, v, &rngState);
 
-        temp = cuRayC(r, world, MAX_DEPTH);
+        RGBColorF temp = cuRayC(
+            r,
+            d_spheres,
+            d_materials,
+            d_textures,
+            d_imageTextures,
+            numSpheres,
+            maxDepth,
+            &rngState
+        );
 
         pcR += temp.r;
         pcG += temp.g;
         pcB += temp.b;
-
-        alloc_linearAllocFCFreeAll(lafc);
     }
 
-    dImage[i + WIDTH * (HEIGHT - 1 - j)] =
-        writeColor(pcR, pcG, pcB, SAMPLES_PER_PIXEL);
+    dImage[i + width * (height - 1 - j)] =
+        cuWriteColor(pcR, pcG, pcB, samplesPerPixel);
 
     localSteps += 1;
 
@@ -179,7 +194,7 @@ int main(int argc, char *argv[]) {
 
     world->hrAlloc = lafc;
 
- # OPENMP PARALLELIZATION   
+// OPENMP PARALLELIZATION   
 
 #pragma omp for
         for (int l = 0; l < WIDTH * HEIGHT; l++) {
@@ -230,13 +245,9 @@ int main(int argc, char *argv[]) {
 
     printf("Execution time: %lf\n", end - start);
 
-# CUDA PARALLELIZATION
-    cudaMalloc(&dImage, sizeof(RGBColorF) * HEIGHT * WIDTH);
-    cudaMemcpy(dImage, hImage, sizeof(RGBColorF) * HEIGHT * WIDTH, cudaMemcpyHostToDevice);
-
-    
-    cudaMalloc(&dC, sizeof(Camera));
-    cudaMemcpy(dC, &hC, sizeof(Camera), cudaMemcpyHostToDevice);
+// CUDA PARALLELIZATION
+    RGBColorU8 *dImage;
+    cudaMalloc(&dImage, sizeof(RGBColorU8) * HEIGHT * WIDTH);
 
     DeviceSphere *h_spheres =
         malloc(sizeof(DeviceSphere) * MAX_SPHERES);
@@ -270,8 +281,38 @@ int main(int argc, char *argv[]) {
             sizeof(DeviceMaterial) * numMaterials,
             cudaMemcpyHostToDevice);
 
+    int threadsPerBlock = 256;
+    int numPixels = WIDTH * HEIGHT;
+    int blocks = (numPixels + threadsPerBlock - 1) / threadsPerBlock;
+
+    cuRaytracerBase<<<blocks, threadsPerBlock>>>(
+        dImage,
+        hC,
+        d_spheres,
+        d_materials,
+        numSpheres,
+        WIDTH,
+        HEIGHT,
+        SAMPLES_PER_PIXEL,
+        MAX_DEPTH,
+        100u
+    );
+
+    cudaDeviceSynchronize();
+
+    cudaError_t err = cudaGetLastError();
+
+    if (err != cudaSuccess) {
+        printf("CUDA error: %s\n", cudaGetErrorString(err));
+    }
+
+    
+    cudaMemcpy(hImage, dImage,
+           sizeof(RGBColorU8) * WIDTH * HEIGHT,
+           cudaMemcpyDeviceToHost);
+
+    writeToPPM(argv[1], WIDTH, HEIGHT, image);
     writeToPPM(argv[1], WIDTH, HEIGHT, hImage);
-    writeToPPM(argv[1], WIDTH, HEIGHT, dImage);
 
     free(image);
     free(hImage);
