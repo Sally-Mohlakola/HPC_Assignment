@@ -107,7 +107,7 @@ static std::vector<std::vector<float>> get_images(const std::string &path) {
     }
     return images;
 }
-
+// ===================================================================
 
 static void mean_std_norm(std::vector<Image> &images) {
     const float MEAN = 0.1307f;
@@ -244,7 +244,7 @@ int main(int argc, char **argv) {
             MPI_Bcast(global_flat.data(), NUM_MODEL_VARIABLES, MPI_FLOAT, 0, MPI_COMM_WORLD);
             deserialise(model, global_flat);
 
-            //adaptive ephoch decrease
+            //adaptive epoch decrease
             int LOCAL_EPOCHS = (round < 5) ? 5 : 3;
 
             for (int epochs_per_round = 0; epochs_per_round < LOCAL_EPOCHS; epochs_per_round++) {
