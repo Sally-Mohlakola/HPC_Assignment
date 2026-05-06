@@ -30,8 +30,7 @@ void renderOpenMP(
     int MAX_DEPTH,
     Camera hC,
     Image img[4],
-    int seed,
-    unsigned int stepSize
+    int seed
 );
 
 #endif

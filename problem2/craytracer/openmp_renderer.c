@@ -323,8 +323,7 @@ void renderOpenMP(
     int MAX_DEPTH,
     Camera hC,
     Image img[4],
-    int seed,
-    unsigned int stepSize
+    int seed
 ) {
     DynamicStackAlloc *dsa = alloc_createDynamicStackAllocD(1024, 100);
     DynamicStackAlloc *dsa0 = alloc_createDynamicStackAllocD(1024, 10);
@@ -338,9 +337,6 @@ void renderOpenMP(
 
     world->hrAlloc = lafc;
 
-    uint32_t totalSteps = (WIDTH * HEIGHT) / stepSize + 1;
-    size_t stepsCompleted = 0;
-    size_t localSteps = 0;
     CFLOAT pcR, pcG, pcB;
     Ray r;
     RGBColorF temp;
@@ -369,20 +365,6 @@ void renderOpenMP(
 
         hImage[i + WIDTH * (HEIGHT - 1 - j)] =
             writeColor(pcR, pcG, pcB, SAMPLES_PER_PIXEL);
-
-        localSteps += 1;
-
-        if (localSteps % stepSize == stepSize - 1) {
-#pragma omp atomic
-            stepsCompleted += 1;
-
-            if (stepsCompleted % 100 == 1) {
-#pragma omp critical
-                printf("Progress %lu of %u (%0.2lf%%)\n", stepsCompleted,
-                       totalSteps,
-                       100.0 * (CFLOAT)stepsCompleted / totalSteps);
-            }
-        }
     }
 
     alloc_freeLinearAllocFC(lafc);

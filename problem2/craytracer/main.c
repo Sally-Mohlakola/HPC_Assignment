@@ -1,7 +1,10 @@
 #define HYPATIA_IMPLEMENTATION
 #include <omp.h>
+#include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 #include <tgmath.h>
 #include <time.h>
 
@@ -21,8 +24,7 @@ void renderCuda(
     int maxDepth,
     Camera camera,
     Image images[4],
-    unsigned int seed,
-    unsigned int progressStep
+    unsigned int seed
 );
 
 static vec3 makeVec3(CFLOAT x, CFLOAT y, CFLOAT z)
@@ -32,6 +34,22 @@ static vec3 makeVec3(CFLOAT x, CFLOAT y, CFLOAT z)
     v.y = y;
     v.z = z;
     return v;
+}
+
+static int ensureOutputDirectory(void)
+{
+    struct stat st;
+
+    if (mkdir("output", 0755) == 0) {
+        return 0;
+    }
+
+    if (errno == EEXIST && stat("output", &st) == 0 && S_ISDIR(st.st_mode)) {
+        return 0;
+    }
+
+    perror("Failed to create output directory");
+    return 1;
 }
 
 CFLOAT lcg(int *n)
@@ -56,12 +74,15 @@ int main(int argc, char *argv[])
 
     srand(time(NULL));
 
+    if (ensureOutputDirectory() != 0) {
+        return 1;
+    }
+
     const CFLOAT aspectRatio = 16.0 / 9.0;
     const int width = 640;
     const int height = 640;
     const int samplesPerPixel = 100;
     const int maxDepth = 50;
-    const unsigned int progressStep = 500;
     const int sceneSeed = 100;
 
     RGBColorU8 *openmpImage =
@@ -105,8 +126,7 @@ int main(int argc, char *argv[])
         maxDepth,
         camera,
         images,
-        sceneSeed,
-        progressStep
+        sceneSeed
     );
     CFLOAT openmpEnd = omp_get_wtime();
     printf("OpenMP execution time: %lf\n", openmpEnd - openmpStart);
@@ -120,14 +140,13 @@ int main(int argc, char *argv[])
         maxDepth,
         camera,
         images,
-        (unsigned int)sceneSeed,
-        progressStep
+        (unsigned int)sceneSeed
     );
     CFLOAT cudaEnd = omp_get_wtime();
     printf("CUDA execution time: %lf\n", cudaEnd - cudaStart);
 
-    writeToPPM("openmp.jpg", width, height, openmpImage);
-    writeToPPM("cuda.jpg", width, height, cudaImage);
+    writeToPPM("output/openmp.jpg", width, height, openmpImage);
+    writeToPPM("output/cuda.jpg", width, height, cudaImage);
 
     free(openmpImage);
     free(cudaImage);

@@ -24,9 +24,7 @@ __global__ void cuRaytracerBase(
     int height,
     int samplesPerPixel,
     int maxDepth,
-    unsigned int seed,
-    unsigned int *dPixelsCompleted,
-    unsigned int progressStep
+    unsigned int seed
 ) {
     int l = blockIdx.x * blockDim.x + threadIdx.x;
 
@@ -68,19 +66,6 @@ __global__ void cuRaytracerBase(
 
     dImage[i + width * (height - 1 - j)] =
         cuWriteColor(pcR, pcG, pcB, samplesPerPixel);
-
-    unsigned int completed = atomicAdd(dPixelsCompleted, 1) + 1;
-    unsigned int totalPixels = width * height;
-
-    if (progressStep > 0 &&
-        (completed % progressStep == 0 || completed == totalPixels)) {
-        printf(
-            "CUDA progress %u of %u (%0.2lf%%)\n",
-            completed,
-            totalPixels,
-            100.0 * (double)completed / (double)totalPixels
-        );
-    }
 }
 
 extern "C" void renderCuda(
@@ -91,8 +76,7 @@ extern "C" void renderCuda(
     int maxDepth,
     Camera camera,
     Image images[4],
-    unsigned int seed,
-    unsigned int progressStep
+    unsigned int seed
 ) {
     RGBColorU8 *dImage;
     cudaMalloc(&dImage, sizeof(RGBColorU8) * height * width);
@@ -161,10 +145,6 @@ extern "C" void renderCuda(
     int threadsPerBlock = 256;
     int numPixels = width * height;
     int blocks = (numPixels + threadsPerBlock - 1) / threadsPerBlock;
-    unsigned int *dPixelsCompleted;
-
-    cudaMalloc(&dPixelsCompleted, sizeof(unsigned int));
-    cudaMemset(dPixelsCompleted, 0, sizeof(unsigned int));
 
     cuRaytracerBase<<<blocks, threadsPerBlock>>>(
         dImage,
@@ -178,9 +158,7 @@ extern "C" void renderCuda(
         height,
         samplesPerPixel,
         maxDepth,
-        seed,
-        dPixelsCompleted,
-        progressStep
+        seed
     );
 
     cudaDeviceSynchronize();
@@ -210,5 +188,4 @@ extern "C" void renderCuda(
     cudaFree(d_materials);
     cudaFree(d_textures);
     cudaFree(d_imageTextures);
-    cudaFree(dPixelsCompleted);
 }
