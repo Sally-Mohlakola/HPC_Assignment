@@ -117,6 +117,9 @@ int main(int argc, char *argv[])
 
     printf("Scene initialized\n");
 
+    printf("OpenMP running\n");
+    fflush(stdout);
+
     CFLOAT openmpStart = omp_get_wtime();
     renderOpenMP(
         openmpImage,
@@ -131,7 +134,6 @@ int main(int argc, char *argv[])
     CFLOAT openmpEnd = omp_get_wtime();
     printf("OpenMP execution time: %lf\n", openmpEnd - openmpStart);
 
-    CFLOAT cudaStart = omp_get_wtime();
     renderCuda(
         cudaImage,
         width,
@@ -142,11 +144,6 @@ int main(int argc, char *argv[])
         images,
         (unsigned int)sceneSeed
     );
-    CFLOAT cudaEnd = omp_get_wtime();
-    printf("CUDA execution time: %lf\n", cudaEnd - cudaStart);
-
-    writeToPPM("output/openmp.jpg", width, height, openmpImage);
-    writeToPPM("output/cuda.jpg", width, height, cudaImage);
 
     free(openmpImage);
     free(cudaImage);

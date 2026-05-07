@@ -5,6 +5,7 @@
 #include <tgmath.h>
 
 #include "openmp_helper.h"
+#include "outfile.h"
 
 #define randomFloat() util_randomFloat(0.0, 1.0)
 
@@ -366,6 +367,8 @@ void renderOpenMP(
         hImage[i + WIDTH * (HEIGHT - 1 - j)] =
             writeColor(pcR, pcG, pcB, SAMPLES_PER_PIXEL);
     }
+
+    writeToPPM("output/openmp.jpg", WIDTH, HEIGHT, hImage);
 
     alloc_freeLinearAllocFC(lafc);
     alloc_freeDynamicStackAllocD(dsa);
