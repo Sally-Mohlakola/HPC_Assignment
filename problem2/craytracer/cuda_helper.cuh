@@ -55,10 +55,16 @@ typedef struct {
 } DeviceTexture;
 
 typedef struct {
-    cudaTextureObject_t texObj;
+    const uchar4 *pixels; 
     int width;
     int height;
 } DeviceImageTexture;
+
+typedef struct {
+    cudaTextureObject_t texObj;
+    int width;
+    int height;
+} DeviceImage2DTexture;
 
 typedef struct {
     int type;
@@ -222,6 +228,59 @@ __device__ vec3 cuRandomUnitDisk(unsigned int *rngState)
     }
 }
 
+__device__ RGBColorF cuSample2DTexture(
+    const DeviceTexture *textures,
+    const DeviceImage2DTexture *imageTextures,
+    int textureIndex,
+    CFLOAT u,
+    CFLOAT v,
+    vec3 point
+) {
+    if (textureIndex < 0) {
+        return (RGBColorF){1.0, 0.0, 1.0};
+    }
+
+    DeviceTexture tex = textures[textureIndex];
+
+    if (tex.type == TEX_SOLID) {
+        return tex.solidColor;
+    }
+
+    if (tex.type == TEX_CHECKER) {
+        CFLOAT s = tex.checkerScale;
+
+        CFLOAT value =
+            sin(s * point.x) *
+            sin(s * point.y) *
+            sin(s * point.z);
+
+        if (value < 0.0) {
+            return tex.checkerOdd;
+        }
+
+        return tex.checkerEven;
+    }
+
+    if (tex.type == TEX_IMAGE) {
+        DeviceImage2DTexture img = imageTextures[tex.imageIndex];
+
+        u = fmin(fmax(u, 0.0), 1.0);
+        v = fmin(fmax(v, 0.0), 1.0);
+
+        v = 1.0 - v;
+
+        float4 c = tex2D<float4>(img.texObj, (float)u, (float)v);
+
+        return (RGBColorF){
+            .r = c.x,
+            .g = c.y,
+            .b = c.z
+        };
+    }
+
+    return (RGBColorF){1.0, 0.0, 1.0};
+}
+
 __device__ RGBColorF cuSampleTexture(
     const DeviceTexture *textures,
     const DeviceImageTexture *imageTextures,
@@ -259,17 +318,13 @@ __device__ RGBColorF cuSampleTexture(
         DeviceImageTexture img = imageTextures[tex.imageIndex];
 
         u = fmin(fmax(u, 0.0), 1.0);
-        v = fmin(fmax(v, 0.0), 1.0);
+        v = 1.0 - fmin(fmax(v, 0.0), 1.0);
 
-        v = 1.0 - v;
+        int x = min((int)(u * img.width),  img.width  - 1);
+        int y = min((int)(v * img.height), img.height - 1);
+        uchar4 c = img.pixels[y * img.width + x];
 
-        float4 c = tex2D<float4>(img.texObj, (float)u, (float)v);
-
-        return (RGBColorF){
-            .r = c.x,
-            .g = c.y,
-            .b = c.z
-        };
+        return (RGBColorF){ c.x / 255.0f, c.y / 255.0f, c.z / 255.0f };
     }
 
     return (RGBColorF){1.0, 0.0, 1.0};
@@ -530,6 +585,39 @@ __device__ bool cuScatterLambertian(
     return true;
 }
 
+__device__ bool cuScatterLambertian2D(
+    Ray rayIn,
+    DeviceHitRecord rec,
+    DeviceMaterial mat,
+    const DeviceTexture *textures,
+    const DeviceImage2DTexture *imageTextures,
+    RGBColorF *attenuation,
+    Ray *scattered,
+    unsigned int *rngState
+) {
+    vec3 scatterDirection = rec.normal;
+    vec3 randomVec = cuRandomUnitVector(rngState);
+    cuVector3Add(&scatterDirection, &randomVec);
+
+    if (cuNearZero(scatterDirection)) {
+        scatterDirection = rec.normal;
+    }
+
+    scattered->origin = rec.point;
+    scattered->direction = scatterDirection;
+
+    *attenuation = cuSample2DTexture(
+        textures,
+        imageTextures,
+        mat.albedoTextureIndex,
+        rec.u,
+        rec.v,
+        rec.point
+    );
+
+    return true;
+}
+
 __device__ bool cuScatterMetal(
     Ray rayIn,
     DeviceHitRecord rec,
@@ -637,6 +725,40 @@ __device__ bool cuScatter(
 ) {
     if (mat.type == MAT_LAMBERTIAN) {
         return cuScatterLambertian(
+            rayIn,
+            rec,
+            mat,
+            textures,
+            imageTextures,
+            attenuation,
+            scattered,
+            rngState
+        );
+    }
+
+    if (mat.type == MAT_METAL) {
+        return cuScatterMetal(rayIn, rec, mat, attenuation, scattered, rngState);
+    }
+
+    if (mat.type == MAT_DIELECTRIC) {
+        return cuScatterDielectric(rayIn, rec, mat, attenuation, scattered, rngState);
+    }
+
+    return false;
+}
+
+__device__ bool cuScatter2D(
+    Ray rayIn,
+    DeviceHitRecord rec,
+    DeviceMaterial mat,
+    const DeviceTexture *textures,
+    const DeviceImage2DTexture *imageTextures,
+    RGBColorF *attenuation,
+    Ray *scattered,
+    unsigned int *rngState
+) {
+    if (mat.type == MAT_LAMBERTIAN) {
+        return cuScatterLambertian2D(
             rayIn,
             rec,
             mat,
@@ -768,9 +890,116 @@ __device__ RGBColorF cuRayC(
     return (RGBColorF){0.0, 0.0, 0.0};
 }
 
+__device__ RGBColorF cuRayC2D(
+    Ray r,
+    const DeviceSphere *spheres,
+    const DeviceMaterial *materials,
+    const DeviceTexture *textures,
+    const DeviceImage2DTexture *imageTextures,
+    int numSpheres,
+    int maxDepth,
+    unsigned int *rngState
+) {
+    RGBColorF finalColor = {1.0, 1.0, 1.0};
+
+    for (int depth = 0; depth < maxDepth; depth++) {
+        DeviceHitRecord rec;
+
+        if (cuHitWorld(spheres, materials, numSpheres, r, 0.0001, FLT_MAX, &rec)) {
+            Ray scattered;
+            RGBColorF attenuation;
+
+            if (cuScatter2D(
+                    r,
+                    rec,
+                    materials[rec.materialIndex],
+                    textures,
+                    imageTextures,
+                    &attenuation,
+                    &scattered,
+                    rngState
+                )) {
+                finalColor = cuColorfMultiply(finalColor, attenuation);
+                r = scattered;
+            } else {
+                return (RGBColorF){0.0, 0.0, 0.0};
+            }
+        } else {
+            vec3 unitDirection = r.direction;
+            cuVector3Normalize(&unitDirection);
+
+            CFLOAT t = 0.5 * (unitDirection.y + 1.0);
+
+            RGBColorF background = {
+                .r = (1.0 - t) * 1.0 + t * 0.5,
+                .g = (1.0 - t) * 1.0 + t * 0.7,
+                .b = (1.0 - t) * 1.0 + t * 1.0
+            };
+
+            return cuColorfMultiply(finalColor, background);
+        }
+    }
+
+    return (RGBColorF){0.0, 0.0, 0.0};
+}
+
 void cuCreateImageTextureObject(
     const Image *image,
-    DeviceImageTexture *outImageTexture,
+    DeviceImageTexture *outImageTexture
+) {
+    int width = image->width;
+    int height = image->height;
+
+    if (image->data == NULL || width <= 0 || height <= 0) {
+        fprintf(stderr, "Cannot create CUDA texture from empty image\n");
+        exit(1);
+    }
+
+    uchar4 *hostPixels = (uchar4 *)malloc(sizeof(uchar4) * width * height);
+
+    if (hostPixels == NULL) {
+        fprintf(stderr, "Failed to allocate staging pixels\n");
+        exit(1);
+    }
+
+    for (int j = 0; j < height; j++) {
+        for (int i = 0; i < width; i++) {
+            uint8_t *pixel =
+                image->data +
+                j * image->bytesPerScanLine +
+                i * image->compsPerPixel;
+
+
+            hostPixels[j * width + i] = make_uchar4(
+                pixel[0],
+                pixel[1],
+                pixel[2],
+                image->compsPerPixel > 3 ? pixel[3] : 255
+            );
+        }
+    }
+
+    uchar4 *devPixels = NULL;
+    cudaMalloc(&devPixels, sizeof(uchar4) * width * height);
+    cudaMemcpy(
+        devPixels,
+        hostPixels,
+        sizeof(uchar4) * width * height,
+        cudaMemcpyHostToDevice
+    );
+
+    outImageTexture->pixels = devPixels;
+    outImageTexture->width = width;
+    outImageTexture->height = height;
+
+    free(hostPixels);
+}
+
+
+
+void cuCreate2DImageTextureObject(
+    const Image *image,
+    DeviceImage2DTexture *outImageTexture,
     cudaArray_t *outArray
 ) {
     cudaArray_t cuArray;
