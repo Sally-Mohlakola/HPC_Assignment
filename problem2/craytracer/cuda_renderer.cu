@@ -15,6 +15,11 @@ extern "C" {
 
 __constant__ DeviceSphere dcSpheres[MAX_SPHERES];
 
+static float cudaMillisecondsToSeconds(float milliseconds)
+{
+    return milliseconds / 1000.0f;
+}
+
 // =====================================================================
 // GLOBAL
 // =====================================================================
@@ -209,9 +214,10 @@ __global__ void cuRaytracerShared(
 __global__ void cuRaytracer1DTexture(
     RGBColorU8 *dImage,
     Camera dCamera,
+    const DeviceSphere *dSpheres,
     const DeviceMaterial *dMaterials,
     const DeviceTexture *dTextures,
-    const DeviceImageTexture *dImageTextures,
+    const DeviceImage1DTexture *dImageTextures,
     int numSpheres,
     int width,
     int height,
@@ -219,14 +225,6 @@ __global__ void cuRaytracer1DTexture(
     int maxDepth,
     unsigned int seed
 ) {
-    __shared__ DeviceSphere dsSpheres[MAX_SPHERES];
-
-    for (int s = threadIdx.x; s < numSpheres; s += blockDim.x) {
-        dsSpheres[s] = dcSpheres[s];
-    }
-
-    __syncthreads();
-
     int l = blockIdx.x * blockDim.x + threadIdx.x;
 
     if (l >= width * height) {
@@ -249,9 +247,9 @@ __global__ void cuRaytracer1DTexture(
             ((CFLOAT)j + cuRand(&rngState)) / (height - 1);
         Ray r = cuCamGetRay(&dCamera, u, v, &rngState);
 
-        RGBColorF temp = cuRayC(
+        RGBColorF temp = cuRayC1D(
             r,
-            dsSpheres,
+            dSpheres,
             dMaterials,
             dTextures,
             dImageTextures,
@@ -388,9 +386,63 @@ __global__ void cuRaytracer2DTextureConstant(
 // =====================================================================
 
 // =====================================================================
-// 2D TEXTURE + CONSTANT + EMISSION
+// 2D TEXTURE + FRESNEL (REALISTIC)
 // =====================================================================
+__global__ void cuRaytracerRealistic(
+    RGBColorU8 *dImage,
+    Camera dCamera,
+    const DeviceSphere *dSpheres,
+    const DeviceMaterial *dMaterials,
+    const DeviceTexture *dTextures,
+    const DeviceImage2DTexture *dImageTextures,
+    int numSpheres,
+    int width,
+    int height,
+    int samplesPerPixel,
+    int maxDepth,
+    unsigned int seed
+) {
+    int l = blockIdx.x * blockDim.x + threadIdx.x;
 
+    if (l >= width * height) {
+        return;
+    }
+
+    int j = (height - 1) - l / width;
+    int i = l % width;
+
+    unsigned int rngState = seed ^ l;
+
+    CFLOAT pcR = 0.0;
+    CFLOAT pcG = 0.0;
+    CFLOAT pcB = 0.0;
+
+    for (int k = 0; k < samplesPerPixel; k++) {
+        CFLOAT u =
+            ((CFLOAT)i + cuRand(&rngState)) / (width - 1);
+        CFLOAT v =
+            ((CFLOAT)j + cuRand(&rngState)) / (height - 1);
+        Ray r = cuCamGetRay(&dCamera, u, v, &rngState);
+
+        RGBColorF temp = cuRayC2DRealistic(
+            r,
+            dSpheres,
+            dMaterials,
+            dTextures,
+            dImageTextures,
+            numSpheres,
+            maxDepth,
+            &rngState
+        );
+
+        pcR += temp.r;
+        pcG += temp.g;
+        pcB += temp.b;
+    }
+
+    dImage[i + width * (height - 1 - j)] =
+        cuWriteColor(pcR, pcG, pcB, samplesPerPixel);
+}
 // =====================================================================
 
 extern "C" void renderCuda(
@@ -410,7 +462,7 @@ extern "C" void renderCuda(
 
     cudaEvent_t cudaStart;
     cudaEvent_t cudaStop;
-    float cudaElapsedMs = 0.0f;
+    float cudaElapsedMilliseconds = 0.0f;
 
     cudaEventCreate(&cudaStart);
     cudaEventCreate(&cudaStop);
@@ -424,6 +476,9 @@ extern "C" void renderCuda(
     DeviceImageTexture *h_imageTextures =
         (DeviceImageTexture *)malloc(sizeof(DeviceImageTexture) * MAX_IMAGE_TEXTURES);
 
+    DeviceImage1DTexture *h_image1DTextures =
+        (DeviceImage1DTexture *)malloc(sizeof(DeviceImage1DTexture) * MAX_IMAGE_TEXTURES);
+
     DeviceImage2DTexture *h_image2DTextures =
     (DeviceImage2DTexture *)malloc(sizeof(DeviceImage2DTexture) * MAX_IMAGE_TEXTURES);
 
@@ -435,6 +490,9 @@ extern "C" void renderCuda(
     int imageTextureIndices[4];
     cudaArray_t h_imageArrays[MAX_IMAGE_TEXTURES] = {0};
 
+    DeviceImage1DTexture *d_image1DTextures;
+    cudaMalloc(&d_image1DTextures, sizeof(DeviceImage1DTexture) * numImageTextures);
+
     DeviceImage2DTexture *d_image2DTextures;
     cudaMalloc(&d_image2DTextures, sizeof(DeviceImage2DTexture) * numImageTextures);
 
@@ -442,6 +500,11 @@ extern "C" void renderCuda(
 
     for (int t = 0; t < numImageTextures; t++) {
         cuCreateImageTextureObject(&images[t], &h_imageTextures[t]);
+
+        cuCreate1DImageTextureObject(
+            &images[t],
+            &h_image1DTextures[t]
+        );
 
         cuCreate2DImageTextureObject(
             &images[t],
@@ -457,6 +520,10 @@ extern "C" void renderCuda(
         );
     }
 
+    cudaMemcpy(d_image1DTextures, h_image1DTextures,
+           sizeof(DeviceImage1DTexture) * numImageTextures,
+           cudaMemcpyHostToDevice);
+
     cudaMemcpy(d_image2DTextures, h_image2DTextures,
            sizeof(DeviceImage2DTexture) * numImageTextures,
            cudaMemcpyHostToDevice);
@@ -464,8 +531,9 @@ extern "C" void renderCuda(
 
     cudaEventRecord(cudaStop);
     cudaEventSynchronize(cudaStop);
-    cudaEventElapsedTime(&cudaElapsedMs, cudaStart, cudaStop);
-    printf("CUDA texture memory loading time: %f ms\n", cudaElapsedMs);
+    cudaEventElapsedTime(&cudaElapsedMilliseconds, cudaStart, cudaStop);
+    printf("CUDA texture memory loading time: %f seconds\n",
+           cudaMillisecondsToSeconds(cudaElapsedMilliseconds));
 
     int sceneSeed = (int)seed;
 
@@ -506,8 +574,9 @@ extern "C" void renderCuda(
 
     cudaEventRecord(cudaStop);
     cudaEventSynchronize(cudaStop);
-    cudaEventElapsedTime(&cudaElapsedMs, cudaStart, cudaStop);
-    printf("CUDA global memory loading time: %f ms\n", cudaElapsedMs);
+    cudaEventElapsedTime(&cudaElapsedMilliseconds, cudaStart, cudaStop);
+    printf("CUDA global memory loading time: %f seconds\n",
+           cudaMillisecondsToSeconds(cudaElapsedMilliseconds));
 
     cudaEventRecord(cudaStart);
 
@@ -515,8 +584,9 @@ extern "C" void renderCuda(
 
     cudaEventRecord(cudaStop);
     cudaEventSynchronize(cudaStop);
-    cudaEventElapsedTime(&cudaElapsedMs, cudaStart, cudaStop);
-    printf("CUDA constant memory loading time: %f ms\n", cudaElapsedMs);
+    cudaEventElapsedTime(&cudaElapsedMilliseconds, cudaStart, cudaStop);
+    printf("CUDA constant memory loading time: %f seconds\n",
+           cudaMillisecondsToSeconds(cudaElapsedMilliseconds));
     
     int threadsPerBlock = 256;
     int numPixels = width * height;
@@ -549,8 +619,9 @@ extern "C" void renderCuda(
 
     cudaEventRecord(cudaStop);
     cudaEventSynchronize(cudaStop);
-    cudaEventElapsedTime(&cudaElapsedMs, cudaStart, cudaStop);
-    printf("CUDA global memory execution time: %f ms\n", cudaElapsedMs);
+    cudaEventElapsedTime(&cudaElapsedMilliseconds, cudaStart, cudaStop);
+    printf("CUDA global memory execution time: %f seconds\n",
+           cudaMillisecondsToSeconds(cudaElapsedMilliseconds));
 
     cudaError_t err = cudaGetLastError();
 
@@ -590,8 +661,9 @@ printf("CUDA constant memory running\n");
 
     cudaEventRecord(cudaStop);
     cudaEventSynchronize(cudaStop);
-    cudaEventElapsedTime(&cudaElapsedMs, cudaStart, cudaStop);
-    printf("CUDA constant memory execution time: %f ms\n", cudaElapsedMs);
+    cudaEventElapsedTime(&cudaElapsedMilliseconds, cudaStart, cudaStop);
+    printf("CUDA constant memory execution time: %f seconds\n",
+           cudaMillisecondsToSeconds(cudaElapsedMilliseconds));
 
     err = cudaGetLastError();
 
@@ -631,8 +703,9 @@ printf("CUDA constant memory running\n");
 
     cudaEventRecord(cudaStop);
     cudaEventSynchronize(cudaStop);
-    cudaEventElapsedTime(&cudaElapsedMs, cudaStart, cudaStop);
-    printf("CUDA shared memory execution time: %f ms\n", cudaElapsedMs);
+    cudaEventElapsedTime(&cudaElapsedMilliseconds, cudaStart, cudaStop);
+    printf("CUDA shared memory execution time: %f seconds\n",
+           cudaMillisecondsToSeconds(cudaElapsedMilliseconds));
 
     err = cudaGetLastError();
 
@@ -650,6 +723,43 @@ printf("CUDA constant memory running\n");
 // =====================================================================
 // 1D TEXTURE MEMORY KERNEL LAUNCH
 // =====================================================================
+    printf("CUDA 1D Texture fetch memory running\n");
+    fflush(stdout);
+
+    cudaEventRecord(cudaStart);
+
+    cuRaytracer1DTexture<<<blocks, threadsPerBlock>>>(
+        dImage,
+        camera,
+        d_spheres,
+        d_materials,
+        d_textures,
+        d_image1DTextures,
+        numSpheres,
+        width,
+        height,
+        samplesPerPixel,
+        maxDepth,
+        seed
+    );
+
+    cudaEventRecord(cudaStop);
+    cudaEventSynchronize(cudaStop);
+    cudaEventElapsedTime(&cudaElapsedMilliseconds, cudaStart, cudaStop);
+    printf("CUDA 1D texture fetch memory execution time: %f seconds\n",
+           cudaMillisecondsToSeconds(cudaElapsedMilliseconds));
+
+    err = cudaGetLastError();
+
+    if (err != cudaSuccess) {
+        printf("CUDA error: %s\n", cudaGetErrorString(err));
+    }
+
+    cudaMemcpy(image, dImage,
+               sizeof(RGBColorU8) * width * height,
+               cudaMemcpyDeviceToHost);
+
+    writeToPPM("output/cuda_1d_texture.jpg", width, height, image);
 
 // =====================================================================
 
@@ -678,8 +788,9 @@ printf("CUDA constant memory running\n");
 
     cudaEventRecord(cudaStop);
     cudaEventSynchronize(cudaStop);
-    cudaEventElapsedTime(&cudaElapsedMs, cudaStart, cudaStop);
-    printf("CUDA 2D texture memory execution time: %f ms\n", cudaElapsedMs);
+    cudaEventElapsedTime(&cudaElapsedMilliseconds, cudaStart, cudaStop);
+    printf("CUDA 2D texture memory execution time: %f seconds\n",
+           cudaMillisecondsToSeconds(cudaElapsedMilliseconds));
 
     err = cudaGetLastError();
 
@@ -717,8 +828,9 @@ printf("CUDA 2D Texture memory + Constant memory running\n");
 
     cudaEventRecord(cudaStop);
     cudaEventSynchronize(cudaStop);
-    cudaEventElapsedTime(&cudaElapsedMs, cudaStart, cudaStop);
-    printf("CUDA 2D texture memory + constant memory execution time: %f ms\n", cudaElapsedMs);
+    cudaEventElapsedTime(&cudaElapsedMilliseconds, cudaStart, cudaStop);
+    printf("CUDA 2D texture memory + constant memory execution time: %f seconds\n",
+           cudaMillisecondsToSeconds(cudaElapsedMilliseconds));
 
     err = cudaGetLastError();
 
@@ -735,13 +847,58 @@ printf("CUDA 2D Texture memory + Constant memory running\n");
 // ===================================================================== 
 
 // =====================================================================
-// 2D TEXTURE MEMORY + CONSTANT MEMORY + EMISSION EFFECT KERNEL LAUNCH
-// =====================================================================    
+// REALISTIC (2D TEXTURE + FRESNEL METAL + APERTURE) KERNEL LAUNCH
+// =====================================================================
+    printf("CUDA realistic (Fresnel + Aperture) running\n");
+    fflush(stdout);
 
-// ===================================================================== 
+    Camera realisticCamera = camera;
+    realisticCamera.lensRadius = 0.03f / 2.0f;
+
+    cudaEventRecord(cudaStart);
+
+    cuRaytracerRealistic<<<blocks, threadsPerBlock>>>(
+        dImage,
+        realisticCamera,
+        d_spheres,
+        d_materials,
+        d_textures,
+        d_image2DTextures,
+        numSpheres,
+        width,
+        height,
+        samplesPerPixel,
+        maxDepth,
+        seed
+    );
+
+    cudaEventRecord(cudaStop);
+    cudaEventSynchronize(cudaStop);
+    cudaEventElapsedTime(&cudaElapsedMilliseconds, cudaStart, cudaStop);
+    printf("CUDA realistic execution time: %f seconds\n",
+           cudaMillisecondsToSeconds(cudaElapsedMilliseconds));
+
+    err = cudaGetLastError();
+
+    if (err != cudaSuccess) {
+        printf("CUDA error: %s\n", cudaGetErrorString(err));
+    }
+
+    cudaMemcpy(image, dImage,
+               sizeof(RGBColorU8) * width * height,
+               cudaMemcpyDeviceToHost);
+
+    writeToPPM("output/cuda_realistic.jpg", width, height, image);
+
+// =====================================================================
 
     for (int t = 0; t < numImageTextures; t++) {
         cudaFree((void *)h_imageTextures[t].pixels);
+    }
+
+    for (int t = 0; t < numImageTextures; t++) {
+        cudaDestroyTextureObject(h_image1DTextures[t].texObj);
+        cudaFree((void *)h_image1DTextures[t].pixels);
     }
 
     for (int t = 0; t < numImageTextures; t++) {
@@ -753,12 +910,14 @@ printf("CUDA 2D Texture memory + Constant memory running\n");
     free(h_materials);
     free(h_textures);
     free(h_imageTextures);
+    free(h_image1DTextures);
 
     cudaFree(dImage);
     cudaFree(d_spheres);
     cudaFree(d_materials);
     cudaFree(d_textures);
     cudaFree(d_imageTextures);
+    cudaFree(d_image1DTextures);
 
     cudaEventDestroy(cudaStart);
     cudaEventDestroy(cudaStop);
