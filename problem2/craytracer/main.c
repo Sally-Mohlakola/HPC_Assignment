@@ -24,7 +24,8 @@ void renderCuda(
     int maxDepth,
     Camera camera,
     Image images[4],
-    unsigned int seed
+    unsigned int seed,
+    double openmpMs
 );
 
 static vec3 makeVec3(CFLOAT x, CFLOAT y, CFLOAT z)
@@ -116,11 +117,9 @@ int main(int argc, char *argv[])
     tex_loadImage(&images[3], "./test_textures/kitchen_probe.jpg");
 
     printf("Scene initialized\n");
-
-    printf("OpenMP running\n");
     fflush(stdout);
 
-    CFLOAT openmpStart = omp_get_wtime();
+    double openmpStart = omp_get_wtime();
     renderOpenMP(
         openmpImage,
         width,
@@ -131,8 +130,13 @@ int main(int argc, char *argv[])
         images,
         sceneSeed
     );
-    CFLOAT openmpEnd = omp_get_wtime();
-    printf("OpenMP execution time: %lf\n", openmpEnd - openmpStart);
+    double openmpEnd = omp_get_wtime();
+    double openmpMs = (openmpEnd - openmpStart) * 1000.0;
+
+    printf("\n============= OPENMP =============\n");
+    printf("Time:                         %8.3f ms\n", openmpMs);
+    printf("Wrote 'output/openmp.jpg'\n");
+    fflush(stdout);
 
     renderCuda(
         cudaImage,
@@ -142,7 +146,8 @@ int main(int argc, char *argv[])
         maxDepth,
         camera,
         images,
-        (unsigned int)sceneSeed
+        (unsigned int)sceneSeed,
+        openmpMs
     );
 
     free(openmpImage);

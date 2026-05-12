@@ -107,6 +107,10 @@ CFLOAT lcg(int *n);
 }
 #endif
 
+// =====================================================================
+// COMMON
+// =====================================================================
+
 static __host__ __device__ vec3 cuVec3(CFLOAT x, CFLOAT y, CFLOAT z)
 {
     vec3 v;
@@ -217,44 +221,6 @@ __device__ float cuLinearToSrgb(float c)
     return 1.055f * powf(c, 1.0f / 2.4f) - 0.055f;
 }
 
-__device__ RGBColorU8 cuWriteColor(CFLOAT r, CFLOAT g, CFLOAT b, int samplesPerPixel)
-{
-    CFLOAT scale = 1.0 / samplesPerPixel;
-
-    r = sqrt(scale * r);
-    g = sqrt(scale * g);
-    b = sqrt(scale * b);
-
-    return (RGBColorU8){
-        .r = (uint8_t)(fmin(r * 256.0, 255.0)),
-        .g = (uint8_t)(fmin(g * 256.0, 255.0)),
-        .b = (uint8_t)(fmin(b * 256.0, 255.0))
-    };
-}
-
-__device__ RGBColorU8 cuWriteColorRealistic(CFLOAT r, CFLOAT g, CFLOAT b, int samplesPerPixel)
-{
-    CFLOAT scale = 1.0 / samplesPerPixel;
-
-    float lr = (float)(scale * r);
-    float lg = (float)(scale * g);
-    float lb = (float)(scale * b);
-
-    lr = lr / (1.0f + lr);
-    lg = lg / (1.0f + lg);
-    lb = lb / (1.0f + lb);
-
-    lr = cuLinearToSrgb(lr);
-    lg = cuLinearToSrgb(lg);
-    lb = cuLinearToSrgb(lb);
-
-    return (RGBColorU8){
-        .r = (uint8_t)(fmin(lr * 256.0f, 255.0f)),
-        .g = (uint8_t)(fmin(lg * 256.0f, 255.0f)),
-        .b = (uint8_t)(fmin(lb * 256.0f, 255.0f))
-    };
-}
-
 __device__ CFLOAT cuRand(unsigned int *state)
 {
     *state = (*state * 1664525u) + 1013904223u;
@@ -274,182 +240,6 @@ __device__ vec3 cuRandomUnitDisk(unsigned int *rngState)
             return p;
         }
     }
-}
-
-__device__ RGBColorF cuSample2DTexture(
-    const DeviceTexture *textures,
-    const DeviceImage2DTexture *imageTextures,
-    int textureIndex,
-    CFLOAT u,
-    CFLOAT v,
-    vec3 point
-) {
-    if (textureIndex < 0) {
-        return (RGBColorF){1.0, 0.0, 1.0};
-    }
-
-    DeviceTexture tex = textures[textureIndex];
-
-    if (tex.type == TEX_SOLID) {
-        return tex.solidColor;
-    }
-
-    if (tex.type == TEX_CHECKER) {
-        CFLOAT s = tex.checkerScale;
-
-        CFLOAT value =
-            sin(s * point.x) *
-            sin(s * point.y) *
-            sin(s * point.z);
-
-        if (value < 0.0) {
-            return tex.checkerOdd;
-        }
-
-        return tex.checkerEven;
-    }
-
-    if (tex.type == TEX_IMAGE) {
-        DeviceImage2DTexture img = imageTextures[tex.imageIndex];
-
-        u = fmin(fmax(u, 0.0), 1.0);
-        v = fmin(fmax(v, 0.0), 1.0);
-
-        v = 1.0 - v;
-
-        float4 c = tex2D<float4>(img.texObj, (float)u, (float)v);
-
-        return (RGBColorF){
-            .r = c.x,
-            .g = c.y,
-            .b = c.z
-        };
-    }
-
-    return (RGBColorF){1.0, 0.0, 1.0};
-}
-
-__device__ RGBColorF cuSample2DTextureLinear(
-    const DeviceTexture *textures,
-    const DeviceImage2DTexture *imageTextures,
-    int textureIndex,
-    CFLOAT u,
-    CFLOAT v,
-    vec3 point
-) {
-    RGBColorF c = cuSample2DTexture(textures, imageTextures, textureIndex, u, v, point);
-
-    if (textureIndex >= 0 && textures[textureIndex].type == TEX_IMAGE) {
-        c.r = cuSrgbToLinear(c.r);
-        c.g = cuSrgbToLinear(c.g);
-        c.b = cuSrgbToLinear(c.b);
-    }
-
-    return c;
-}
-
-__device__ RGBColorF cuSample1DTexture(
-    const DeviceTexture *textures,
-    const DeviceImage1DTexture *imageTextures,
-    int textureIndex,
-    CFLOAT u,
-    CFLOAT v,
-    vec3 point
-) {
-    if (textureIndex < 0) {
-        return (RGBColorF){1.0, 0.0, 1.0};
-    }
-
-    DeviceTexture tex = textures[textureIndex];
-
-    if (tex.type == TEX_SOLID) {
-        return tex.solidColor;
-    }
-
-    if (tex.type == TEX_CHECKER) {
-        CFLOAT s = tex.checkerScale;
-
-        CFLOAT value =
-            sin(s * point.x) *
-            sin(s * point.y) *
-            sin(s * point.z);
-
-        if (value < 0.0) {
-            return tex.checkerOdd;
-        }
-
-        return tex.checkerEven;
-    }
-
-    if (tex.type == TEX_IMAGE) {
-        DeviceImage1DTexture img = imageTextures[tex.imageIndex];
-
-        u = fmin(fmax(u, 0.0), 1.0);
-        v = 1.0 - fmin(fmax(v, 0.0), 1.0);
-
-        int x = min((int)(u * img.width), img.width - 1);
-        int y = min((int)(v * img.height), img.height - 1);
-        int idx = y * img.width + x;
-
-        uchar4 c = tex1Dfetch<uchar4>(img.texObj, idx);
-
-        return (RGBColorF){
-            .r = c.x / 255.0f,
-            .g = c.y / 255.0f,
-            .b = c.z / 255.0f
-        };
-    }
-
-    return (RGBColorF){1.0, 0.0, 1.0};
-}
-
-__device__ RGBColorF cuSampleTexture(
-    const DeviceTexture *textures,
-    const DeviceImageTexture *imageTextures,
-    int textureIndex,
-    CFLOAT u,
-    CFLOAT v,
-    vec3 point
-) {
-    if (textureIndex < 0) {
-        return (RGBColorF){1.0, 0.0, 1.0};
-    }
-
-    DeviceTexture tex = textures[textureIndex];
-
-    if (tex.type == TEX_SOLID) {
-        return tex.solidColor;
-    }
-
-    if (tex.type == TEX_CHECKER) {
-        CFLOAT s = tex.checkerScale;
-
-        CFLOAT value =
-            sin(s * point.x) *
-            sin(s * point.y) *
-            sin(s * point.z);
-
-        if (value < 0.0) {
-            return tex.checkerOdd;
-        }
-
-        return tex.checkerEven;
-    }
-
-    if (tex.type == TEX_IMAGE) {
-        DeviceImageTexture img = imageTextures[tex.imageIndex];
-
-        u = fmin(fmax(u, 0.0), 1.0);
-        v = 1.0 - fmin(fmax(v, 0.0), 1.0);
-
-        int x = min((int)(u * img.width),  img.width  - 1);
-        int y = min((int)(v * img.height), img.height - 1);
-        uchar4 c = img.pixels[y * img.width + x];
-
-        return (RGBColorF){ c.x / 255.0f, c.y / 255.0f, c.z / 255.0f };
-    }
-
-    return (RGBColorF){1.0, 0.0, 1.0};
 }
 
 __device__ Ray cuCamGetRay(const Camera *cam, CFLOAT u, CFLOAT v, unsigned int *rngState)
@@ -607,49 +397,12 @@ __device__ bool cuHitWorld(
     return hitAnything;
 }
 
-void cuAddSphere(
-    DeviceSphere *h_spheres,
-    DeviceMaterial *h_materials,
-    int *numSpheres,
-    int *numMaterials,
-    int maxSpheres,
-    int maxMaterials,
-    vec3 center,
-    CFLOAT radius,
-    DeviceMaterial material
-) {
-    if (*numSpheres >= maxSpheres || *numMaterials >= maxMaterials) {
-        fprintf(stderr, "Scene arrays are full\n");
-        exit(1);
-    }
-
-    int matIndex = *numMaterials;
-
-    h_materials[matIndex] = material;
-    (*numMaterials)++;
-
-    h_spheres[*numSpheres].center = center;
-    h_spheres[*numSpheres].radius = radius;
-    h_spheres[*numSpheres].materialIndex = matIndex;
-    (*numSpheres)++;
-}
-
 __device__ vec3 cuReflect(vec3 v, vec3 n) {
     vec3 result = n;
     CFLOAT scale = 2.0 * cuVector3Dot(v, n);
     cuVector3MultiplyScalar(&result, scale);
     cuVector3Subtract(&v, &result);
     return v;
-}
-
-
-__device__ RGBColorF cuFresnelSchlick(RGBColorF F0, CFLOAT cosTheta) {
-    CFLOAT f = pow(1.0 - cosTheta, 5.0);
-    return (RGBColorF){
-        .r = F0.r + (1.0f - F0.r) * f,
-        .g = F0.g + (1.0f - F0.g) * f,
-        .b = F0.b + (1.0f - F0.b) * f
-    };
 }
 
 __device__ CFLOAT cuReflectance(CFLOAT cosine, CFLOAT refIdx) {
@@ -682,6 +435,74 @@ __device__ vec3 cuRefract(vec3 uv, vec3 n, CFLOAT etaiOverEtat) {
     cuVector3Add(&rOutPerp, &rOutParallel);
 
     return rOutPerp;
+}
+
+// =====================================================================
+// GLOBAL / CONSTANT / SHARED
+// =====================================================================
+
+__device__ RGBColorU8 cuWriteColor(CFLOAT r, CFLOAT g, CFLOAT b, int samplesPerPixel)
+{
+    CFLOAT scale = 1.0 / samplesPerPixel;
+
+    r = sqrt(scale * r);
+    g = sqrt(scale * g);
+    b = sqrt(scale * b);
+
+    return (RGBColorU8){
+        .r = (uint8_t)(fmin(r * 256.0, 255.0)),
+        .g = (uint8_t)(fmin(g * 256.0, 255.0)),
+        .b = (uint8_t)(fmin(b * 256.0, 255.0))
+    };
+}
+
+__device__ RGBColorF cuSampleTexture(
+    const DeviceTexture *textures,
+    const DeviceImageTexture *imageTextures,
+    int textureIndex,
+    CFLOAT u,
+    CFLOAT v,
+    vec3 point
+) {
+    if (textureIndex < 0) {
+        return (RGBColorF){1.0, 0.0, 1.0};
+    }
+
+    DeviceTexture tex = textures[textureIndex];
+
+    if (tex.type == TEX_SOLID) {
+        return tex.solidColor;
+    }
+
+    if (tex.type == TEX_CHECKER) {
+        CFLOAT s = tex.checkerScale;
+
+        CFLOAT value =
+            sin(s * point.x) *
+            sin(s * point.y) *
+            sin(s * point.z);
+
+        if (value < 0.0) {
+            return tex.checkerOdd;
+        }
+
+        return tex.checkerEven;
+    }
+
+    if (tex.type == TEX_IMAGE) {
+        DeviceImageTexture img = imageTextures[tex.imageIndex];
+
+        u = fmin(fmax(u, 0.0), 1.0);
+        v = 1.0 - fmin(fmax(v, 0.0), 1.0);
+
+        int x = min((int)(u * img.width),  img.width  - 1);
+        int y = min((int)(v * img.height), img.height - 1);
+        uchar4 c = img.pixels[y * img.width + x];
+
+        return (RGBColorF){ c.x / 255.0f, c.y / 255.0f, c.z / 255.0f };
+    }
+
+    return (RGBColorF){1.0, 0.0, 1.0};
 }
 
 __device__ bool cuScatterLambertian(
@@ -717,105 +538,6 @@ __device__ bool cuScatterLambertian(
     return true;
 }
 
-__device__ bool cuScatterLambertian2D(
-    Ray rayIn,
-    DeviceHitRecord rec,
-    DeviceMaterial mat,
-    const DeviceTexture *textures,
-    const DeviceImage2DTexture *imageTextures,
-    RGBColorF *attenuation,
-    Ray *scattered,
-    unsigned int *rngState
-) {
-    vec3 scatterDirection = rec.normal;
-    vec3 randomVec = cuRandomUnitVector(rngState);
-    cuVector3Add(&scatterDirection, &randomVec);
-
-    if (cuNearZero(scatterDirection)) {
-        scatterDirection = rec.normal;
-    }
-
-    scattered->origin = rec.point;
-    scattered->direction = scatterDirection;
-
-    *attenuation = cuSample2DTexture(
-        textures,
-        imageTextures,
-        mat.albedoTextureIndex,
-        rec.u,
-        rec.v,
-        rec.point
-    );
-
-    return true;
-}
-
-__device__ bool cuScatterLambertian2DLinear(
-    Ray rayIn,
-    DeviceHitRecord rec,
-    DeviceMaterial mat,
-    const DeviceTexture *textures,
-    const DeviceImage2DTexture *imageTextures,
-    RGBColorF *attenuation,
-    Ray *scattered,
-    unsigned int *rngState
-) {
-    vec3 scatterDirection = rec.normal;
-    vec3 randomVec = cuRandomUnitVector(rngState);
-    cuVector3Add(&scatterDirection, &randomVec);
-
-    if (cuNearZero(scatterDirection)) {
-        scatterDirection = rec.normal;
-    }
-
-    scattered->origin = rec.point;
-    scattered->direction = scatterDirection;
-
-    *attenuation = cuSample2DTextureLinear(
-        textures,
-        imageTextures,
-        mat.albedoTextureIndex,
-        rec.u,
-        rec.v,
-        rec.point
-    );
-
-    return true;
-}
-
-__device__ bool cuScatterLambertian1D(
-    Ray rayIn,
-    DeviceHitRecord rec,
-    DeviceMaterial mat,
-    const DeviceTexture *textures,
-    const DeviceImage1DTexture *imageTextures,
-    RGBColorF *attenuation,
-    Ray *scattered,
-    unsigned int *rngState
-) {
-    vec3 scatterDirection = rec.normal;
-    vec3 randomVec = cuRandomUnitVector(rngState);
-    cuVector3Add(&scatterDirection, &randomVec);
-
-    if (cuNearZero(scatterDirection)) {
-        scatterDirection = rec.normal;
-    }
-
-    scattered->origin = rec.point;
-    scattered->direction = scatterDirection;
-
-    *attenuation = cuSample1DTexture(
-        textures,
-        imageTextures,
-        mat.albedoTextureIndex,
-        rec.u,
-        rec.v,
-        rec.point
-    );
-
-    return true;
-}
-
 __device__ bool cuScatterMetal(
     Ray rayIn,
     DeviceHitRecord rec,
@@ -837,33 +559,6 @@ __device__ bool cuScatterMetal(
     scattered->direction = reflected;
 
     *attenuation = mat.albedo;
-
-    return cuVector3Dot(scattered->direction, rec.normal) > 0.0;
-}
-
-__device__ bool cuScatterMetalFresnel(
-    Ray rayIn,
-    DeviceHitRecord rec,
-    DeviceMaterial mat,
-    RGBColorF *attenuation,
-    Ray *scattered,
-    unsigned int *rngState
-) {
-    vec3 unitDirection = rayIn.direction;
-    cuVector3Normalize(&unitDirection);
-
-    CFLOAT cosTheta = fmin(-cuVector3Dot(unitDirection, rec.normal), 1.0);
-
-    vec3 reflected = cuReflect(unitDirection, rec.normal);
-
-    vec3 fuzzVec = cuRandomUnitVector(rngState);
-    cuVector3MultiplyScalar(&fuzzVec, mat.fuzz);
-    cuVector3Add(&reflected, &fuzzVec);
-
-    scattered->origin = rec.point;
-    scattered->direction = reflected;
-
-    *attenuation = cuFresnelSchlick(mat.albedo, cosTheta);
 
     return cuVector3Dot(scattered->direction, rec.normal) > 0.0;
 }
@@ -911,33 +606,6 @@ __device__ bool cuScatterDielectric(
     return true;
 }
 
-int cuAddSolidTexture(
-    DeviceTexture *h_textures,
-    int *numTextures,
-    int maxTextures,
-    RGBColorF color
-) {
-    if (*numTextures >= maxTextures) {
-        fprintf(stderr, "Texture array is full\n");
-        exit(1);
-    }
-
-    int texIndex = *numTextures;
-
-    h_textures[texIndex] = (DeviceTexture){
-        .type = TEX_SOLID,
-        .solidColor = color,
-        .checkerEven = {0},
-        .checkerOdd = {0},
-        .checkerScale = 0.0,
-        .imageIndex = -1
-    };
-
-    (*numTextures)++;
-
-    return texIndex;
-}
-
 __device__ bool cuScatter(
     Ray rayIn,
     DeviceHitRecord rec,
@@ -970,6 +638,328 @@ __device__ bool cuScatter(
     }
 
     return false;
+}
+
+__device__ RGBColorF cuRayC(
+    Ray r,
+    const DeviceSphere *spheres,
+    const DeviceMaterial *materials,
+    const DeviceTexture *textures,
+    const DeviceImageTexture *imageTextures,
+    int numSpheres,
+    int maxDepth,
+    unsigned int *rngState
+) {
+    RGBColorF finalColor = {1.0, 1.0, 1.0};
+
+    for (int depth = 0; depth < maxDepth; depth++) {
+        DeviceHitRecord rec;
+
+        if (cuHitWorld(spheres, materials, numSpheres, r, 0.0001, FLT_MAX, &rec)) {
+            Ray scattered;
+            RGBColorF attenuation;
+
+            if (cuScatter(
+                    r,
+                    rec,
+                    materials[rec.materialIndex],
+                    textures,
+                    imageTextures,
+                    &attenuation,
+                    &scattered,
+                    rngState
+                )) {
+                finalColor = cuColorfMultiply(finalColor, attenuation);
+                r = scattered;
+            } else {
+                return (RGBColorF){0.0, 0.0, 0.0};
+            }
+        } else {
+            vec3 unitDirection = r.direction;
+            cuVector3Normalize(&unitDirection);
+
+            CFLOAT t = 0.5 * (unitDirection.y + 1.0);
+
+            RGBColorF background = {
+                .r = (1.0 - t) * 1.0 + t * 0.5,
+                .g = (1.0 - t) * 1.0 + t * 0.7,
+                .b = (1.0 - t) * 1.0 + t * 1.0
+            };
+
+            return cuColorfMultiply(finalColor, background);
+        }
+    }
+
+    return (RGBColorF){0.0, 0.0, 0.0};
+}
+
+// =====================================================================
+// 1D TEXTURE
+// =====================================================================
+
+__device__ RGBColorF cuSample1DTexture(
+    const DeviceTexture *textures,
+    const DeviceImage1DTexture *imageTextures,
+    int textureIndex,
+    CFLOAT u,
+    CFLOAT v,
+    vec3 point
+) {
+    if (textureIndex < 0) {
+        return (RGBColorF){1.0, 0.0, 1.0};
+    }
+
+    DeviceTexture tex = textures[textureIndex];
+
+    if (tex.type == TEX_SOLID) {
+        return tex.solidColor;
+    }
+
+    if (tex.type == TEX_CHECKER) {
+        CFLOAT s = tex.checkerScale;
+
+        CFLOAT value =
+            sin(s * point.x) *
+            sin(s * point.y) *
+            sin(s * point.z);
+
+        if (value < 0.0) {
+            return tex.checkerOdd;
+        }
+
+        return tex.checkerEven;
+    }
+
+    if (tex.type == TEX_IMAGE) {
+        DeviceImage1DTexture img = imageTextures[tex.imageIndex];
+
+        u = fmin(fmax(u, 0.0), 1.0);
+        v = 1.0 - fmin(fmax(v, 0.0), 1.0);
+
+        int x = min((int)(u * img.width), img.width - 1);
+        int y = min((int)(v * img.height), img.height - 1);
+        int idx = y * img.width + x;
+
+        uchar4 c = tex1Dfetch<uchar4>(img.texObj, idx);
+
+        return (RGBColorF){
+            .r = c.x / 255.0f,
+            .g = c.y / 255.0f,
+            .b = c.z / 255.0f
+        };
+    }
+
+    return (RGBColorF){1.0, 0.0, 1.0};
+}
+
+__device__ bool cuScatterLambertian1D(
+    Ray rayIn,
+    DeviceHitRecord rec,
+    DeviceMaterial mat,
+    const DeviceTexture *textures,
+    const DeviceImage1DTexture *imageTextures,
+    RGBColorF *attenuation,
+    Ray *scattered,
+    unsigned int *rngState
+) {
+    vec3 scatterDirection = rec.normal;
+    vec3 randomVec = cuRandomUnitVector(rngState);
+    cuVector3Add(&scatterDirection, &randomVec);
+
+    if (cuNearZero(scatterDirection)) {
+        scatterDirection = rec.normal;
+    }
+
+    scattered->origin = rec.point;
+    scattered->direction = scatterDirection;
+
+    *attenuation = cuSample1DTexture(
+        textures,
+        imageTextures,
+        mat.albedoTextureIndex,
+        rec.u,
+        rec.v,
+        rec.point
+    );
+
+    return true;
+}
+
+__device__ bool cuScatter1D(
+    Ray rayIn,
+    DeviceHitRecord rec,
+    DeviceMaterial mat,
+    const DeviceTexture *textures,
+    const DeviceImage1DTexture *imageTextures,
+    RGBColorF *attenuation,
+    Ray *scattered,
+    unsigned int *rngState
+) {
+    if (mat.type == MAT_LAMBERTIAN) {
+        return cuScatterLambertian1D(
+            rayIn,
+            rec,
+            mat,
+            textures,
+            imageTextures,
+            attenuation,
+            scattered,
+            rngState
+        );
+    }
+
+    if (mat.type == MAT_METAL) {
+        return cuScatterMetal(rayIn, rec, mat, attenuation, scattered, rngState);
+    }
+
+    if (mat.type == MAT_DIELECTRIC) {
+        return cuScatterDielectric(rayIn, rec, mat, attenuation, scattered, rngState);
+    }
+
+    return false;
+}
+
+__device__ RGBColorF cuRayC1D(
+    Ray r,
+    const DeviceSphere *spheres,
+    const DeviceMaterial *materials,
+    const DeviceTexture *textures,
+    const DeviceImage1DTexture *imageTextures,
+    int numSpheres,
+    int maxDepth,
+    unsigned int *rngState
+) {
+    RGBColorF finalColor = {1.0, 1.0, 1.0};
+
+    for (int depth = 0; depth < maxDepth; depth++) {
+        DeviceHitRecord rec;
+
+        if (cuHitWorld(spheres, materials, numSpheres, r, 0.0001, FLT_MAX, &rec)) {
+            Ray scattered;
+            RGBColorF attenuation;
+
+            if (cuScatter1D(
+                    r,
+                    rec,
+                    materials[rec.materialIndex],
+                    textures,
+                    imageTextures,
+                    &attenuation,
+                    &scattered,
+                    rngState
+                )) {
+                finalColor = cuColorfMultiply(finalColor, attenuation);
+                r = scattered;
+            } else {
+                return (RGBColorF){0.0, 0.0, 0.0};
+            }
+        } else {
+            vec3 unitDirection = r.direction;
+            cuVector3Normalize(&unitDirection);
+
+            CFLOAT t = 0.5 * (unitDirection.y + 1.0);
+
+            RGBColorF background = {
+                .r = (1.0 - t) * 1.0 + t * 0.5,
+                .g = (1.0 - t) * 1.0 + t * 0.7,
+                .b = (1.0 - t) * 1.0 + t * 1.0
+            };
+
+            return cuColorfMultiply(finalColor, background);
+        }
+    }
+
+    return (RGBColorF){0.0, 0.0, 0.0};
+}
+
+// =====================================================================
+// 2D TEXTURE
+// =====================================================================
+
+__device__ RGBColorF cuSample2DTexture(
+    const DeviceTexture *textures,
+    const DeviceImage2DTexture *imageTextures,
+    int textureIndex,
+    CFLOAT u,
+    CFLOAT v,
+    vec3 point
+) {
+    if (textureIndex < 0) {
+        return (RGBColorF){1.0, 0.0, 1.0};
+    }
+
+    DeviceTexture tex = textures[textureIndex];
+
+    if (tex.type == TEX_SOLID) {
+        return tex.solidColor;
+    }
+
+    if (tex.type == TEX_CHECKER) {
+        CFLOAT s = tex.checkerScale;
+
+        CFLOAT value =
+            sin(s * point.x) *
+            sin(s * point.y) *
+            sin(s * point.z);
+
+        if (value < 0.0) {
+            return tex.checkerOdd;
+        }
+
+        return tex.checkerEven;
+    }
+
+    if (tex.type == TEX_IMAGE) {
+        DeviceImage2DTexture img = imageTextures[tex.imageIndex];
+
+        u = fmin(fmax(u, 0.0), 1.0);
+        v = fmin(fmax(v, 0.0), 1.0);
+
+        v = 1.0 - v;
+
+        float4 c = tex2D<float4>(img.texObj, (float)u, (float)v);
+
+        return (RGBColorF){
+            .r = c.x,
+            .g = c.y,
+            .b = c.z
+        };
+    }
+
+    return (RGBColorF){1.0, 0.0, 1.0};
+}
+
+__device__ bool cuScatterLambertian2D(
+    Ray rayIn,
+    DeviceHitRecord rec,
+    DeviceMaterial mat,
+    const DeviceTexture *textures,
+    const DeviceImage2DTexture *imageTextures,
+    RGBColorF *attenuation,
+    Ray *scattered,
+    unsigned int *rngState
+) {
+    vec3 scatterDirection = rec.normal;
+    vec3 randomVec = cuRandomUnitVector(rngState);
+    cuVector3Add(&scatterDirection, &randomVec);
+
+    if (cuNearZero(scatterDirection)) {
+        scatterDirection = rec.normal;
+    }
+
+    scattered->origin = rec.point;
+    scattered->direction = scatterDirection;
+
+    *attenuation = cuSample2DTexture(
+        textures,
+        imageTextures,
+        mat.albedoTextureIndex,
+        rec.u,
+        rec.v,
+        rec.point
+    );
+
+    return true;
 }
 
 __device__ bool cuScatter2D(
@@ -1006,6 +996,176 @@ __device__ bool cuScatter2D(
     return false;
 }
 
+__device__ RGBColorF cuRayC2D(
+    Ray r,
+    const DeviceSphere *spheres,
+    const DeviceMaterial *materials,
+    const DeviceTexture *textures,
+    const DeviceImage2DTexture *imageTextures,
+    int numSpheres,
+    int maxDepth,
+    unsigned int *rngState
+) {
+    RGBColorF finalColor = {1.0, 1.0, 1.0};
+
+    for (int depth = 0; depth < maxDepth; depth++) {
+        DeviceHitRecord rec;
+
+        if (cuHitWorld(spheres, materials, numSpheres, r, 0.0001, FLT_MAX, &rec)) {
+            Ray scattered;
+            RGBColorF attenuation;
+
+            if (cuScatter2D(
+                    r,
+                    rec,
+                    materials[rec.materialIndex],
+                    textures,
+                    imageTextures,
+                    &attenuation,
+                    &scattered,
+                    rngState
+                )) {
+                finalColor = cuColorfMultiply(finalColor, attenuation);
+                r = scattered;
+            } else {
+                return (RGBColorF){0.0, 0.0, 0.0};
+            }
+        } else {
+            vec3 unitDirection = r.direction;
+            cuVector3Normalize(&unitDirection);
+
+            CFLOAT t = 0.5 * (unitDirection.y + 1.0);
+
+            RGBColorF background = {
+                .r = (1.0 - t) * 1.0 + t * 0.5,
+                .g = (1.0 - t) * 1.0 + t * 0.7,
+                .b = (1.0 - t) * 1.0 + t * 1.0
+            };
+
+            return cuColorfMultiply(finalColor, background);
+        }
+    }
+
+    return (RGBColorF){0.0, 0.0, 0.0};
+}
+
+// =====================================================================
+
+// =====================================================================
+// 2D TEXTURE + FRESNEL (REALISTIC)
+// =====================================================================
+
+__device__ RGBColorU8 cuWriteColorRealistic(CFLOAT r, CFLOAT g, CFLOAT b, int samplesPerPixel)
+{
+    CFLOAT scale = 1.0 / samplesPerPixel;
+
+    float lr = (float)(scale * r);
+    float lg = (float)(scale * g);
+    float lb = (float)(scale * b);
+
+    lr = lr / (1.0f + lr);
+    lg = lg / (1.0f + lg);
+    lb = lb / (1.0f + lb);
+
+    lr = cuLinearToSrgb(lr);
+    lg = cuLinearToSrgb(lg);
+    lb = cuLinearToSrgb(lb);
+
+    return (RGBColorU8){
+        .r = (uint8_t)(fmin(lr * 256.0f, 255.0f)),
+        .g = (uint8_t)(fmin(lg * 256.0f, 255.0f)),
+        .b = (uint8_t)(fmin(lb * 256.0f, 255.0f))
+    };
+}
+
+__device__ RGBColorF cuSample2DTextureLinear(
+    const DeviceTexture *textures,
+    const DeviceImage2DTexture *imageTextures,
+    int textureIndex,
+    CFLOAT u,
+    CFLOAT v,
+    vec3 point
+) {
+    RGBColorF c = cuSample2DTexture(textures, imageTextures, textureIndex, u, v, point);
+
+    if (textureIndex >= 0 && textures[textureIndex].type == TEX_IMAGE) {
+        c.r = cuSrgbToLinear(c.r);
+        c.g = cuSrgbToLinear(c.g);
+        c.b = cuSrgbToLinear(c.b);
+    }
+
+    return c;
+}
+
+__device__ RGBColorF cuFresnelSchlick(RGBColorF F0, CFLOAT cosTheta) {
+    CFLOAT f = pow(1.0 - cosTheta, 5.0);
+    return (RGBColorF){
+        .r = F0.r + (1.0f - F0.r) * f,
+        .g = F0.g + (1.0f - F0.g) * f,
+        .b = F0.b + (1.0f - F0.b) * f
+    };
+}
+
+__device__ bool cuScatterLambertian2DLinear(
+    Ray rayIn,
+    DeviceHitRecord rec,
+    DeviceMaterial mat,
+    const DeviceTexture *textures,
+    const DeviceImage2DTexture *imageTextures,
+    RGBColorF *attenuation,
+    Ray *scattered,
+    unsigned int *rngState
+) {
+    vec3 scatterDirection = rec.normal;
+    vec3 randomVec = cuRandomUnitVector(rngState);
+    cuVector3Add(&scatterDirection, &randomVec);
+
+    if (cuNearZero(scatterDirection)) {
+        scatterDirection = rec.normal;
+    }
+
+    scattered->origin = rec.point;
+    scattered->direction = scatterDirection;
+
+    *attenuation = cuSample2DTextureLinear(
+        textures,
+        imageTextures,
+        mat.albedoTextureIndex,
+        rec.u,
+        rec.v,
+        rec.point
+    );
+
+    return true;
+}
+
+__device__ bool cuScatterMetalFresnel(
+    Ray rayIn,
+    DeviceHitRecord rec,
+    DeviceMaterial mat,
+    RGBColorF *attenuation,
+    Ray *scattered,
+    unsigned int *rngState
+) {
+    vec3 unitDirection = rayIn.direction;
+    cuVector3Normalize(&unitDirection);
+
+    CFLOAT cosTheta = fmin(-cuVector3Dot(unitDirection, rec.normal), 1.0);
+
+    vec3 reflected = cuReflect(unitDirection, rec.normal);
+
+    vec3 fuzzVec = cuRandomUnitVector(rngState);
+    cuVector3MultiplyScalar(&fuzzVec, mat.fuzz);
+    cuVector3Add(&reflected, &fuzzVec);
+
+    scattered->origin = rec.point;
+    scattered->direction = reflected;
+
+    *attenuation = cuFresnelSchlick(mat.albedo, cosTheta);
+
+    return cuVector3Dot(scattered->direction, rec.normal) > 0.0;
+}
+
 __device__ bool cuScatter2DRealistic(
     Ray rayIn,
     DeviceHitRecord rec,
@@ -1040,38 +1200,115 @@ __device__ bool cuScatter2DRealistic(
     return false;
 }
 
-__device__ bool cuScatter1D(
-    Ray rayIn,
-    DeviceHitRecord rec,
-    DeviceMaterial mat,
+__device__ RGBColorF cuRayC2DRealistic(
+    Ray r,
+    const DeviceSphere *spheres,
+    const DeviceMaterial *materials,
     const DeviceTexture *textures,
-    const DeviceImage1DTexture *imageTextures,
-    RGBColorF *attenuation,
-    Ray *scattered,
+    const DeviceImage2DTexture *imageTextures,
+    int numSpheres,
+    int maxDepth,
     unsigned int *rngState
 ) {
-    if (mat.type == MAT_LAMBERTIAN) {
-        return cuScatterLambertian1D(
-            rayIn,
-            rec,
-            mat,
-            textures,
-            imageTextures,
-            attenuation,
-            scattered,
-            rngState
-        );
+    RGBColorF finalColor = {1.0, 1.0, 1.0};
+
+    for (int depth = 0; depth < maxDepth; depth++) {
+        DeviceHitRecord rec;
+
+        if (cuHitWorld(spheres, materials, numSpheres, r, 0.0001, FLT_MAX, &rec)) {
+            Ray scattered;
+            RGBColorF attenuation;
+
+            if (cuScatter2DRealistic(
+                    r,
+                    rec,
+                    materials[rec.materialIndex],
+                    textures,
+                    imageTextures,
+                    &attenuation,
+                    &scattered,
+                    rngState
+                )) {
+                finalColor = cuColorfMultiply(finalColor, attenuation);
+                r = scattered;
+            } else {
+                return (RGBColorF){0.0, 0.0, 0.0};
+            }
+        } else {
+            vec3 unitDirection = r.direction;
+            cuVector3Normalize(&unitDirection);
+
+            CFLOAT t = 0.5 * (unitDirection.y + 1.0);
+
+            RGBColorF background = {
+                .r = (1.0 - t) * 1.0 + t * 0.5,
+                .g = (1.0 - t) * 1.0 + t * 0.7,
+                .b = (1.0 - t) * 1.0 + t * 1.0
+            };
+
+            return cuColorfMultiply(finalColor, background);
+        }
     }
 
-    if (mat.type == MAT_METAL) {
-        return cuScatterMetal(rayIn, rec, mat, attenuation, scattered, rngState);
+    return (RGBColorF){0.0, 0.0, 0.0};
+}
+
+// =====================================================================
+// HOST SCENE AND TEXTURE SETUP
+// =====================================================================
+
+void cuAddSphere(
+    DeviceSphere *h_spheres,
+    DeviceMaterial *h_materials,
+    int *numSpheres,
+    int *numMaterials,
+    int maxSpheres,
+    int maxMaterials,
+    vec3 center,
+    CFLOAT radius,
+    DeviceMaterial material
+) {
+    if (*numSpheres >= maxSpheres || *numMaterials >= maxMaterials) {
+        fprintf(stderr, "Scene arrays are full\n");
+        exit(1);
     }
 
-    if (mat.type == MAT_DIELECTRIC) {
-        return cuScatterDielectric(rayIn, rec, mat, attenuation, scattered, rngState);
+    int matIndex = *numMaterials;
+
+    h_materials[matIndex] = material;
+    (*numMaterials)++;
+
+    h_spheres[*numSpheres].center = center;
+    h_spheres[*numSpheres].radius = radius;
+    h_spheres[*numSpheres].materialIndex = matIndex;
+    (*numSpheres)++;
+}
+
+int cuAddSolidTexture(
+    DeviceTexture *h_textures,
+    int *numTextures,
+    int maxTextures,
+    RGBColorF color
+) {
+    if (*numTextures >= maxTextures) {
+        fprintf(stderr, "Texture array is full\n");
+        exit(1);
     }
 
-    return false;
+    int texIndex = *numTextures;
+
+    h_textures[texIndex] = (DeviceTexture){
+        .type = TEX_SOLID,
+        .solidColor = color,
+        .checkerEven = {0},
+        .checkerOdd = {0},
+        .checkerScale = 0.0,
+        .imageIndex = -1
+    };
+
+    (*numTextures)++;
+
+    return texIndex;
 }
 
 int cuAddCheckerTexture(
@@ -1128,218 +1365,6 @@ int cuAddImageTexture(
     (*numTextures)++;
 
     return texIndex;
-}
-
-__device__ RGBColorF cuRayC(
-    Ray r,
-    const DeviceSphere *spheres,
-    const DeviceMaterial *materials,
-    const DeviceTexture *textures,
-    const DeviceImageTexture *imageTextures,
-    int numSpheres,
-    int maxDepth,
-    unsigned int *rngState
-) {
-    RGBColorF finalColor = {1.0, 1.0, 1.0};
-
-    for (int depth = 0; depth < maxDepth; depth++) {
-        DeviceHitRecord rec;
-
-        if (cuHitWorld(spheres, materials, numSpheres, r, 0.0001, FLT_MAX, &rec)) {
-            Ray scattered;
-            RGBColorF attenuation;
-
-            if (cuScatter(
-                    r,
-                    rec,
-                    materials[rec.materialIndex],
-                    textures,
-                    imageTextures,
-                    &attenuation,
-                    &scattered,
-                    rngState
-                )) {
-                finalColor = cuColorfMultiply(finalColor, attenuation);
-                r = scattered;
-            } else {
-                return (RGBColorF){0.0, 0.0, 0.0};
-            }
-        } else {
-            vec3 unitDirection = r.direction;
-            cuVector3Normalize(&unitDirection);
-
-            CFLOAT t = 0.5 * (unitDirection.y + 1.0);
-
-            RGBColorF background = {
-                .r = (1.0 - t) * 1.0 + t * 0.5,
-                .g = (1.0 - t) * 1.0 + t * 0.7,
-                .b = (1.0 - t) * 1.0 + t * 1.0
-            };
-
-            return cuColorfMultiply(finalColor, background);
-        }
-    }
-
-    return (RGBColorF){0.0, 0.0, 0.0};
-}
-
-__device__ RGBColorF cuRayC2D(
-    Ray r,
-    const DeviceSphere *spheres,
-    const DeviceMaterial *materials,
-    const DeviceTexture *textures,
-    const DeviceImage2DTexture *imageTextures,
-    int numSpheres,
-    int maxDepth,
-    unsigned int *rngState
-) {
-    RGBColorF finalColor = {1.0, 1.0, 1.0};
-
-    for (int depth = 0; depth < maxDepth; depth++) {
-        DeviceHitRecord rec;
-
-        if (cuHitWorld(spheres, materials, numSpheres, r, 0.0001, FLT_MAX, &rec)) {
-            Ray scattered;
-            RGBColorF attenuation;
-
-            if (cuScatter2D(
-                    r,
-                    rec,
-                    materials[rec.materialIndex],
-                    textures,
-                    imageTextures,
-                    &attenuation,
-                    &scattered,
-                    rngState
-                )) {
-                finalColor = cuColorfMultiply(finalColor, attenuation);
-                r = scattered;
-            } else {
-                return (RGBColorF){0.0, 0.0, 0.0};
-            }
-        } else {
-            vec3 unitDirection = r.direction;
-            cuVector3Normalize(&unitDirection);
-
-            CFLOAT t = 0.5 * (unitDirection.y + 1.0);
-
-            RGBColorF background = {
-                .r = (1.0 - t) * 1.0 + t * 0.5,
-                .g = (1.0 - t) * 1.0 + t * 0.7,
-                .b = (1.0 - t) * 1.0 + t * 1.0
-            };
-
-            return cuColorfMultiply(finalColor, background);
-        }
-    }
-
-    return (RGBColorF){0.0, 0.0, 0.0};
-}
-
-__device__ RGBColorF cuRayC2DRealistic(
-    Ray r,
-    const DeviceSphere *spheres,
-    const DeviceMaterial *materials,
-    const DeviceTexture *textures,
-    const DeviceImage2DTexture *imageTextures,
-    int numSpheres,
-    int maxDepth,
-    unsigned int *rngState
-) {
-    RGBColorF finalColor = {1.0, 1.0, 1.0};
-
-    for (int depth = 0; depth < maxDepth; depth++) {
-        DeviceHitRecord rec;
-
-        if (cuHitWorld(spheres, materials, numSpheres, r, 0.0001, FLT_MAX, &rec)) {
-            Ray scattered;
-            RGBColorF attenuation;
-
-            if (cuScatter2DRealistic(
-                    r,
-                    rec,
-                    materials[rec.materialIndex],
-                    textures,
-                    imageTextures,
-                    &attenuation,
-                    &scattered,
-                    rngState
-                )) {
-                finalColor = cuColorfMultiply(finalColor, attenuation);
-                r = scattered;
-            } else {
-                return (RGBColorF){0.0, 0.0, 0.0};
-            }
-        } else {
-            vec3 unitDirection = r.direction;
-            cuVector3Normalize(&unitDirection);
-
-            CFLOAT t = 0.5 * (unitDirection.y + 1.0);
-
-            RGBColorF background = {
-                .r = (1.0 - t) * 1.0 + t * 0.5,
-                .g = (1.0 - t) * 1.0 + t * 0.7,
-                .b = (1.0 - t) * 1.0 + t * 1.0
-            };
-
-            return cuColorfMultiply(finalColor, background);
-        }
-    }
-
-    return (RGBColorF){0.0, 0.0, 0.0};
-}
-
-__device__ RGBColorF cuRayC1D(
-    Ray r,
-    const DeviceSphere *spheres,
-    const DeviceMaterial *materials,
-    const DeviceTexture *textures,
-    const DeviceImage1DTexture *imageTextures,
-    int numSpheres,
-    int maxDepth,
-    unsigned int *rngState
-) {
-    RGBColorF finalColor = {1.0, 1.0, 1.0};
-
-    for (int depth = 0; depth < maxDepth; depth++) {
-        DeviceHitRecord rec;
-
-        if (cuHitWorld(spheres, materials, numSpheres, r, 0.0001, FLT_MAX, &rec)) {
-            Ray scattered;
-            RGBColorF attenuation;
-
-            if (cuScatter1D(
-                    r,
-                    rec,
-                    materials[rec.materialIndex],
-                    textures,
-                    imageTextures,
-                    &attenuation,
-                    &scattered,
-                    rngState
-                )) {
-                finalColor = cuColorfMultiply(finalColor, attenuation);
-                r = scattered;
-            } else {
-                return (RGBColorF){0.0, 0.0, 0.0};
-            }
-        } else {
-            vec3 unitDirection = r.direction;
-            cuVector3Normalize(&unitDirection);
-
-            CFLOAT t = 0.5 * (unitDirection.y + 1.0);
-
-            RGBColorF background = {
-                .r = (1.0 - t) * 1.0 + t * 0.5,
-                .g = (1.0 - t) * 1.0 + t * 0.7,
-                .b = (1.0 - t) * 1.0 + t * 1.0
-            };
-
-            return cuColorfMultiply(finalColor, background);
-        }
-    }
-
-    return (RGBColorF){0.0, 0.0, 0.0};
 }
 
 void cuCreateImageTextureObject(
@@ -1466,8 +1491,6 @@ void cuCreate1DImageTextureObject(
 
     free(hostPixels);
 }
-
-
 
 void cuCreate2DImageTextureObject(
     const Image *image,
