@@ -24,7 +24,7 @@ TOTAL_TASKS=$((TOTAL_WORKERS + SERVER_RANKS))
 PROJECT_DIR="${SLURM_SUBMIT_DIR:-$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)}"
 cd "$PROJECT_DIR"
 
-mkdir -p "$PROJECT_DIR/figures"
+mkdir -p "$PROJECT_DIR/federated_data"
 
 
 echo "Job ID: ${SLURM_JOB_ID}"
