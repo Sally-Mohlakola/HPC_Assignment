@@ -587,7 +587,7 @@ extern "C" void renderCuda(
         &sceneSeed
     );
 
-    printf("\n")
+    printf("\n");
     printf("Spheres generated: %d (requested %d)\n",
            numSpheres,
            numSpheresRequest > 0 ? numSpheresRequest : numSpheres);
