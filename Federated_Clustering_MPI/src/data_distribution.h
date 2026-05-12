@@ -25,12 +25,12 @@
 // Strong IID baseline
 // ------------------------------------------------------------
 
-static std::vector<Image> round_robin_distribution(
-    const std::vector<Image>& dataset,
+static vector<Image> round_robin_distribution(
+    const vector<Image>& dataset,
     int data_holder_num,
     int num_data_holders)
 {
-    std::vector<Image> local_data;
+    vector<Image> local_data;
 
     // rank 1 -> index 0
     int target_index = data_holder_num - 1;
@@ -53,12 +53,12 @@ static std::vector<Image> round_robin_distribution(
 // This is your pathological non-IID FL split
 // ------------------------------------------------------------
 
-static std::vector<Image> label_shard_distribution(
-    std::vector<Image>& dataset,
+static vector<Image> label_shard_distribution(
+    vector<Image>& dataset,
     int data_holder_num,
     int num_data_holders)
 {
-    std::stable_sort(
+    stable_sort(
         dataset.begin(),
         dataset.end(),
         [](const Image &a, const Image &b) {
@@ -77,7 +77,7 @@ static std::vector<Image> label_shard_distribution(
     else
         iend = ibegin + shard_size;
 
-    return std::vector<Image>(
+    return vector<Image>(
         dataset.begin() + ibegin,
         dataset.begin() + iend
     );
@@ -98,17 +98,17 @@ static std::vector<Image> label_shard_distribution(
 // This simulates domain shift / feature skew
 // ------------------------------------------------------------
 
-static std::vector<float> rotate_single_image(
-    const std::vector<float>& input,
+static vector<float> rotate_single_image(
+    const vector<float>& input,
     int rows,
     int cols,
     float angle_degrees)
 {
-    std::vector<float> output(rows * cols, 0.0f);
+    vector<float> output(rows * cols, 0.0f);
 
     float angle = angle_degrees * M_PI / 180.0f;
-    float cosA = std::cos(angle);
-    float sinA = std::sin(angle);
+    float cosA = cos(angle);
+    float sinA = sin(angle);
 
     float cx = (cols - 1) / 2.0f;
     float cy = (rows - 1) / 2.0f;
@@ -122,8 +122,8 @@ static std::vector<float> rotate_single_image(
             float src_x =  cosA * tx + sinA * ty + cx;
             float src_y = -sinA * tx + cosA * ty + cy;
 
-            int sx = (int)std::round(src_x);
-            int sy = (int)std::round(src_y);
+            int sx = (int)round(src_x);
+            int sy = (int)round(src_y);
 
             if (sx >= 0 && sx < cols &&
                 sy >= 0 && sy < rows)
@@ -139,7 +139,7 @@ static std::vector<float> rotate_single_image(
 
 
 static void apply_rotation_feature_skew(
-    std::vector<Image>& local_data,
+    vector<Image>& local_data,
     int data_holder_num)
 {
     float angle = 10.0f * data_holder_num;
@@ -153,7 +153,7 @@ static void apply_rotation_feature_skew(
         );
     }
 
-    std::cout
+    cout
         << "[Worker " << data_holder_num
         << "] Applied feature skew rotation: "
         << angle << " degrees\n";

@@ -6,13 +6,49 @@
 #include <cmath>
 #include <algorithm>
 #include <random>
-#include <filesystem>
 #include <numeric>
+#include <chrono>
+#include <cerrno>
+#include <cstdio>
+#include <ctime>
+#include <sys/stat.h>
+#include <sys/types.h>
 #include "federated_model.h"
 
 using namespace std;
 
 #define LEARNING_RATE 0.01f
+
+static string current_datetime_string() {
+    time_t now = time(nullptr);
+    tm local_time{};
+    localtime_r(&now, &local_time);
+
+    char buffer[32];
+    strftime(buffer, sizeof(buffer), "%Y-%m-%d_%H-%M-%S", &local_time);
+    return string(buffer);
+}
+
+static bool ensure_directory(const string &path) {
+    struct stat st{};
+    if (stat(path.c_str(), &st) == 0) {
+        return S_ISDIR(st.st_mode);
+    }
+
+    if (mkdir(path.c_str(), 0755) == 0) {
+        return true;
+    }
+
+    cerr << "Could not create directory: " << path
+         << " (errno " << errno << ")\n";
+    return false;
+}
+
+static bool csv_needs_header(const string &path) {
+    ifstream existing(path);
+    return !existing.good() ||
+           existing.peek() == ifstream::traits_type::eof();
+}
 
 //Big to little endian converter (to interpret MNIST headers in a reversed byte order)
 static uint32_t idx_to_integer(ifstream &file) {
@@ -95,6 +131,7 @@ static void mean_std_norm(vector<Image> &images) {
 
 
 int main(){
+    auto run_timer_start = chrono::steady_clock::now();
 
     int max_epochs = 50;
     int min_epochs = 30;
@@ -102,6 +139,14 @@ int main(){
     float min_delta = 0.001f;
     float best_accuracy = -1.0f;
     int epochs_without_improvement = 0;
+    int epochs_to_80 = -1;
+    float final_test_accuracy = 0.0f;
+
+    const string output_root = "../centralised_data";
+    const string run_started = current_datetime_string();
+    ensure_directory(output_root);
+    const string output_dir = output_root + "/" + run_started;
+    ensure_directory(output_dir);
 
     vector<vector<float>> test_images = get_images("../data/t10k-images-idx3-ubyte/t10k-images.idx3-ubyte");
     vector<int> test_labels = get_labels("../data/t10k-labels-idx1-ubyte/t10k-labels.idx1-ubyte");
@@ -117,7 +162,7 @@ int main(){
 
     Softmax model(LEARNING_RATE);
 
-    ofstream metrics("../figures/metrics.csv");
+    ofstream metrics(output_dir + "/centralised_metrics.csv");
     metrics << "epoch,train_loss,train_acc,test_acc\n";
 
     mt19937 rnd(42);
@@ -151,6 +196,11 @@ int main(){
         float avg_loss = epoch_loss / num_batches;
         float train_accuracy = 100.0f * total_correct /total_seen;
         float test_accuracy = test_pair.empty() ? 0.0f :model.correctness(test_pair) * 100.0f;
+        final_test_accuracy = test_accuracy;
+
+        if (epochs_to_80 < 0 && test_accuracy >= 80.0f) {
+            epochs_to_80 = epoch;
+        }
 
         if (test_accuracy > best_accuracy + min_delta){
             best_accuracy = test_accuracy;
@@ -172,6 +222,25 @@ int main(){
     }
 
     metrics.close();
+    double run_time_seconds =
+        chrono::duration<double>(chrono::steady_clock::now() - run_timer_start).count();
+
+    string summary_path = output_root + "/summary.csv";
+    bool write_header = csv_needs_header(summary_path);
+    ofstream summary_csv(summary_path, ios::app);
+    if (write_header) {
+        summary_csv << "date_time_started,epochs_to_80,test_acc,run_time_seconds\n";
+    }
+    summary_csv << run_started << ","
+                << (epochs_to_80 < 0 ? "not_reached" : to_string(epochs_to_80))
+                << ","
+                << final_test_accuracy
+                << ","
+                << run_time_seconds
+                << "\n";
+    summary_csv.close();
+
+    cout << "\n[Centralised] Done. Centralised data saved to " << output_dir << "\n";
 
     return 0;
 

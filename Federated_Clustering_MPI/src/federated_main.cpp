@@ -10,9 +10,10 @@
 #include <filesystem>
 #include <numeric>
 #include "federated_model.h"
-#include "data_distribution.h"
 
 using namespace std;
+
+#include "data_distribution.h"
 
 #define COMM_ROUNDS 50
 #define CLASS_COUNT 10
@@ -240,11 +241,11 @@ else {
     //
     // =========================================================
 
-    std::vector<Image> shard;
+    vector<Image> shard;
 
 #ifdef ROUND_ROBIN_BASELINE
 
-    std::cout
+    cout
         << "[Mode] IID Round Robin Baseline\n";
 
     shard = round_robin_distribution(
@@ -255,7 +256,7 @@ else {
 
 #elif defined(LABEL_SHARD_NONIID)
 
-    std::cout
+    cout
         << "[Mode] Non-IID Label Shard Distribution\n";
 
     shard = label_shard_distribution(
@@ -267,7 +268,7 @@ else {
 #else
 
     // default fallback
-    std::cout
+    cout
         << "[Mode] Default -> Label Shard Non-IID\n";
 
     shard = label_shard_distribution(
@@ -310,7 +311,7 @@ else {
 
     mean_std_norm(shard);
 
-    std::cout
+    cout
         << "[Distributed Worker "
         << data_holder_id
         << "] Shard size: "
@@ -324,15 +325,15 @@ else {
 
     Softmax model(LEARNING_RATE);
 
-    std::string wcsv_path =
+    string wcsv_path =
         "../figures/worker_" +
-        std::to_string(data_holder_id) +
+        to_string(data_holder_id) +
         "_metrics.csv";
 
-    std::ofstream wcsv(wcsv_path);
+    ofstream wcsv(wcsv_path);
     wcsv << "round,loss,train_acc\n";
 
-    std::mt19937 rng(42 + data_holder_id);
+    mt19937 rng(42 + data_holder_id);
 
     for (int round = 1; round <= COMM_ROUNDS; round++) {
 
@@ -341,7 +342,7 @@ else {
         int round_seen = 0;
         int num_batches = 0;
 
-        std::vector<float> global_flat(NUM_MODEL_VARIABLES);
+        vector<float> global_flat(NUM_MODEL_VARIABLES);
 
         MPI_Bcast(
             global_flat.data(),
@@ -361,7 +362,7 @@ else {
              epochs_per_round < LOCAL_EPOCHS;
              epochs_per_round++)
         {
-            std::shuffle(
+            shuffle(
                 shard.begin(),
                 shard.end(),
                 rng
@@ -372,12 +373,12 @@ else {
                  i += BATCH_SIZE)
             {
                 int end =
-                    std::min(
+                    min(
                         i + BATCH_SIZE,
                         (int)shard.size()
                     );
 
-                std::vector<Image> batch(
+                vector<Image> batch(
                     shard.begin() + i,
                     shard.begin() + end
                 );
@@ -407,7 +408,7 @@ else {
             round_correct /
             round_seen;
 
-        std::cout
+        cout
             << "[Worker "
             << data_holder_id
             << "] Round "
@@ -453,7 +454,7 @@ else {
         );
     }
 
-    std::vector<float> updated_model(
+    vector<float> updated_model(
         NUM_MODEL_VARIABLES
     );
 
@@ -472,4 +473,3 @@ else {
     MPI_Finalize();
     return 0;
 }
-
