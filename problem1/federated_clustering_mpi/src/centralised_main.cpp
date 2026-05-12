@@ -13,8 +13,6 @@
 using namespace std;
 
 #define LEARNING_RATE 0.01f
-#define LOCAL_EPOCHS 50
-#define NUM_MODEL_VARIABLES 7850
 
 //Big to little endian converter (to interpret MNIST headers in a reversed byte order)
 static uint32_t idx_to_integer(ifstream &file) {
@@ -93,35 +91,17 @@ static void mean_std_norm(vector<Image> &images) {
     }
 }
 
-//=============================================================================
-
-// Serialise a Softmax model's weights + bias into a flat vector for MPI transfer.
-static vector<float> serialise(const Softmax &model) {
-    vector<float> flat;
-    flat.reserve(NUM_MODEL_VARIABLES);
-    for (int i = 0; i < model.num_classes; i++)
-        for (int j = 0; j < model.num_features; j++)
-            flat.push_back(model.weights[i][j]);
-    for (int i = 0; i < model.num_classes; i++)
-        flat.push_back(model.bias[i]);
-    return flat;
-}
-
-// Deserialise a flat buffer back into a Softmax model's weights and bias.
-static void deserialise(Softmax &model, const vector<float> &flat) {
-    int idx = 0;
-    for (int i = 0; i < model.num_classes; i++)
-        for (int j = 0; j < model.num_features; j++)
-            model.weights[i][j] = flat[idx++];
-
-    for (int i = 0; i < model.num_classes; i++)
-        model.bias[i] = flat[idx++];
-}
-
 //==================================================================================================
 
 
 int main(){
+
+    int max_epochs = 50;
+    int min_epochs = 30;
+    int patience = 5;
+    float min_delta = 0.001f;
+    float best_accuracy = -1.0f;
+    int epochs_without_improvement = 0;
 
     vector<vector<float>> test_images = get_images("../data/t10k-images-idx3-ubyte/t10k-images.idx3-ubyte");
     vector<int> test_labels = get_labels("../data/t10k-labels-idx1-ubyte/t10k-labels.idx1-ubyte");
@@ -129,24 +109,21 @@ int main(){
     auto train_images =get_images("../data/train-images-idx3-ubyte/train-images.idx3-ubyte");
     auto train_labels = get_labels("../data/train-labels-idx1-ubyte/train-labels.idx1-ubyte");
     auto train_pair = make_pairs(train_labels, train_images);
+    mean_std_norm(train_pair);
 
 
     vector<Image> test_pair =make_pairs(test_labels, test_images);
     mean_std_norm(test_pair);
 
     Softmax model(LEARNING_RATE);
-    vector<float> central_model= serialise(model);
 
-    ofstream srv_csv("../figures/global_run.csv");
-    srv_csv << "round,test_acc\n";
-
-    ofstream metrics("..figures/metrics.csv");
+    ofstream metrics("../figures/metrics.csv");
     metrics << "epoch,train_loss,train_acc,test_acc\n";
 
     mt19937 rnd(42);
     int batch_size=128;
 
-    for (int epoch=1; epoch<=LOCAL_EPOCHS;epoch++){
+    for (int epoch=1; epoch<=max_epochs;epoch++){
 
         shuffle(train_pair.begin(), train_pair.end(),rnd);
 
@@ -173,12 +150,25 @@ int main(){
 
         float avg_loss = epoch_loss / num_batches;
         float train_accuracy = 100.0f * total_correct /total_seen;
-        float test_accuracy = test_pair.empty() ? 0.0f :model.correctness(test_pair);
+        float test_accuracy = test_pair.empty() ? 0.0f :model.correctness(test_pair) * 100.0f;
+
+        if (test_accuracy > best_accuracy + min_delta){
+            best_accuracy = test_accuracy;
+            epochs_without_improvement = 0;
+        } else {
+            epochs_without_improvement++;
+        }
 
         cout << "Epoch " << epoch << " | Loss: "<<avg_loss << " | Train Accuracy: " << train_accuracy  << "%"
         << " | Test Accuracy: "  << test_accuracy   << "%\n";
 
         metrics << epoch << "," << avg_loss << ","<< train_accuracy << "," << test_accuracy << "\n";
+
+        if (epoch >= min_epochs && epochs_without_improvement >= patience){
+            cout << "[Centralised] Early stopping at epoch " << epoch
+            << " after " << patience << " epochs without test accuracy improvement.\n";
+            break;
+        }
     }
 
     metrics.close();
