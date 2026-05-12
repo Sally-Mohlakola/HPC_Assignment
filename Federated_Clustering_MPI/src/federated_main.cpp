@@ -14,6 +14,7 @@
 
 using namespace std;
 
+#define COMM_ROUNDS 50
 #define CLASS_COUNT 10
 #define DIMENSION 784
 #define LEARNING_RATE 0.01f
@@ -154,13 +155,6 @@ int main(int argc, char **argv) {
         return 0;
     }
 
-    int MAX_ROUNDS = 50;
-    int min_rounds = 10;
-    int patience = 5;
-    float min_delta = 0.1f;
-    float best_accuracy = -1.0f;
-    int rounds_without_improvement = 0;
-
     int data_holder_num = comm_size - 1;
 
     //========================= SERVER ============================
@@ -178,7 +172,7 @@ int main(int argc, char **argv) {
         ofstream srv_csv("../figures/global_run.csv");
         srv_csv << "round,test_acc\n";
 
-        for (int round = 1; round <= MAX_ROUNDS; round++) {
+        for (int round = 1; round <= COMM_ROUNDS; round++) {
             MPI_Bcast(central_model.data(), NUM_MODEL_VARIABLES,MPI_FLOAT, 0, MPI_COMM_WORLD);
 
             vector<float> recv_buf(NUM_MODEL_VARIABLES);
@@ -206,29 +200,8 @@ int main(int argc, char **argv) {
             deserialise(model, central_model);
             float test_accuracy = model.correctness(test_pair) * 100.f;
 
-            if (test_accuracy > best_accuracy + min_delta) {
-                best_accuracy = test_accuracy;
-                rounds_without_improvement = 0;
-            }
-            else {
-                rounds_without_improvement++;
-            }
-
-            int stop_training = 0;
-            if (round >= min_rounds && rounds_without_improvement >= patience) {
-                stop_training = 1;
-            }
-
             cout << "[Central Round] " << round << " [Global Test Accuracy]: " << test_accuracy << "%\n";
             srv_csv << round << "," << test_accuracy << "\n";
-
-            MPI_Bcast(&stop_training, 1, MPI_INT, 0, MPI_COMM_WORLD);
-
-            if (stop_training) {
-                cout << "[Central] Early stopping at round " << round
-                << " after " << patience << " rounds without global accuracy improvement.\n";
-                break;
-            }
         }
 
         srv_csv.close();
@@ -361,7 +334,7 @@ else {
 
     std::mt19937 rng(42 + data_holder_id);
 
-        for (int round = 1; round<= MAX_ROUNDS; round++) {
+    for (int round = 1; round <= COMM_ROUNDS; round++) {
 
         float round_loss = 0.f;
         int round_correct = 0;
@@ -499,3 +472,4 @@ else {
     MPI_Finalize();
     return 0;
 }
+
