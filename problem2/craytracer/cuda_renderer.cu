@@ -441,7 +441,7 @@ __global__ void cuRaytracerRealistic(
     }
 
     dImage[i + width * (height - 1 - j)] =
-        cuWriteColor(pcR, pcG, pcB, samplesPerPixel);
+        cuWriteColorRealistic(pcR, pcG, pcB, samplesPerPixel);
 }
 // =====================================================================
 
@@ -847,7 +847,7 @@ printf("CUDA 2D Texture memory + Constant memory running\n");
 // ===================================================================== 
 
 // =====================================================================
-// REALISTIC (2D TEXTURE + FRESNEL METAL + APERTURE) KERNEL LAUNCH
+// REALISTIC (2D TEXTURE + FRESNEL METAL + APERTURE + TONE MAPPING) KERNEL LAUNCH
 // =====================================================================
     printf("CUDA realistic (Fresnel + Aperture) running\n");
     fflush(stdout);

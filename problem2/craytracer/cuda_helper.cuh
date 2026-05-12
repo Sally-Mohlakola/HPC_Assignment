@@ -200,6 +200,23 @@ __device__ vec3 cuRayAt(Ray r, CFLOAT t)
     return point;
 }
 
+__device__ float cuSrgbToLinear(float c)
+{
+    if (c <= 0.04045f) {
+        return c / 12.92f;
+    }
+    return powf((c + 0.055f) / 1.055f, 2.4f);
+}
+
+__device__ float cuLinearToSrgb(float c)
+{
+    c = fmaxf(c, 0.0f);
+    if (c <= 0.0031308f) {
+        return 12.92f * c;
+    }
+    return 1.055f * powf(c, 1.0f / 2.4f) - 0.055f;
+}
+
 __device__ RGBColorU8 cuWriteColor(CFLOAT r, CFLOAT g, CFLOAT b, int samplesPerPixel)
 {
     CFLOAT scale = 1.0 / samplesPerPixel;
@@ -212,6 +229,29 @@ __device__ RGBColorU8 cuWriteColor(CFLOAT r, CFLOAT g, CFLOAT b, int samplesPerP
         .r = (uint8_t)(fmin(r * 256.0, 255.0)),
         .g = (uint8_t)(fmin(g * 256.0, 255.0)),
         .b = (uint8_t)(fmin(b * 256.0, 255.0))
+    };
+}
+
+__device__ RGBColorU8 cuWriteColorRealistic(CFLOAT r, CFLOAT g, CFLOAT b, int samplesPerPixel)
+{
+    CFLOAT scale = 1.0 / samplesPerPixel;
+
+    float lr = (float)(scale * r);
+    float lg = (float)(scale * g);
+    float lb = (float)(scale * b);
+
+    lr = lr / (1.0f + lr);
+    lg = lg / (1.0f + lg);
+    lb = lb / (1.0f + lb);
+
+    lr = cuLinearToSrgb(lr);
+    lg = cuLinearToSrgb(lg);
+    lb = cuLinearToSrgb(lb);
+
+    return (RGBColorU8){
+        .r = (uint8_t)(fmin(lr * 256.0f, 255.0f)),
+        .g = (uint8_t)(fmin(lg * 256.0f, 255.0f)),
+        .b = (uint8_t)(fmin(lb * 256.0f, 255.0f))
     };
 }
 
@@ -287,6 +327,25 @@ __device__ RGBColorF cuSample2DTexture(
     }
 
     return (RGBColorF){1.0, 0.0, 1.0};
+}
+
+__device__ RGBColorF cuSample2DTextureLinear(
+    const DeviceTexture *textures,
+    const DeviceImage2DTexture *imageTextures,
+    int textureIndex,
+    CFLOAT u,
+    CFLOAT v,
+    vec3 point
+) {
+    RGBColorF c = cuSample2DTexture(textures, imageTextures, textureIndex, u, v, point);
+
+    if (textureIndex >= 0 && textures[textureIndex].type == TEX_IMAGE) {
+        c.r = cuSrgbToLinear(c.r);
+        c.g = cuSrgbToLinear(c.g);
+        c.b = cuSrgbToLinear(c.b);
+    }
+
+    return c;
 }
 
 __device__ RGBColorF cuSample1DTexture(
@@ -691,6 +750,39 @@ __device__ bool cuScatterLambertian2D(
     return true;
 }
 
+__device__ bool cuScatterLambertian2DLinear(
+    Ray rayIn,
+    DeviceHitRecord rec,
+    DeviceMaterial mat,
+    const DeviceTexture *textures,
+    const DeviceImage2DTexture *imageTextures,
+    RGBColorF *attenuation,
+    Ray *scattered,
+    unsigned int *rngState
+) {
+    vec3 scatterDirection = rec.normal;
+    vec3 randomVec = cuRandomUnitVector(rngState);
+    cuVector3Add(&scatterDirection, &randomVec);
+
+    if (cuNearZero(scatterDirection)) {
+        scatterDirection = rec.normal;
+    }
+
+    scattered->origin = rec.point;
+    scattered->direction = scatterDirection;
+
+    *attenuation = cuSample2DTextureLinear(
+        textures,
+        imageTextures,
+        mat.albedoTextureIndex,
+        rec.u,
+        rec.v,
+        rec.point
+    );
+
+    return true;
+}
+
 __device__ bool cuScatterLambertian1D(
     Ray rayIn,
     DeviceHitRecord rec,
@@ -925,7 +1017,7 @@ __device__ bool cuScatter2DRealistic(
     unsigned int *rngState
 ) {
     if (mat.type == MAT_LAMBERTIAN) {
-        return cuScatterLambertian2D(
+        return cuScatterLambertian2DLinear(
             rayIn,
             rec,
             mat,
