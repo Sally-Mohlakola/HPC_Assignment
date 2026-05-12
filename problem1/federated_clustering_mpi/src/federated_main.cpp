@@ -478,6 +478,10 @@ else {
             0,
             MPI_COMM_WORLD
         );
+
+        int stop_training = 0;
+        MPI_Bcast(&stop_training, 1, MPI_INT, 0, MPI_COMM_WORLD);
+        if (stop_training) break;
     }
 
     std::vector<float> updated_model(
