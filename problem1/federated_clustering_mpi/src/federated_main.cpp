@@ -7,12 +7,17 @@
 #include <cmath>
 #include <algorithm>
 #include <random>
-#include <filesystem>
 #include <numeric>
+#include <chrono>
+#include <cstdio>
+#include "csv_utils.h"
 #include "federated_model.h"
-#include "data_distribution.h"
 
 using namespace std;
+using namespace csv_utils;
+using namespace std::chrono;
+
+#include "data_distribution.h"
 
 #define CLASS_COUNT 10
 #define DIMENSION 784
@@ -41,6 +46,22 @@ static void deserialise(Softmax &model, const vector<float> &flat) {
 
     for (int i = 0; i < model.num_classes; i++)
         model.bias[i] = flat[idx++];
+}
+
+static string data_distribution_name() {
+#ifdef ROUND_ROBIN_BASELINE
+    string mode = "round_robin_iid";
+#elif defined(LABEL_SHARD_NONIID)
+    string mode = "label_shard_noniid";
+#else
+    string mode = "label_shard_noniid_default";
+#endif
+
+#ifdef ROTATE_FEATURE_SKEW
+    mode += "_rotate_feature_skew";
+#endif
+
+    return mode;
 }
 
 //Big to little endian converter (to interpret MNIST headers in a reversed byte order)
@@ -140,6 +161,7 @@ static vector<Image> sharding(vector<Image> &dataset,int data_holder_num, int nu
 
 int main(int argc, char **argv) {
     MPI_Init(&argc, &argv);
+    auto run_timer_start = steady_clock::now();
 
     int rank, comm_size;
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
@@ -162,6 +184,21 @@ int main(int argc, char **argv) {
     int rounds_without_improvement = 0;
 
     int data_holder_num = comm_size - 1;
+    const string output_root = "../federated_data";
+    string run_started;
+    string output_dir;
+    char output_dir_buffer[512] = {};
+
+    if (rank == 0) {
+        run_started = current_datetime_string();
+        ensure_directory(output_root);
+        output_dir = output_root + "/" + run_started;
+        ensure_directory(output_dir);
+        snprintf(output_dir_buffer, sizeof(output_dir_buffer), "%s", output_dir.c_str());
+    }
+
+    MPI_Bcast(output_dir_buffer, sizeof(output_dir_buffer), MPI_CHAR, 0, MPI_COMM_WORLD);
+    output_dir = output_dir_buffer;
 
     //========================= SERVER ============================
     if (rank == 0) {
@@ -175,8 +212,10 @@ int main(int argc, char **argv) {
         Softmax model(LEARNING_RATE);
         vector<float> central_model= serialise(model);
 
-        ofstream srv_csv("../figures/global_run.csv");
-        srv_csv << "round,test_acc\n";
+        ofstream srv_csv = create_model_metrics_csv(
+            output_dir + "/federated_metrics.csv");
+
+        int epochs_to_80 = -1;
 
         for (int round = 1; round <= MAX_ROUNDS; round++) {
             MPI_Bcast(central_model.data(), NUM_MODEL_VARIABLES,MPI_FLOAT, 0, MPI_COMM_WORLD);
@@ -185,14 +224,24 @@ int main(int argc, char **argv) {
             vector<float> recv_weights(NUM_MODEL_VARIABLES, 0.0f);
             vector<int> shard_sizes(data_holder_num + 1, 0);
             int global_size = 0;
+            float total_train_loss = 0.0f;
+            float total_train_batches = 0.0f;
+            float total_train_correct = 0.0f;
+            float total_train_seen = 0.0f;
 
             for (int id = 1; id<= data_holder_num;id++) {
                 int local_size;
+                float worker_metrics[4];
                 MPI_Recv(&local_size, 1, MPI_INT, id,1,MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+                MPI_Recv(worker_metrics, 4, MPI_FLOAT, id, 2, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
                 MPI_Recv(recv_buf.data(), NUM_MODEL_VARIABLES, MPI_FLOAT, id, 0,MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
                 global_size += local_size;
                 shard_sizes[id] = local_size;
+                total_train_loss += worker_metrics[0];
+                total_train_batches += worker_metrics[1];
+                total_train_correct += worker_metrics[2];
+                total_train_seen += worker_metrics[3];
 
                 for (int i = 0; i < NUM_MODEL_VARIABLES; i++)
                     recv_weights[i] += (float)local_size * recv_buf[i];
@@ -204,7 +253,17 @@ int main(int argc, char **argv) {
 
 
             deserialise(model, central_model);
+            float train_loss = total_train_batches > 0.0f
+                ? total_train_loss / total_train_batches
+                : 0.0f;
+            float train_accuracy = total_train_seen > 0.0f
+                ? 100.0f * total_train_correct / total_train_seen
+                : 0.0f;
             float test_accuracy = model.correctness(test_pair) * 100.f;
+
+            if (epochs_to_80 < 0 && test_accuracy >= 80.0f) {
+                epochs_to_80 = round;
+            }
 
             if (test_accuracy > best_accuracy + min_delta) {
                 best_accuracy = test_accuracy;
@@ -220,7 +279,12 @@ int main(int argc, char **argv) {
             }
 
             cout << "[Central Round] " << round << " [Global Test Accuracy]: " << test_accuracy << "%\n";
-            srv_csv << round << "," << test_accuracy << "\n";
+            write_model_metrics(
+                srv_csv,
+                round,
+                train_loss,
+                train_accuracy,
+                test_accuracy);
 
             MPI_Bcast(&stop_training, 1, MPI_INT, 0, MPI_COMM_WORLD);
 
@@ -232,10 +296,21 @@ int main(int argc, char **argv) {
         }
 
         srv_csv.close();
+        double run_time_seconds =
+            duration<double>(steady_clock::now() - run_timer_start).count();
+
+        string summary_path = output_root + "/summary.csv";
+        append_federated_summary(
+            summary_path,
+            run_started,
+            comm_size,
+            data_distribution_name(),
+            epochs_to_80,
+            run_time_seconds);
 
         MPI_Bcast(central_model.data(), NUM_MODEL_VARIABLES,MPI_FLOAT, 0, MPI_COMM_WORLD);
 
-        cout << "\n[Central] Done. Figures saved to figures/\n";
+        cout << "\n[Central] Done. Federated data saved to " << output_dir << "\n";
 
     // ========================= WORKERS ==========================
     }
@@ -267,41 +342,29 @@ else {
     //
     // =========================================================
 
-    std::vector<Image> shard;
+    vector<Image> shard;
 
 #ifdef ROUND_ROBIN_BASELINE
 
-    std::cout
+    cout
         << "[Mode] IID Round Robin Baseline\n";
 
-    shard = round_robin_distribution(
-        train_pair,
-        data_holder_id,
-        data_holder_num
-    );
+    shard = round_robin_distribution(train_pair, data_holder_id, data_holder_num);
 
 #elif defined(LABEL_SHARD_NONIID)
 
-    std::cout
+    cout
         << "[Mode] Non-IID Label Shard Distribution\n";
 
-    shard = label_shard_distribution(
-        train_pair,
-        data_holder_id,
-        data_holder_num
-    );
+    shard = label_shard_distribution(train_pair, data_holder_id, data_holder_num);
 
 #else
 
     // default fallback
-    std::cout
+    cout
         << "[Mode] Default -> Label Shard Non-IID\n";
 
-    shard = label_shard_distribution(
-        train_pair,
-        data_holder_id,
-        data_holder_num
-    );
+    shard = label_shard_distribution(train_pair, data_holder_id, data_holder_num);
 
 #endif
 
@@ -323,10 +386,7 @@ else {
 
 #ifdef ROTATE_FEATURE_SKEW
 
-    apply_rotation_feature_skew(
-        shard,
-        data_holder_id
-    );
+    apply_rotation_feature_skew(shard,data_holder_id);
 
 #endif
 
@@ -337,7 +397,7 @@ else {
 
     mean_std_norm(shard);
 
-    std::cout
+    cout
         << "[Distributed Worker "
         << data_holder_id
         << "] Shard size: "
@@ -351,15 +411,15 @@ else {
 
     Softmax model(LEARNING_RATE);
 
-    std::string wcsv_path =
-        "../figures/worker_" +
-        std::to_string(data_holder_id) +
+    string wcsv_path =
+        output_dir +
+        "/worker_" +
+        to_string(data_holder_id) +
         "_metrics.csv";
 
-    std::ofstream wcsv(wcsv_path);
-    wcsv << "round,loss,train_acc\n";
+    ofstream wcsv = create_worker_metrics_csv(wcsv_path);
 
-    std::mt19937 rng(42 + data_holder_id);
+    mt19937 rng(42 + data_holder_id);
 
         for (int round = 1; round<= MAX_ROUNDS; round++) {
 
@@ -368,54 +428,29 @@ else {
         int round_seen = 0;
         int num_batches = 0;
 
-        std::vector<float> global_flat(NUM_MODEL_VARIABLES);
+        vector<float> global_flat(NUM_MODEL_VARIABLES);
 
-        MPI_Bcast(
-            global_flat.data(),
-            NUM_MODEL_VARIABLES,
-            MPI_FLOAT,
-            0,
-            MPI_COMM_WORLD
-        );
+        MPI_Bcast(global_flat.data(), NUM_MODEL_VARIABLES, MPI_FLOAT, 0, MPI_COMM_WORLD);
 
         deserialise(model, global_flat);
 
         // adaptive epoch decrease
-        int LOCAL_EPOCHS =
-            (round < 5) ? 5 : 3;
+        int LOCAL_EPOCHS =(round < 5) ? 5 : 3;
 
         for (int epochs_per_round = 0;
              epochs_per_round < LOCAL_EPOCHS;
              epochs_per_round++)
         {
-            std::shuffle(
-                shard.begin(),
-                shard.end(),
-                rng
-            );
+            shuffle(shard.begin(), shard.end(), rng);
 
-            for (int i = 0;
-                 i < (int)shard.size();
-                 i += BATCH_SIZE)
-            {
-                int end =
-                    std::min(
-                        i + BATCH_SIZE,
-                        (int)shard.size()
-                    );
+            for (int i = 0; i < (int)shard.size(); i += BATCH_SIZE) {
+                int end = min(i + BATCH_SIZE, (int)shard.size());
 
-                std::vector<Image> batch(
-                    shard.begin() + i,
-                    shard.begin() + end
-                );
+                vector<Image> batch(shard.begin() + i, shard.begin() + end);
 
                 int bc = 0;
 
-                float loss =
-                    model.train_batch(
-                        batch,
-                        bc
-                    );
+                float loss = model.train_batch(batch, bc);
 
                 round_loss += loss;
                 round_correct += bc;
@@ -424,17 +459,11 @@ else {
             }
         }
 
-        float avg_loss =
-            (num_batches > 0)
-            ? round_loss / num_batches
-            : 0.f;
+        float avg_loss = (num_batches > 0) ? round_loss / num_batches : 0.f;
 
-        float train_accuracy =
-            100.f *
-            round_correct /
-            round_seen;
+        float train_accuracy = 100.f * round_correct / round_seen;
 
-        std::cout
+        cout
             << "[Worker "
             << data_holder_id
             << "] Round "
@@ -445,56 +474,37 @@ else {
             << train_accuracy
             << "%\n";
 
-        wcsv
-            << round
-            << ","
-            << avg_loss
-            << ","
-            << train_accuracy
-            << "\n";
+        write_worker_metrics(
+            wcsv,
+            round,
+            avg_loss,
+            train_accuracy);
 
-        int sz =
-            static_cast<int>(
-                shard.size()
-            );
+        int sz = static_cast<int>(shard.size());
 
-        MPI_Send(
-            &sz,
-            1,
-            MPI_INT,
-            0,
-            1,
-            MPI_COMM_WORLD
-        );
+        MPI_Send(&sz, 1, MPI_INT, 0, 1, MPI_COMM_WORLD);
 
-        auto updated_flat =
-            serialise(model);
+        float worker_metrics[4] = {
+            round_loss,
+            static_cast<float>(num_batches),
+            static_cast<float>(round_correct),
+            static_cast<float>(round_seen)
+        };
 
-        MPI_Send(
-            updated_flat.data(),
-            NUM_MODEL_VARIABLES,
-            MPI_FLOAT,
-            0,
-            0,
-            MPI_COMM_WORLD
-        );
+        MPI_Send(worker_metrics, 4, MPI_FLOAT, 0, 2, MPI_COMM_WORLD);
+
+        auto updated_flat = serialise(model);
+
+        MPI_Send(updated_flat.data(), NUM_MODEL_VARIABLES, MPI_FLOAT, 0, 0, MPI_COMM_WORLD);
 
         int stop_training = 0;
         MPI_Bcast(&stop_training, 1, MPI_INT, 0, MPI_COMM_WORLD);
         if (stop_training) break;
     }
 
-    std::vector<float> updated_model(
-        NUM_MODEL_VARIABLES
-    );
+    vector<float> updated_model(NUM_MODEL_VARIABLES);
 
-    MPI_Bcast(
-        updated_model.data(),
-        NUM_MODEL_VARIABLES,
-        MPI_FLOAT,
-        0,
-        MPI_COMM_WORLD
-    );
+    MPI_Bcast(updated_model.data(), NUM_MODEL_VARIABLES, MPI_FLOAT, 0, MPI_COMM_WORLD);
 
     wcsv.close();
 }

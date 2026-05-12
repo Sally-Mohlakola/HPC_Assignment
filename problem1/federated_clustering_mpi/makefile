@@ -15,10 +15,10 @@ centralised: $(CENTRALISED_BIN)
 
 federated: $(FEDERATED_BIN)
 
-$(CENTRALISED_BIN): $(SRC_DIR)/centralised_main.cpp $(SRC_DIR)/federated_model.h
+$(CENTRALISED_BIN): $(SRC_DIR)/centralised_main.cpp $(SRC_DIR)/federated_model.h $(SRC_DIR)/csv_utils.h
 	$(CXX) $(CXXFLAGS) $< -o $@
 
-$(FEDERATED_BIN): $(SRC_DIR)/federated_main.cpp $(SRC_DIR)/federated_model.h $(SRC_DIR)/data_distribution.h
+$(FEDERATED_BIN): $(SRC_DIR)/federated_main.cpp $(SRC_DIR)/federated_model.h $(SRC_DIR)/data_distribution.h $(SRC_DIR)/csv_utils.h
 	$(MPICXX) $(CXXFLAGS) $(FEDERATED_DEFINES) $< -o $@
 
 clean:
