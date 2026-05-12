@@ -21,10 +21,10 @@ SERVER_RANKS=1
 TOTAL_WORKERS=$((SLURM_JOB_NUM_NODES * WORKERS_PER_NODE))
 TOTAL_TASKS=$((TOTAL_WORKERS + SERVER_RANKS))
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-cd "$SCRIPT_DIR"
+PROJECT_DIR="${SLURM_SUBMIT_DIR:-$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)}"
+cd "$PROJECT_DIR"
 
-mkdir -p "$SCRIPT_DIR/figures"
+mkdir -p "$PROJECT_DIR/figures"
 
 
 echo "Job ID: ${SLURM_JOB_ID}"
