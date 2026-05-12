@@ -481,6 +481,8 @@ extern "C" void renderCuda(
     int height,
     int samplesPerPixel,
     int maxDepth,
+    int blockSize,
+    int numSpheresRequest,
     Camera camera,
     Image images[4],
     unsigned int seed,
@@ -581,8 +583,14 @@ extern "C" void renderCuda(
         MAX_SPHERES,
         MAX_MATERIALS,
         MAX_TEXTURES,
+        numSpheresRequest,
         &sceneSeed
     );
+
+    printf("\n")
+    printf("Spheres generated: %d (requested %d)\n",
+           numSpheres,
+           numSpheresRequest > 0 ? numSpheresRequest : numSpheres);
 
     DeviceSphere *d_spheres;
     DeviceMaterial *d_materials;
@@ -615,7 +623,7 @@ extern "C" void renderCuda(
     cudaEventRecord(cudaStop);
     float t_spheresConstHtoD = cudaElapsedMs(cudaStart, cudaStop);
 
-    int threadsPerBlock = 256;
+    int threadsPerBlock = (blockSize > 0) ? blockSize : 256;
     int numPixels = width * height;
     int blocks = (numPixels + threadsPerBlock - 1) / threadsPerBlock;
 

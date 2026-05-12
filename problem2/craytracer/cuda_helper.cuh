@@ -17,7 +17,10 @@
 #include "types.h"
 #include "util.h"
 
+#ifndef MAX_SPHERES
 #define MAX_SPHERES   512
+#endif
+
 #define MAX_MATERIALS 512
 
 #ifndef M_PI
@@ -1583,8 +1586,31 @@ void cuRandomSpheres2(
     int maxSpheres,
     int maxMaterials,
     int maxTextures,
+    int targetSpheres,
     int *seed
     ) {
+    
+    int budget = (targetSpheres > 0 && targetSpheres < maxSpheres)
+        ? targetSpheres : maxSpheres;
+    int targetSmall = budget - 5;
+    if (targetSmall < 0) targetSmall = 0;
+
+    int na, nb;
+    if (targetSpheres <= 0 || targetSmall >= 11 * 18) {
+        na = 11; nb = 18;
+    } else if (targetSmall == 0) {
+        na = 0; nb = 0;
+    } else {
+        na = (int)round(sqrt((double)targetSmall * 11.0 / 18.0));
+        nb = (int)round(sqrt((double)targetSmall * 18.0 / 11.0));
+        if (na < 1) na = 1;
+        if (nb < 1) nb = 1;
+        if (na > 11) na = 11;
+        if (nb > 18) nb = 18;
+    }
+    int aStart = 3 - na / 2;
+    int bStart = 0 - nb / 2;
+
     DeviceMaterial mat;
 
     int groundTex = cuAddCheckerTexture(
@@ -1616,8 +1642,9 @@ void cuRandomSpheres2(
     groundMat
     );
 
-    for (int a = -2; a < 9; a++) {
-        for (int b = -9; b < 9; b++) {
+    for (int a = aStart; a < aStart + na; a++) {
+        for (int b = bStart; b < bStart + nb; b++) {
+            if (*numSpheres - 1 >= targetSmall) goto smallDone;
             CFLOAT chooseMat = lcg(seed);
             vec3 center = cuVec3(
                 a + 0.9 * lcg(seed),
@@ -1709,6 +1736,7 @@ void cuRandomSpheres2(
             }
         }
     }
+smallDone:
 
     mat.type = MAT_LAMBERTIAN;
     mat.albedo = (RGBColorF){.r = 1.0, .g = 1.0, .b = 1.0};

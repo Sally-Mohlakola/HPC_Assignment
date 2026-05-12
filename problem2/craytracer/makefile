@@ -1,8 +1,13 @@
 # Compiler and flags
 CC = gcc
 NVCC = nvcc
-CFLAGS = -fopenmp -I ./include
-NVCCFLAGS = -Xcompiler -fopenmp -Drestrict=__restrict__ -I ./include
+
+MAX_SPHERES    ?= 512
+
+CONFIG_DEFINES = -DMAX_SPHERES=$(MAX_SPHERES)
+
+CFLAGS = -fopenmp -I ./include $(CONFIG_DEFINES)
+NVCCFLAGS = -Xcompiler -fopenmp -Drestrict=__restrict__ -I ./include $(CONFIG_DEFINES)
 LDFLAGS = -lm
 
 # Source files

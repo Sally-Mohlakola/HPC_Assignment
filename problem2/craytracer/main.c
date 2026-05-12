@@ -3,6 +3,7 @@
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <tgmath.h>
@@ -22,6 +23,8 @@ void renderCuda(
     int height,
     int samplesPerPixel,
     int maxDepth,
+    int blockSize,
+    int numSpheresRequest,
     Camera camera,
     Image images[4],
     unsigned int seed,
@@ -83,8 +86,30 @@ int main(int argc, char *argv[])
     const int width = 640;
     const int height = 640;
     const int samplesPerPixel = 100;
-    const int maxDepth = 50;
+    int maxDepth = 50;
+    int blockSize = 256;
+    int numSpheresRequest = 0;
     const int sceneSeed = 100;
+
+    for (int i = 1; i < argc; i++) {
+        if (strcmp(argv[i], "--block-size") == 0 && i + 1 < argc) {
+            int v = atoi(argv[++i]);
+            if (v > 0) blockSize = v;
+        } else if (strcmp(argv[i], "--max-depth") == 0 && i + 1 < argc) {
+            int v = atoi(argv[++i]);
+            if (v > 0) maxDepth = v;
+        } else if (strcmp(argv[i], "--num-spheres") == 0 && i + 1 < argc) {
+            int v = atoi(argv[++i]);
+            if (v > 0) numSpheresRequest = v;
+        }
+    }
+    if (numSpheresRequest > 0) {
+        printf("Config: blockSize=%d MAX_SPHERES=%d maxDepth=%d numSpheres=%d\n",
+               blockSize, MAX_SPHERES, maxDepth, numSpheresRequest);
+    } else {
+        printf("Config: blockSize=%d MAX_SPHERES=%d maxDepth=%d numSpheres=full\n",
+               blockSize, MAX_SPHERES, maxDepth);
+    }
 
     RGBColorU8 *openmpImage =
         (RGBColorU8 *)malloc(sizeof(RGBColorU8) * height * width);
@@ -144,6 +169,8 @@ int main(int argc, char *argv[])
         height,
         samplesPerPixel,
         maxDepth,
+        blockSize,
+        numSpheresRequest,
         camera,
         images,
         (unsigned int)sceneSeed,
