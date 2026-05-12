@@ -27,7 +27,7 @@ public:
     vector<vector<float>> weights;
     vector<float> bias;
 
-    float learning_rate =0.1f;//tweak hyperparameters for experimentation
+    float learning_rate =0.1f;
     int num_classes= 10;
     int num_features = 28*28;
 
