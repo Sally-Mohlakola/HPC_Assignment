@@ -1,9 +1,9 @@
 #!/bin/bash
 #SBATCH --job-name=fed_mnist_10w
 #SBATCH --partition=stampede
-#SBATCH --nodes=2
-#SBATCH --ntasks=11
-#SBATCH --ntasks-per-node=6
+#SBATCH --nodes=3
+#SBATCH --ntasks=13
+#SBATCH --ntasks-per-node=5
 #SBATCH --cpus-per-task=1
 #SBATCH --time=02:00:00
 #SBATCH --output=fed_mnist_%j.out
@@ -16,7 +16,7 @@
 
 set -euo pipefail
 
-WORKERS_PER_NODE=5
+WORKERS_PER_NODE=4
 SERVER_RANKS=1
 TOTAL_WORKERS=$((SLURM_JOB_NUM_NODES * WORKERS_PER_NODE))
 TOTAL_TASKS=$((TOTAL_WORKERS + SERVER_RANKS))
