@@ -154,8 +154,8 @@ int main(int argc, char **argv) {
         return 0;
     }
 
-    int MAX_ROUNDS = 50;
-    int min_rounds = 10;
+    int MAX_ROUNDS = 100;
+    int min_rounds = 50;
     int patience = 5;
     float min_delta = 0.1f;
     float best_accuracy = -1.0f;
