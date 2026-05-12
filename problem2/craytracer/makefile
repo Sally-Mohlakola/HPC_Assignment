@@ -46,7 +46,7 @@ $(TARGET): $(OBJS) | renders
 renders $(BUILD_DIR):
 	mkdir -p $@
 
-$(BUILD_DIR)/cuda_renderer.o: renders/cuda_renderer.cu renders/cuda_helper.cuh | $(BUILD_DIR)
+$(BUILD_DIR)/cuda_renderer.o: renders/cuda_renderer.cu renders/cuda_helper.cuh renders/metrics.h | $(BUILD_DIR)
 	$(NVCC) $(NVCCFLAGS) -c $< -o $@
 
 $(BUILD_DIR)/%.o: renders/%.c | $(BUILD_DIR)
@@ -55,7 +55,7 @@ $(BUILD_DIR)/%.o: renders/%.c | $(BUILD_DIR)
 $(BUILD_DIR)/%.o: sources/%.c | $(BUILD_DIR)
 	$(CC) $(CFLAGS) -c $< -o $@
 
-$(BUILD_DIR)/main.o $(BUILD_DIR)/openmp_renderer.o: renders/openmp_helper.h
+$(BUILD_DIR)/main.o $(BUILD_DIR)/openmp_renderer.o: renders/openmp_helper.h renders/metrics.h
 
 # Clean rule
 clean:

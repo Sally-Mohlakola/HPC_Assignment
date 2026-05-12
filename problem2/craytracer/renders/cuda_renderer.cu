@@ -9,6 +9,7 @@ extern "C" {
 }
 
 #include "cuda_helper.cuh"
+#include "metrics.h"
 
 #define MAX_TEXTURES 512
 #define MAX_IMAGE_TEXTURES 16
@@ -29,25 +30,30 @@ static void printKernelStats(
     double openmpMs,
     float kernelMs,
     float memMs,
-    const char *outputPath
+    const char *outputPath,
+    const MetricsRunConfig *metricsConfig
 ) {
-    float totalMs = kernelMs + memMs;
-    double throughput = (kernelMs > 0.0f)
-        ? ((double)numPixels / (double)kernelMs / 1000.0)
-        : 0.0;
-    double speedupKernel = (kernelMs > 0.0f) ? (openmpMs / (double)kernelMs) : 0.0;
-    double speedupTotal  = (totalMs  > 0.0f) ? (openmpMs / (double)totalMs ) : 0.0;
+    MetricsTiming timing = metrics_make_timing(
+        numPixels,
+        openmpMs,
+        (double)kernelMs,
+        (double)memMs
+    );
 
     printf("\n============= %s =============\n", name);
     printf("Kernel time:                  %8.3f ms\n", kernelMs);
     printf("Memory transfer time:         %8.3f ms\n", memMs);
-    printf("Total (without mem):          %8.3f ms\n", kernelMs);
-    printf("Total (with mem):             %8.3f ms\n", totalMs);
-    printf("Throughput:                   %8.2f Mpixels/sec\n", throughput);
-    printf("Speedup vs OpenMP (kernel):   %8.2fx\n", speedupKernel);
-    printf("Speedup vs OpenMP (with mem): %8.2fx\n", speedupTotal);
+    printf("Total (without mem):          %8.3f ms\n", timing.totalWithoutMemMs);
+    printf("Total (with mem):             %8.3f ms\n", timing.totalWithMemMs);
+    printf("Throughput:                   %8.2f Mpixels/sec\n", timing.throughputMpixelsSec);
+    printf("Speedup vs OpenMP (kernel):   %8.2fx\n", timing.speedupVsOpenmpKernel);
+    printf("Speedup vs OpenMP (with mem): %8.2fx\n", timing.speedupVsOpenmpWithMem);
     printf("Wrote '%s'\n", outputPath);
     fflush(stdout);
+
+    if (metricsConfig != NULL) {
+        metrics_append_summary_row(metricsConfig, name, &timing);
+    }
 }
 
 // =====================================================================
@@ -486,7 +492,8 @@ extern "C" void renderCuda(
     Camera camera,
     Image images[4],
     unsigned int seed,
-    double openmpMs
+    double openmpMs,
+    const MetricsRunConfig *metricsConfig
 ) {
 
     RGBColorU8 *dImage;
@@ -592,6 +599,15 @@ extern "C" void renderCuda(
            numSpheres,
            numSpheresRequest > 0 ? numSpheresRequest : numSpheres);
 
+    MetricsRunConfig cudaMetricsConfig;
+    if (metricsConfig != NULL) {
+        cudaMetricsConfig = *metricsConfig;
+        cudaMetricsConfig.numSpheres = numSpheres;
+        cudaMetricsConfig.openmpMs = openmpMs;
+    }
+    const MetricsRunConfig *cudaMetricsConfigPtr =
+        (metricsConfig != NULL) ? &cudaMetricsConfig : NULL;
+
     DeviceSphere *d_spheres;
     DeviceMaterial *d_materials;
     DeviceTexture *d_textures;
@@ -670,7 +686,8 @@ extern "C" void renderCuda(
         openmpMs,
         kernelMs,
         t_spheresHtoD + t_materialsHtoD + t_texturesHtoD + t_imageTexBase + dtohMs,
-        "output/cuda_global.jpg"
+        "output/cuda_global.jpg",
+        cudaMetricsConfigPtr
     );
 
 // =====================================================================
@@ -713,7 +730,8 @@ extern "C" void renderCuda(
         openmpMs,
         kernelMs,
         t_spheresConstHtoD + t_materialsHtoD + t_texturesHtoD + t_imageTexBase + dtohMs,
-        "output/cuda_constant.jpg"
+        "output/cuda_constant.jpg",
+        cudaMetricsConfigPtr
     );
 
 // =====================================================================
@@ -756,7 +774,8 @@ extern "C" void renderCuda(
         openmpMs,
         kernelMs,
         t_spheresConstHtoD + t_materialsHtoD + t_texturesHtoD + t_imageTexBase + dtohMs,
-        "output/cuda_shared.jpg"
+        "output/cuda_shared.jpg",
+        cudaMetricsConfigPtr
     );
 // =====================================================================
 
@@ -799,7 +818,8 @@ extern "C" void renderCuda(
         openmpMs,
         kernelMs,
         t_spheresHtoD + t_materialsHtoD + t_texturesHtoD + t_image1DTex + dtohMs,
-        "output/cuda_1d_texture.jpg"
+        "output/cuda_1d_texture.jpg",
+        cudaMetricsConfigPtr
     );
 
 // =====================================================================
@@ -843,7 +863,8 @@ extern "C" void renderCuda(
         openmpMs,
         kernelMs,
         t_spheresHtoD + t_materialsHtoD + t_texturesHtoD + t_image2DTex + dtohMs,
-        "output/cuda_2d_texture.jpg"
+        "output/cuda_2d_texture.jpg",
+        cudaMetricsConfigPtr
     );
 
 // =====================================================================
@@ -884,7 +905,8 @@ extern "C" void renderCuda(
         openmpMs,
         kernelMs,
         t_spheresConstHtoD + t_materialsHtoD + t_texturesHtoD + t_image2DTex + dtohMs,
-        "output/cuda_2d_texture_constant.jpg"
+        "output/cuda_2d_texture_constant.jpg",
+        cudaMetricsConfigPtr
     );
 
 // =====================================================================
@@ -931,7 +953,8 @@ extern "C" void renderCuda(
         openmpMs,
         kernelMs,
         t_spheresHtoD + t_materialsHtoD + t_texturesHtoD + t_image2DTex + dtohMs,
-        "output/cuda_realistic.jpg"
+        "output/cuda_realistic.jpg",
+        cudaMetricsConfigPtr
     );
 
 // =====================================================================

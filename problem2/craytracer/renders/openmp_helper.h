@@ -18,6 +18,10 @@
 #include "types.h"
 #include "util.h"
 
+#ifndef MAX_SPHERES
+#define MAX_SPHERES 512
+#endif
+
 CFLOAT lcg(int *n);
 
 static inline RGBColorU8 writeColor(CFLOAT r, CFLOAT g, CFLOAT b, int sample_per_pixel) {
@@ -199,7 +203,7 @@ static inline void randomSpheres(ObjectLL *world, DynamicStackAlloc *dsa) {
 }
 
 static inline void randomSpheres2(ObjectLL *world, DynamicStackAlloc *dsa, int n,
-                                  Image imgs[n], int *seed) {
+                                  Image imgs[n], int targetSpheres, int *seed) {
 
     LambertianMat *materialGround = alloc_dynamicStackAllocAllocate(
         dsa, sizeof(LambertianMat), alignof(LambertianMat));
@@ -228,8 +232,35 @@ static inline void randomSpheres2(ObjectLL *world, DynamicStackAlloc *dsa, int n
                                 .radius = 1000,
                                 .sphMat = MAT_CREATE_LAMB_IP(materialGround)});
 
-    for (int a = -2; a < 9; a++) {
-        for (int b = -9; b < 9; b++) {
+    int budget = (targetSpheres > 0 && targetSpheres < MAX_SPHERES)
+        ? targetSpheres
+        : MAX_SPHERES;
+    int targetSmall = budget - 5;
+    if (targetSmall < 0) targetSmall = 0;
+
+    int na, nb;
+    if (targetSpheres <= 0 || targetSmall >= 11 * 18) {
+        na = 11;
+        nb = 18;
+    } else if (targetSmall == 0) {
+        na = 0;
+        nb = 0;
+    } else {
+        na = (int)round(sqrt((double)targetSmall * 11.0 / 18.0));
+        nb = (int)round(sqrt((double)targetSmall * 18.0 / 11.0));
+        if (na < 1) na = 1;
+        if (nb < 1) nb = 1;
+        if (na > 11) na = 11;
+        if (nb > 18) nb = 18;
+    }
+
+    int aStart = 3 - na / 2;
+    int bStart = 0 - nb / 2;
+
+    for (int a = aStart; a < aStart + na; a++) {
+        for (int b = bStart; b < bStart + nb; b++) {
+            if ((int)world->numObjects - 1 >= targetSmall) goto smallDone;
+
             CFLOAT chooseMat = lcg(seed);
             vec3 center = {
                 .x = a + 0.9 * lcg(seed), .y = 0.2, .z = b + 0.9 * lcg(seed)};
@@ -285,6 +316,7 @@ static inline void randomSpheres2(ObjectLL *world, DynamicStackAlloc *dsa, int n
             }
         }
     }
+smallDone:
 
     LambertianMat *material2 = alloc_dynamicStackAllocAllocate(
         dsa, sizeof(LambertianMat), alignof(LambertianMat));
@@ -335,7 +367,9 @@ void renderOpenMP(
     int MAX_DEPTH,
     Camera hC,
     Image img[4],
-    int seed
+    int seed,
+    int numSpheresRequest,
+    int *numSpheresOut
 );
 
 #endif

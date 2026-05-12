@@ -12,6 +12,7 @@
 #include "camera.h"
 #include "color.h"
 #include "hypatiaINC.h"
+#include "metrics.h"
 #include "openmp_helper.h"
 #include "outfile.h"
 #include "texture.h"
@@ -28,7 +29,8 @@ void renderCuda(
     Camera camera,
     Image images[4],
     unsigned int seed,
-    double openmpMs
+    double openmpMs,
+    const MetricsRunConfig *metricsConfig
 );
 
 static vec3 makeVec3(CFLOAT x, CFLOAT y, CFLOAT z)
@@ -90,6 +92,7 @@ int main(int argc, char *argv[])
     int blockSize = 256;
     int numSpheresRequest = 0;
     const int sceneSeed = 100;
+    char runDateTime[32];
 
     for (int i = 1; i < argc; i++) {
         if (strcmp(argv[i], "--block-size") == 0 && i + 1 < argc) {
@@ -103,6 +106,9 @@ int main(int argc, char *argv[])
             if (v > 0) numSpheresRequest = v;
         }
     }
+
+    metrics_current_datetime(runDateTime, sizeof(runDateTime));
+
     if (numSpheresRequest > 0) {
         printf("Config: blockSize=%d MAX_SPHERES=%d maxDepth=%d numSpheres=%d\n",
                blockSize, MAX_SPHERES, maxDepth, numSpheresRequest);
@@ -144,6 +150,7 @@ int main(int argc, char *argv[])
     printf("Scene initialized\n");
     fflush(stdout);
 
+    int openmpNumSpheres = 0;
     double openmpStart = omp_get_wtime();
     renderOpenMP(
         openmpImage,
@@ -153,7 +160,9 @@ int main(int argc, char *argv[])
         maxDepth,
         camera,
         images,
-        sceneSeed
+        sceneSeed,
+        numSpheresRequest,
+        &openmpNumSpheres
     );
     double openmpEnd = omp_get_wtime();
     double openmpMs = (openmpEnd - openmpStart) * 1000.0;
@@ -162,6 +171,24 @@ int main(int argc, char *argv[])
     printf("Time:                         %8.3f ms\n", openmpMs);
     printf("Wrote 'output/openmp.jpg'\n");
     fflush(stdout);
+
+    MetricsRunConfig metricsConfig;
+    strncpy(metricsConfig.dateTime, runDateTime, sizeof(metricsConfig.dateTime));
+    metricsConfig.dateTime[sizeof(metricsConfig.dateTime) - 1] = '\0';
+    metricsConfig.maxSpheres = MAX_SPHERES;
+    metricsConfig.rayDepth = maxDepth;
+    metricsConfig.numSpheres = openmpNumSpheres;
+    metricsConfig.blockSize = blockSize;
+    metricsConfig.numPixels = width * height;
+    metricsConfig.openmpMs = openmpMs;
+
+    MetricsTiming openmpTiming = metrics_make_timing(
+        metricsConfig.numPixels,
+        openmpMs,
+        openmpMs,
+        0.0
+    );
+    metrics_append_summary_row(&metricsConfig, "OPENMP", &openmpTiming);
 
     renderCuda(
         cudaImage,
@@ -174,7 +201,8 @@ int main(int argc, char *argv[])
         camera,
         images,
         (unsigned int)sceneSeed,
-        openmpMs
+        openmpMs,
+        &metricsConfig
     );
 
     free(openmpImage);

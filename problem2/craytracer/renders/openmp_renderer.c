@@ -12,13 +12,19 @@ void renderOpenMP(
     int MAX_DEPTH,
     Camera hC,
     Image img[4],
-    int seed
+    int seed,
+    int numSpheresRequest,
+    int *numSpheresOut
 ) {
     DynamicStackAlloc *dsa = alloc_createDynamicStackAllocD(1024, 100);
     DynamicStackAlloc *dsa0 = alloc_createDynamicStackAllocD(1024, 10);
     ObjectLL *world = obj_createObjectLL(dsa0, dsa);
 
-    randomSpheres2(world, dsa, 4, img, &seed);
+    randomSpheres2(world, dsa, 4, img, numSpheresRequest, &seed);
+
+    if (numSpheresOut != NULL) {
+        *numSpheresOut = (int)world->numObjects;
+    }
 
     LinearAllocFC *lafc =
         alloc_createLinearAllocFC(MAX_DEPTH * world->numObjects,
