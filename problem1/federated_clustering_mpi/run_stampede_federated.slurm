@@ -24,7 +24,7 @@ TOTAL_TASKS=$((TOTAL_WORKERS + SERVER_RANKS))
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$SCRIPT_DIR"
 
-mkdir -p figures
+mkdir -p ./figures
 
 echo "Job ID: ${SLURM_JOB_ID}"
 echo "Nodes: ${SLURM_JOB_NODELIST}"
