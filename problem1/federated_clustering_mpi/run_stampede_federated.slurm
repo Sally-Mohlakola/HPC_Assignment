@@ -53,4 +53,4 @@ mpicxx -O3 -std=c++17 federated_main.cpp -o federated
 
 export OMP_NUM_THREADS="${SLURM_CPUS_PER_TASK}"
 
-srun --ntasks="${TOTAL_TASKS}" --distribution=block:block ./federated
+mpirun -np "${TOTAL_TASKS}" --map-by slot ./federated
