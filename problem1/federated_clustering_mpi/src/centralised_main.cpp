@@ -109,7 +109,7 @@ int main(){
     int epochs_to_80 = -1;
     float final_test_accuracy = 0.0f;
 
-    const string output_root = "../centralised_data";
+    const string output_root = "../centralised_metrics";
     const string run_started = current_datetime_string();
     ensure_directory(output_root);
     const string output_dir = output_root + "/" + run_started;

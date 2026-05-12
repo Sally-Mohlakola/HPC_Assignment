@@ -184,7 +184,7 @@ int main(int argc, char **argv) {
     int rounds_without_improvement = 0;
 
     int data_holder_num = comm_size - 1;
-    const string output_root = "../federated_data";
+    const string output_root = "../federated_metrics";
     string run_started;
     string output_dir;
     char output_dir_buffer[512] = {};
