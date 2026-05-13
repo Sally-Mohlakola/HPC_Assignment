@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --partition=bigbatch
+#SBATCH --partition=stampede
 #SBATCH --cpus-per-task=1
 #SBATCH --time=02:00:00
 # --output / --error are set explicitly by test_mult_node.sh so logs always
