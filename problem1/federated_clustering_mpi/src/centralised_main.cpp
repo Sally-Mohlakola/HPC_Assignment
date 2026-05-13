@@ -101,7 +101,7 @@ int main(){
     auto run_timer_start = steady_clock::now();
 
     int max_epochs = 50;
-    int min_epochs = 30;
+    int min_epochs = 40;
     int patience = 5;
     float min_delta = 0.001f;
     float best_accuracy = -1.0f;
