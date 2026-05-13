@@ -85,6 +85,8 @@ submit_job() {
         --ntasks="${total}" \
         --ntasks-per-node="${ppn}" \
         --job-name="${jobname}" \
+        --output="${PROJECT_DIR}/logs/${jobname}_%j.out" \
+        --error="${PROJECT_DIR}/logs/${jobname}_%j.err" \
         --export=ALL,REPS="${REPS}",STRATEGY_NAME="${strategy}" \
         "${PROJECT_DIR}/mult_node.slurm"
 }

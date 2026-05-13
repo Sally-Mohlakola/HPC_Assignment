@@ -2,6 +2,9 @@
 #SBATCH --partition=bigbatch
 #SBATCH --cpus-per-task=1
 #SBATCH --time=02:00:00
+# --output / --error are set explicitly by test_mult_node.sh so logs always
+# land under the project's logs/ dir (absolute path). The defaults below are
+# only used if you sbatch this file directly.
 #SBATCH --output=logs/mult_node_%x_%j.out
 #SBATCH --error=logs/mult_node_%x_%j.err
 

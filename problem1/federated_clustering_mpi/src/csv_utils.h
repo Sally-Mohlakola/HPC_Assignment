@@ -7,6 +7,7 @@
 #include <iostream>
 #include <ostream>
 #include <string>
+#include <vector>
 #include <sys/stat.h>
 #include <sys/types.h>
 
@@ -112,18 +113,55 @@ inline void append_federated_summary(
     const string &summary_path,
     const string &run_started,
     int num_processes,
+    int num_nodes,
     const string &data_distribution,
     int epochs_to_80,
     double run_time_seconds)
 {
+    const string NEW_HEADER =
+        "date_time_started,num_processes,num_nodes,data_distribution,epochs_to_80,run_time_seconds";
+    const string OLD_HEADER =
+        "date_time_started,num_processes,data_distribution,epochs_to_80,run_time_seconds";
+
+    // Self-heal: if the file was written by the pre-num_nodes binary, migrate
+    // it in-place so this run can append cleanly. Backfills num_nodes=1 on
+    // every existing row (those runs were all single-node by construction).
+    {
+        ifstream existing(summary_path);
+        if (existing.good() && existing.peek() != ifstream::traits_type::eof()) {
+            string first_line;
+            getline(existing, first_line);
+            if (first_line == OLD_HEADER) {
+                vector<string> migrated;
+                string line;
+                while (getline(existing, line)) {
+                    size_t c1 = line.find(',');
+                    size_t c2 = (c1 == string::npos) ? string::npos
+                                                    : line.find(',', c1 + 1);
+                    if (c2 == string::npos) {
+                        migrated.push_back(line);
+                    } else {
+                        migrated.push_back(line.substr(0, c2) + ",1" +
+                                           line.substr(c2));
+                    }
+                }
+                existing.close();
+                ofstream rewrite(summary_path, ios::trunc);
+                rewrite << NEW_HEADER << "\n";
+                for (const auto &r : migrated) rewrite << r << "\n";
+            }
+        }
+    }
+
     bool write_header = csv_needs_header(summary_path);
     ofstream summary_csv(summary_path, ios::app);
     if (write_header) {
-        summary_csv << "date_time_started,num_processes,data_distribution,epochs_to_80,run_time_seconds\n";
+        summary_csv << NEW_HEADER << "\n";
     }
 
     summary_csv << run_started << ","
                 << num_processes << ","
+                << num_nodes << ","
                 << data_distribution << ","
                 << (epochs_to_80 < 0 ? "not_reached" : to_string(epochs_to_80))
                 << ","
