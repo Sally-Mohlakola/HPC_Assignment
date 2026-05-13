@@ -1,7 +1,6 @@
 *.o
 *.jpg
 *.ppm
-*.csv
 
 raytracer
 centralised
