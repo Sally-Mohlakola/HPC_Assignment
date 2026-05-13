@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --partition=stampede
+#SBATCH --partition=bigbatch
 #SBATCH --cpus-per-task=1
 #SBATCH --time=02:00:00
 #SBATCH --output=logs/mult_node_%x_%j.out

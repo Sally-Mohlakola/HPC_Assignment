@@ -184,7 +184,13 @@ int main(int argc, char **argv) {
     int rounds_without_improvement = 0;
 
     int data_holder_num = comm_size - 1;
-    const string output_root = "../federated_metrics";
+    const char *env_output_root = getenv("FEDERATED_OUTPUT_ROOT");
+    const string output_root = env_output_root && *env_output_root
+                                   ? string(env_output_root)
+                                   : string("../federated_metrics");
+    const char *env_num_nodes = getenv("SLURM_JOB_NUM_NODES");
+    int num_nodes = env_num_nodes && *env_num_nodes ? atoi(env_num_nodes) : 1;
+    if (num_nodes < 1) num_nodes = 1;
     string run_started;
     string output_dir;
     char output_dir_buffer[512] = {};
@@ -304,6 +310,7 @@ int main(int argc, char **argv) {
             summary_path,
             run_started,
             comm_size,
+            num_nodes,
             data_distribution_name(),
             epochs_to_80,
             run_time_seconds);
