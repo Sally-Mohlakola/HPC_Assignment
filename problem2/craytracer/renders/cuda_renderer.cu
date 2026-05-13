@@ -16,35 +16,35 @@ extern "C" {
 
 __constant__ DeviceSphere dcSpheres[MAX_SPHERES];
 
-static float cudaElapsedMs(cudaEvent_t start, cudaEvent_t stop)
+static float cudaElapsedSeconds(cudaEvent_t start, cudaEvent_t stop)
 {
-    float ms = 0.0f;
+    float milliseconds = 0.0f;
     cudaEventSynchronize(stop);
-    cudaEventElapsedTime(&ms, start, stop);
-    return ms;
+    cudaEventElapsedTime(&milliseconds, start, stop);
+    return milliseconds / 1000.0f;
 }
 
 static void printKernelStats(
     const char *name,
     int numPixels,
-    double openmpMs,
-    float kernelMs,
-    float memMs,
+    double openmpSeconds,
+    float kernelSeconds,
+    float memSeconds,
     const char *outputPath,
     const MetricsRunConfig *metricsConfig
 ) {
     MetricsTiming timing = metrics_make_timing(
         numPixels,
-        openmpMs,
-        (double)kernelMs,
-        (double)memMs
+        openmpSeconds,
+        (double)kernelSeconds,
+        (double)memSeconds
     );
 
     printf("\n============= %s =============\n", name);
-    printf("Kernel time:                  %8.3f ms\n", kernelMs);
-    printf("Memory transfer time:         %8.3f ms\n", memMs);
-    printf("Total (without mem):          %8.3f ms\n", timing.totalWithoutMemMs);
-    printf("Total (with mem):             %8.3f ms\n", timing.totalWithMemMs);
+    printf("Kernel time:                  %8.3f s\n", kernelSeconds);
+    printf("Memory transfer time:         %8.3f s\n", memSeconds);
+    printf("Total (without mem):          %8.3f s\n", timing.totalWithoutMemSeconds);
+    printf("Total (with mem):             %8.3f s\n", timing.totalWithMemSeconds);
     printf("Throughput:                   %8.2f Mpixels/sec\n", timing.throughputMpixelsSec);
     printf("Speedup vs OpenMP (kernel):   %8.2fx\n", timing.speedupVsOpenmpKernel);
     printf("Speedup vs OpenMP (with mem): %8.2fx\n", timing.speedupVsOpenmpWithMem);
@@ -492,7 +492,7 @@ extern "C" void renderCuda(
     Camera camera,
     Image images[4],
     unsigned int seed,
-    double openmpMs,
+    double openmpSeconds,
     const MetricsRunConfig *metricsConfig
 ) {
 
@@ -544,7 +544,7 @@ extern "C" void renderCuda(
                sizeof(DeviceImageTexture) * numImageTextures,
                cudaMemcpyHostToDevice);
     cudaEventRecord(cudaStop);
-    float t_imageTexBase = cudaElapsedMs(cudaStart, cudaStop);
+    float t_imageTexBase = cudaElapsedSeconds(cudaStart, cudaStop);
 
     // 1D texture objects (for 1D TEXTURE kernel)
     cudaEventRecord(cudaStart);
@@ -555,7 +555,7 @@ extern "C" void renderCuda(
                sizeof(DeviceImage1DTexture) * numImageTextures,
                cudaMemcpyHostToDevice);
     cudaEventRecord(cudaStop);
-    float t_image1DTex = cudaElapsedMs(cudaStart, cudaStop);
+    float t_image1DTex = cudaElapsedSeconds(cudaStart, cudaStop);
 
     // 2D texture objects (for 2D TEXTURE/REALISTIC kernels)
     cudaEventRecord(cudaStart);
@@ -566,7 +566,7 @@ extern "C" void renderCuda(
                sizeof(DeviceImage2DTexture) * numImageTextures,
                cudaMemcpyHostToDevice);
     cudaEventRecord(cudaStop);
-    float t_image2DTex = cudaElapsedMs(cudaStart, cudaStop);
+    float t_image2DTex = cudaElapsedSeconds(cudaStart, cudaStop);
 
     for (int t = 0; t < numImageTextures; t++) {
         imageTextureIndices[t] = cuAddImageTexture(
@@ -603,7 +603,7 @@ extern "C" void renderCuda(
     if (metricsConfig != NULL) {
         cudaMetricsConfig = *metricsConfig;
         cudaMetricsConfig.numSpheres = numSpheres;
-        cudaMetricsConfig.openmpMs = openmpMs;
+        cudaMetricsConfig.openmpSeconds = openmpSeconds;
     }
     const MetricsRunConfig *cudaMetricsConfigPtr =
         (metricsConfig != NULL) ? &cudaMetricsConfig : NULL;
@@ -620,31 +620,31 @@ extern "C" void renderCuda(
     cudaMemcpy(d_spheres, h_spheres,
                sizeof(DeviceSphere) * numSpheres, cudaMemcpyHostToDevice);
     cudaEventRecord(cudaStop);
-    float t_spheresHtoD = cudaElapsedMs(cudaStart, cudaStop);
+    float t_spheresHtoD = cudaElapsedSeconds(cudaStart, cudaStop);
 
     cudaEventRecord(cudaStart);
     cudaMemcpy(d_materials, h_materials,
                sizeof(DeviceMaterial) * numMaterials, cudaMemcpyHostToDevice);
     cudaEventRecord(cudaStop);
-    float t_materialsHtoD = cudaElapsedMs(cudaStart, cudaStop);
+    float t_materialsHtoD = cudaElapsedSeconds(cudaStart, cudaStop);
 
     cudaEventRecord(cudaStart);
     cudaMemcpy(d_textures, h_textures,
                sizeof(DeviceTexture) * numTextures, cudaMemcpyHostToDevice);
     cudaEventRecord(cudaStop);
-    float t_texturesHtoD = cudaElapsedMs(cudaStart, cudaStop);
+    float t_texturesHtoD = cudaElapsedSeconds(cudaStart, cudaStop);
 
     cudaEventRecord(cudaStart);
     cudaMemcpyToSymbol(dcSpheres, h_spheres, sizeof(DeviceSphere) * numSpheres);
     cudaEventRecord(cudaStop);
-    float t_spheresConstHtoD = cudaElapsedMs(cudaStart, cudaStop);
+    float t_spheresConstHtoD = cudaElapsedSeconds(cudaStart, cudaStop);
 
     int threadsPerBlock = (blockSize > 0) ? blockSize : 256;
     int numPixels = width * height;
     int blocks = (numPixels + threadsPerBlock - 1) / threadsPerBlock;
 
-    float kernelMs = 0.0f;
-    float dtohMs = 0.0f;
+    float kernelSeconds = 0.0f;
+    float dtohSeconds = 0.0f;
     size_t imageBytes = sizeof(RGBColorU8) * width * height;
 
 // =====================================================================
@@ -666,7 +666,7 @@ extern "C" void renderCuda(
         seed
     );
     cudaEventRecord(cudaStop);
-    kernelMs = cudaElapsedMs(cudaStart, cudaStop);
+    kernelSeconds = cudaElapsedSeconds(cudaStart, cudaStop);
 
     cudaError_t err = cudaGetLastError();
     if (err != cudaSuccess) {
@@ -676,16 +676,16 @@ extern "C" void renderCuda(
     cudaEventRecord(cudaStart);
     cudaMemcpy(image, dImage, imageBytes, cudaMemcpyDeviceToHost);
     cudaEventRecord(cudaStop);
-    dtohMs = cudaElapsedMs(cudaStart, cudaStop);
+    dtohSeconds = cudaElapsedSeconds(cudaStart, cudaStop);
 
     writeToPPM("output/cuda_global.jpg", width, height, image);
 
     printKernelStats(
         "GLOBAL",
         numPixels,
-        openmpMs,
-        kernelMs,
-        t_spheresHtoD + t_materialsHtoD + t_texturesHtoD + t_imageTexBase + dtohMs,
+        openmpSeconds,
+        kernelSeconds,
+        t_spheresHtoD + t_materialsHtoD + t_texturesHtoD + t_imageTexBase + dtohSeconds,
         "output/cuda_global.jpg",
         cudaMetricsConfigPtr
     );
@@ -710,7 +710,7 @@ extern "C" void renderCuda(
         seed
     );
     cudaEventRecord(cudaStop);
-    kernelMs = cudaElapsedMs(cudaStart, cudaStop);
+    kernelSeconds = cudaElapsedSeconds(cudaStart, cudaStop);
 
     err = cudaGetLastError();
     if (err != cudaSuccess) {
@@ -720,16 +720,16 @@ extern "C" void renderCuda(
     cudaEventRecord(cudaStart);
     cudaMemcpy(image, dImage, imageBytes, cudaMemcpyDeviceToHost);
     cudaEventRecord(cudaStop);
-    dtohMs = cudaElapsedMs(cudaStart, cudaStop);
+    dtohSeconds = cudaElapsedSeconds(cudaStart, cudaStop);
 
     writeToPPM("output/cuda_constant.jpg", width, height, image);
 
     printKernelStats(
         "CONSTANT",
         numPixels,
-        openmpMs,
-        kernelMs,
-        t_spheresConstHtoD + t_materialsHtoD + t_texturesHtoD + t_imageTexBase + dtohMs,
+        openmpSeconds,
+        kernelSeconds,
+        t_spheresConstHtoD + t_materialsHtoD + t_texturesHtoD + t_imageTexBase + dtohSeconds,
         "output/cuda_constant.jpg",
         cudaMetricsConfigPtr
     );
@@ -754,7 +754,7 @@ extern "C" void renderCuda(
         seed
     );
     cudaEventRecord(cudaStop);
-    kernelMs = cudaElapsedMs(cudaStart, cudaStop);
+    kernelSeconds = cudaElapsedSeconds(cudaStart, cudaStop);
 
     err = cudaGetLastError();
     if (err != cudaSuccess) {
@@ -764,16 +764,16 @@ extern "C" void renderCuda(
     cudaEventRecord(cudaStart);
     cudaMemcpy(image, dImage, imageBytes, cudaMemcpyDeviceToHost);
     cudaEventRecord(cudaStop);
-    dtohMs = cudaElapsedMs(cudaStart, cudaStop);
+    dtohSeconds = cudaElapsedSeconds(cudaStart, cudaStop);
 
     writeToPPM("output/cuda_shared.jpg", width, height, image);
 
     printKernelStats(
         "SHARED",
         numPixels,
-        openmpMs,
-        kernelMs,
-        t_spheresConstHtoD + t_materialsHtoD + t_texturesHtoD + t_imageTexBase + dtohMs,
+        openmpSeconds,
+        kernelSeconds,
+        t_spheresConstHtoD + t_materialsHtoD + t_texturesHtoD + t_imageTexBase + dtohSeconds,
         "output/cuda_shared.jpg",
         cudaMetricsConfigPtr
     );
@@ -798,7 +798,7 @@ extern "C" void renderCuda(
         seed
     );
     cudaEventRecord(cudaStop);
-    kernelMs = cudaElapsedMs(cudaStart, cudaStop);
+    kernelSeconds = cudaElapsedSeconds(cudaStart, cudaStop);
 
     err = cudaGetLastError();
     if (err != cudaSuccess) {
@@ -808,16 +808,16 @@ extern "C" void renderCuda(
     cudaEventRecord(cudaStart);
     cudaMemcpy(image, dImage, imageBytes, cudaMemcpyDeviceToHost);
     cudaEventRecord(cudaStop);
-    dtohMs = cudaElapsedMs(cudaStart, cudaStop);
+    dtohSeconds = cudaElapsedSeconds(cudaStart, cudaStop);
 
     writeToPPM("output/cuda_1d_texture.jpg", width, height, image);
 
     printKernelStats(
         "1D TEXTURE",
         numPixels,
-        openmpMs,
-        kernelMs,
-        t_spheresHtoD + t_materialsHtoD + t_texturesHtoD + t_image1DTex + dtohMs,
+        openmpSeconds,
+        kernelSeconds,
+        t_spheresHtoD + t_materialsHtoD + t_texturesHtoD + t_image1DTex + dtohSeconds,
         "output/cuda_1d_texture.jpg",
         cudaMetricsConfigPtr
     );
@@ -843,7 +843,7 @@ extern "C" void renderCuda(
         seed
     );
     cudaEventRecord(cudaStop);
-    kernelMs = cudaElapsedMs(cudaStart, cudaStop);
+    kernelSeconds = cudaElapsedSeconds(cudaStart, cudaStop);
 
     err = cudaGetLastError();
     if (err != cudaSuccess) {
@@ -853,16 +853,16 @@ extern "C" void renderCuda(
     cudaEventRecord(cudaStart);
     cudaMemcpy(image, dImage, imageBytes, cudaMemcpyDeviceToHost);
     cudaEventRecord(cudaStop);
-    dtohMs = cudaElapsedMs(cudaStart, cudaStop);
+    dtohSeconds = cudaElapsedSeconds(cudaStart, cudaStop);
 
     writeToPPM("output/cuda_2d_texture.jpg", width, height, image);
 
     printKernelStats(
         "2D TEXTURE",
         numPixels,
-        openmpMs,
-        kernelMs,
-        t_spheresHtoD + t_materialsHtoD + t_texturesHtoD + t_image2DTex + dtohMs,
+        openmpSeconds,
+        kernelSeconds,
+        t_spheresHtoD + t_materialsHtoD + t_texturesHtoD + t_image2DTex + dtohSeconds,
         "output/cuda_2d_texture.jpg",
         cudaMetricsConfigPtr
     );
@@ -885,7 +885,7 @@ extern "C" void renderCuda(
         seed
     );
     cudaEventRecord(cudaStop);
-    kernelMs = cudaElapsedMs(cudaStart, cudaStop);
+    kernelSeconds = cudaElapsedSeconds(cudaStart, cudaStop);
 
     err = cudaGetLastError();
     if (err != cudaSuccess) {
@@ -895,16 +895,16 @@ extern "C" void renderCuda(
     cudaEventRecord(cudaStart);
     cudaMemcpy(image, dImage, imageBytes, cudaMemcpyDeviceToHost);
     cudaEventRecord(cudaStop);
-    dtohMs = cudaElapsedMs(cudaStart, cudaStop);
+    dtohSeconds = cudaElapsedSeconds(cudaStart, cudaStop);
 
     writeToPPM("output/cuda_2d_texture_constant.jpg", width, height, image);
 
     printKernelStats(
         "2D TEXTURE + CONSTANT",
         numPixels,
-        openmpMs,
-        kernelMs,
-        t_spheresConstHtoD + t_materialsHtoD + t_texturesHtoD + t_image2DTex + dtohMs,
+        openmpSeconds,
+        kernelSeconds,
+        t_spheresConstHtoD + t_materialsHtoD + t_texturesHtoD + t_image2DTex + dtohSeconds,
         "output/cuda_2d_texture_constant.jpg",
         cudaMetricsConfigPtr
     );
@@ -933,7 +933,7 @@ extern "C" void renderCuda(
         seed
     );
     cudaEventRecord(cudaStop);
-    kernelMs = cudaElapsedMs(cudaStart, cudaStop);
+    kernelSeconds = cudaElapsedSeconds(cudaStart, cudaStop);
 
     err = cudaGetLastError();
     if (err != cudaSuccess) {
@@ -943,16 +943,16 @@ extern "C" void renderCuda(
     cudaEventRecord(cudaStart);
     cudaMemcpy(image, dImage, imageBytes, cudaMemcpyDeviceToHost);
     cudaEventRecord(cudaStop);
-    dtohMs = cudaElapsedMs(cudaStart, cudaStop);
+    dtohSeconds = cudaElapsedSeconds(cudaStart, cudaStop);
 
     writeToPPM("output/cuda_realistic.jpg", width, height, image);
 
     printKernelStats(
         "REALISTIC",
         numPixels,
-        openmpMs,
-        kernelMs,
-        t_spheresHtoD + t_materialsHtoD + t_texturesHtoD + t_image2DTex + dtohMs,
+        openmpSeconds,
+        kernelSeconds,
+        t_spheresHtoD + t_materialsHtoD + t_texturesHtoD + t_image2DTex + dtohSeconds,
         "output/cuda_realistic.jpg",
         cudaMetricsConfigPtr
     );

@@ -29,7 +29,7 @@ void renderCuda(
     Camera camera,
     Image images[4],
     unsigned int seed,
-    double openmpMs,
+    double openmpSeconds,
     const MetricsRunConfig *metricsConfig
 );
 
@@ -165,10 +165,10 @@ int main(int argc, char *argv[])
         &openmpNumSpheres
     );
     double openmpEnd = omp_get_wtime();
-    double openmpMs = (openmpEnd - openmpStart) * 1000.0;
+    double openmpSeconds = openmpEnd - openmpStart;
 
     printf("\n============= OPENMP =============\n");
-    printf("Time:                         %8.3f ms\n", openmpMs);
+    printf("Time:                         %8.3f s\n", openmpSeconds);
     printf("Wrote 'output/openmp.jpg'\n");
     fflush(stdout);
 
@@ -180,12 +180,12 @@ int main(int argc, char *argv[])
     metricsConfig.numSpheres = openmpNumSpheres;
     metricsConfig.blockSize = blockSize;
     metricsConfig.numPixels = width * height;
-    metricsConfig.openmpMs = openmpMs;
+    metricsConfig.openmpSeconds = openmpSeconds;
 
     MetricsTiming openmpTiming = metrics_make_timing(
         metricsConfig.numPixels,
-        openmpMs,
-        openmpMs,
+        openmpSeconds,
+        openmpSeconds,
         0.0
     );
     metrics_append_summary_row(&metricsConfig, "OPENMP", &openmpTiming);
@@ -201,7 +201,7 @@ int main(int argc, char *argv[])
         camera,
         images,
         (unsigned int)sceneSeed,
-        openmpMs,
+        openmpSeconds,
         &metricsConfig
     );
 

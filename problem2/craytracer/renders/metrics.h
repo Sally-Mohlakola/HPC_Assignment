@@ -18,14 +18,14 @@ typedef struct {
     int numSpheres;
     int blockSize;
     int numPixels;
-    double openmpMs;
+    double openmpSeconds;
 } MetricsRunConfig;
 
 typedef struct {
-    double kernelMs;
-    double memoryTransferMs;
-    double totalWithoutMemMs;
-    double totalWithMemMs;
+    double kernelSeconds;
+    double memoryTransferSeconds;
+    double totalWithoutMemSeconds;
+    double totalWithMemSeconds;
     double throughputMpixelsSec;
     double speedupVsOpenmpKernel;
     double speedupVsOpenmpWithMem;
@@ -73,24 +73,24 @@ static inline int metrics_summary_needs_header(const char *path)
 
 static inline MetricsTiming metrics_make_timing(
     int numPixels,
-    double openmpMs,
-    double kernelMs,
-    double memoryTransferMs)
+    double openmpSeconds,
+    double kernelSeconds,
+    double memoryTransferSeconds)
 {
     MetricsTiming timing;
 
-    timing.kernelMs = kernelMs;
-    timing.memoryTransferMs = memoryTransferMs;
-    timing.totalWithoutMemMs = kernelMs;
-    timing.totalWithMemMs = kernelMs + memoryTransferMs;
-    timing.throughputMpixelsSec = (kernelMs > 0.0)
-        ? ((double)numPixels / kernelMs / 1000.0)
+    timing.kernelSeconds = kernelSeconds;
+    timing.memoryTransferSeconds = memoryTransferSeconds;
+    timing.totalWithoutMemSeconds = kernelSeconds;
+    timing.totalWithMemSeconds = kernelSeconds + memoryTransferSeconds;
+    timing.throughputMpixelsSec = (kernelSeconds > 0.0)
+        ? ((double)numPixels / kernelSeconds / 1000000.0)
         : 0.0;
-    timing.speedupVsOpenmpKernel = (kernelMs > 0.0)
-        ? openmpMs / kernelMs
+    timing.speedupVsOpenmpKernel = (kernelSeconds > 0.0)
+        ? openmpSeconds / kernelSeconds
         : 0.0;
-    timing.speedupVsOpenmpWithMem = (timing.totalWithMemMs > 0.0)
-        ? openmpMs / timing.totalWithMemMs
+    timing.speedupVsOpenmpWithMem = (timing.totalWithMemSeconds > 0.0)
+        ? openmpSeconds / timing.totalWithMemSeconds
         : 0.0;
 
     return timing;
@@ -118,8 +118,8 @@ static inline int metrics_append_summary_row(
     if (writeHeader) {
         fprintf(file,
                 "date_time,max_spheres,ray_depth,num_spheres,block_size,"
-                "implementation,openmp_time_ms,kernel_time_ms,"
-                "memory_transfer_time_ms,total_without_mem_ms,total_with_mem_ms,"
+                "implementation,openmp_time_s,kernel_time_s,"
+                "memory_transfer_time_s,total_without_mem_s,total_with_mem_s,"
                 "throughput_mpixels_sec,speedup_vs_openmp_kernel,"
                 "speedup_vs_openmp_with_mem\n");
     }
@@ -132,11 +132,11 @@ static inline int metrics_append_summary_row(
             config->numSpheres,
             config->blockSize,
             implementation,
-            config->openmpMs,
-            timing->kernelMs,
-            timing->memoryTransferMs,
-            timing->totalWithoutMemMs,
-            timing->totalWithMemMs,
+            config->openmpSeconds,
+            timing->kernelSeconds,
+            timing->memoryTransferSeconds,
+            timing->totalWithoutMemSeconds,
+            timing->totalWithMemSeconds,
             timing->throughputMpixelsSec,
             timing->speedupVsOpenmpKernel,
             timing->speedupVsOpenmpWithMem);
