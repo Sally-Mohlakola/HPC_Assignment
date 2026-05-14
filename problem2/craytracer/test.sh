@@ -1,7 +1,7 @@
 #!/bin/bash
-#SBATCH --partition=bigbatch
+#SBATCH --partition=stampede
 #SBATCH --cpus-per-task=4
-#SBATCH --time=02:00:00
+#SBATCH --time=09:00:00
 #SBATCH --job-name=craytracer_sweep
 #SBATCH --output=metrics/slurm_%x_%j.out
 #SBATCH --error=metrics/slurm_%x_%j.err
