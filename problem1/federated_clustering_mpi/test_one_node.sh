@@ -13,7 +13,7 @@ PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$PROJECT_DIR"
 
 REPS="${REPS:-3}"
-NPS=(${NPS:-3 5 7 9 13})
+NPS=(${NPS:-3 5 7 9 13 16})
 
 # Stamped before any run so the plotter can ignore older summary rows.
 SWEEP_START="$(date +%Y-%m-%d_%H-%M-%S)"

@@ -8,21 +8,21 @@ set -euo pipefail
 #
 #   A) fixed PPN, varying nodes  — process count per node is held constant
 #      while node count grows. Total ranks scale linearly with N.
-#        e.g.  PPN_FIXED=10, NODES_A=(2 3 4)
-#              -> --nodes=2 --ntasks-per-node=10 --ntasks=20
-#                 --nodes=3 --ntasks-per-node=10 --ntasks=30
-#                 --nodes=4 --ntasks-per-node=10 --ntasks=40
+#        e.g.  PPN_FIXED=8, NODES_A=(2 3 4)
+#              -> --nodes=2 --ntasks-per-node=8 --ntasks=16
+#                 --nodes=3 --ntasks-per-node=8 --ntasks=24
+#                 --nodes=4 --ntasks-per-node=8 --ntasks=32
 #
 #   B) fixed total ranks, varying nodes — TOTAL_B is held constant and
 #      split evenly across nodes. Only node counts that divide TOTAL_B
 #      cleanly are kept (uneven splits produce non-uniform per-node loads
 #      that complicate analysis).
-#        e.g.  TOTAL_B=24, NODES_B=(2 3 4 6 8)
-#              -> --nodes=2 --ntasks-per-node=12 --ntasks=24
-#                 --nodes=3 --ntasks-per-node=8  --ntasks=24
-#                 --nodes=4 --ntasks-per-node=6  --ntasks=24
-#                 --nodes=6 --ntasks-per-node=4  --ntasks=24
-#                 --nodes=8 --ntasks-per-node=3  --ntasks=24
+#        e.g.  TOTAL_B=48, NODES_B=(2 3 4 6 8)
+#              -> --nodes=2 --ntasks-per-node=24 --ntasks=48
+#                 --nodes=3 --ntasks-per-node=16 --ntasks=48
+#                 --nodes=4 --ntasks-per-node=12 --ntasks=48
+#                 --nodes=6 --ntasks-per-node=8  --ntasks=48
+#                 --nodes=8 --ntasks-per-node=6  --ntasks=48
 #
 # Rank 0 is the federated server (lives on node 0). All other ranks are
 # workers. Output writes to the shared federated_metrics/ tree (same as the
@@ -37,10 +37,19 @@ cd "$PROJECT_DIR"
 # ---------------------------------------------------------------------------
 REPS="${REPS:-3}"
 
-PPN_FIXED="${PPN_FIXED:-10}"
+# Strategy A (weak scaling): PPN=8 pins one rank per physical core within a
+# single NUMA socket on the Xeon E5-2680 nodes (8 cores/socket, 2 sockets/node).
+# This keeps each worker's L1/L2 private and gives a clean share of one L3
+# domain, so per-rank performance is constant as nodes are added.
+PPN_FIXED="${PPN_FIXED:-8}"
 NODES_A=(${NODES_A:-2 3 4})
 
-TOTAL_B="${TOTAL_B:-24}"
+# Strategy B (strong scaling): total=48 factors over every node count in
+# NODES_B, yielding NUMA-friendly per-node PPN values (24, 16, 12, 8, 6).
+# 48 keeps per-rank work meaningful even at 8 nodes (6 ranks/node), whereas
+# the earlier total=24 fell to 3 ranks/node — most cores idle and per-rank
+# work too small to dominate communication cost.
+TOTAL_B="${TOTAL_B:-48}"
 NODES_B=(${NODES_B:-2 3 4 6 8})
 
 # Distribution baked into the binary at compile time (same default as
