@@ -1,4 +1,11 @@
-#!/usr/bin/env bash
+#!/bin/bash
+#SBATCH --partition=bigbatch
+#SBATCH --gres=gpu:1
+#SBATCH --cpus-per-task=4
+#SBATCH --time=02:00:00
+#SBATCH --job-name=craytracer_sweep
+#SBATCH --output=metrics/slurm_%x_%j.out
+#SBATCH --error=metrics/slurm_%x_%j.err
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
