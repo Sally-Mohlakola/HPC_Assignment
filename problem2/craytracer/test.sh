@@ -19,9 +19,10 @@ BASE_BLOCK=256
 BASE_DEPTH=50
 BASE_SPHERES=200
 
-BLOCK_SIZES=(32 64 128 256 512 1024)
-SPHERE_COUNTS=(50 100 200 400 800)
-RAY_DEPTHS=(5 10 25 50 75 100)
+#BLOCK_SIZES=(32 64 128 256 512 1024)
+#SPHERE_COUNTS=(50 100 200 400 800)
+#RAY_DEPTHS=(5 10 25 50 75 100)
+RAY_DEPTHS=(75 100)
 
 RUNS_PER_TEST=3
 
@@ -47,27 +48,27 @@ run_repeated() {
     done
 }
 
-echo "###################################################################"
-echo "# Sweep 1: block size  (depth=$BASE_DEPTH, spheres=$BASE_SPHERES)"
-echo "# Each config run ${RUNS_PER_TEST}x"
-echo "###################################################################"
-for bs in "${BLOCK_SIZES[@]}"; do
-    run_repeated "block_${bs}" \
-        --block-size "$bs" \
-        --max-depth "$BASE_DEPTH" \
-        --num-spheres "$BASE_SPHERES"
-done
+#echo "###################################################################"
+#echo "# Sweep 1: block size  (depth=$BASE_DEPTH, spheres=$BASE_SPHERES)"
+#echo "# Each config run ${RUNS_PER_TEST}x"
+#echo "###################################################################"
+#for bs in "${BLOCK_SIZES[@]}"; do
+#    run_repeated "block_${bs}" \
+#        --block-size "$bs" \
+#        --max-depth "$BASE_DEPTH" \
+#        --num-spheres "$BASE_SPHERES"
+#done
 
-echo "###################################################################"
-echo "# Sweep 2: object count  (block=$BASE_BLOCK, depth=$BASE_DEPTH)"
-echo "# Each config run ${RUNS_PER_TEST}x"
-echo "###################################################################"
-for n in "${SPHERE_COUNTS[@]}"; do
-    run_repeated "spheres_${n}" \
-        --block-size "$BASE_BLOCK" \
-        --max-depth "$BASE_DEPTH" \
-        --num-spheres "$n"
-done
+#echo "###################################################################"
+#echo "# Sweep 2: object count  (block=$BASE_BLOCK, depth=$BASE_DEPTH)"
+#echo "# Each config run ${RUNS_PER_TEST}x"
+#echo "###################################################################"
+#for n in "${SPHERE_COUNTS[@]}"; do
+#    run_repeated "spheres_${n}" \
+#        --block-size "$BASE_BLOCK" \
+#        --max-depth "$BASE_DEPTH" \
+#        --num-spheres "$n"
+#done
 
 echo "###################################################################"
 echo "# Sweep 3: ray depth  (block=$BASE_BLOCK, spheres=$BASE_SPHERES)"
