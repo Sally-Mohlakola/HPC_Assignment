@@ -6,21 +6,21 @@
   3) test accuracy vs round, one curve per (strategy, nodes)
   4) multi_node_summary.csv
 
-Reads the same shared federated_metrics/ tree as plot_one_node.py. Rows are
-split into strategies by the recorded (num_nodes, num_processes):
+Reads one sweep's metrics/sweep_<N>/summary_multinode.csv. Rows are split into
+strategies by the recorded (num_nodes, num_processes):
   Strategy A row  iff  num_processes == fixed_ppn   * num_nodes
   Strategy B row  iff  num_processes == fixed_total
 A row can satisfy both (e.g. nodes=2, ppn=12 when fixed_total=24, fixed_ppn=12)
 and is plotted under both — that's informative, not a bug.
 
-Speedup baseline is the closest-in-time centralised run, matching plot_one_node.py.
-Centralised rows are not date-filtered by --start: the multi-node sweep often
-runs after its centralised baseline, and any prior centralised reference is fair
-game.
+Speedup baseline is the closest-in-time centralised run pooled from every
+metrics/sweep_*/summary_centralised.csv, because multi-node sweeps do not have
+their own centralised phase.
 """
 
 import argparse
 import csv
+import sys
 from collections import defaultdict
 from datetime import datetime
 from pathlib import Path
@@ -44,12 +44,27 @@ def read_summary(path: Path):
         return list(csv.DictReader(f))
 
 
+def run_dir_name(row):
+    """Per-run output directory name: a unique run_id for new data, or the
+    start timestamp for legacy data that predates run-id naming."""
+    return row.get("run_id") or row["date_time_started"]
+
+
 def read_run_metrics(path: Path):
+    """Returns (epochs, train_loss, train_acc, test_acc) as numpy arrays, or
+    None if the file is empty or malformed. A malformed row signals a write
+    collision (several runs sharing one timestamped directory), which garbles
+    the whole file, so the entire file is rejected rather than partially read."""
     rows = []
     with path.open() as f:
         for r in csv.DictReader(f):
-            rows.append((int(r["epoch"]), float(r["train_loss"]),
-                         float(r["train_acc"]), float(r["test_acc"])))
+            try:
+                rows.append((int(r["epoch"]), float(r["train_loss"]),
+                             float(r["train_acc"]), float(r["test_acc"])))
+            except (TypeError, ValueError, KeyError):
+                print(f"[plot] warning: malformed row in {path}; "
+                      f"dropping this run's curve", file=sys.stderr)
+                return None
     if not rows:
         return None
     rows.sort(key=lambda r: r[0])
@@ -78,6 +93,13 @@ def closest_centralised(ts: datetime, centralised_rows):
             best = row
             best_dt = delta
     return best
+
+
+def read_pooled_centralised(metrics_dir: Path):
+    rows = []
+    for summary in sorted(metrics_dir.glob("sweep_*/summary_centralised.csv")):
+        rows.extend(read_summary(summary))
+    return rows
 
 
 def speedup_plot(out_path, title, x_groups, dists, speedups, x_label):
@@ -112,8 +134,8 @@ def speedup_plot(out_path, title, x_groups, dists, speedups, x_label):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--project-dir", required=True, type=Path)
-    ap.add_argument("--start", required=True,
-                    help="Sweep start timestamp; older federated rows are ignored.")
+    ap.add_argument("--sweep-id", required=True,
+                    help="Read metrics/sweep_<id>/summary_multinode.csv.")
     ap.add_argument("--reps", type=int, default=3)
     ap.add_argument("--fixed-ppn", type=int, default=10,
                     help="Strategy A: processes-per-node held constant.")
@@ -124,23 +146,22 @@ def main():
     args = ap.parse_args()
 
     project = args.project_dir
-    cdir = project / "centralised_metrics"
-    fdir = project / "federated_metrics"
-    out = project / "plots"
-    out.mkdir(exist_ok=True)
+    metrics_dir = project / "metrics"
+    sweep_dir = metrics_dir / f"sweep_{args.sweep_id}"
+    fdir = sweep_dir / "federated"
+    out = sweep_dir / "plots"
+    out.mkdir(parents=True, exist_ok=True)
 
-    sweep_start = parse_ts(args.start)
-
-    central_rows = read_summary(cdir / "summary.csv")
-    fed_rows_all = read_summary(fdir / "summary.csv")
-    fed_rows = [r for r in fed_rows_all
-                if parse_ts(r["date_time_started"]) >= sweep_start]
+    # Multi-node sweeps have no centralised phase of their own, so speedup is
+    # taken against the closest-in-time centralised run from any sweep.
+    central_rows = read_pooled_centralised(metrics_dir)
+    fed_rows = read_summary(sweep_dir / "summary_multinode.csv")
 
     if not fed_rows:
-        raise SystemExit(f"No federated runs found at or after {args.start}")
+        raise SystemExit(f"No multi-node federated runs found in {sweep_dir}")
     if "num_nodes" not in fed_rows[0]:
         raise SystemExit(
-            "summary.csv has no num_nodes column. Rebuild federated and rerun.")
+            "summary_multinode.csv has no num_nodes column. Rebuild federated and rerun.")
 
     # ----- Bucket per (strategy, dist, nodes) -------------------------------
     # Each bucket aggregates reps across runs that share the tuple.
@@ -173,7 +194,7 @@ def main():
         speedup = (float(match["run_time_seconds"]) / fed_time
                    if match is not None else None)
 
-        m = fdir / r["date_time_started"] / "federated_metrics.csv"
+        m = fdir / run_dir_name(r) / "federated_metrics.csv"
         curve = read_run_metrics(m) if m.exists() else None
 
         e80 = (int(r["epochs_to_80"])

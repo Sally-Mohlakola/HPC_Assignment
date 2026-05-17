@@ -109,10 +109,20 @@ int main(){
     int epochs_to_80 = -1;
     float final_test_accuracy = 0.0f;
 
-    const string output_root = "../centralised_metrics";
+    const char *env_output_root = getenv("CENTRALISED_OUTPUT_ROOT");
+    const string output_root = env_output_root && *env_output_root
+                                   ? string(env_output_root)
+                                   : string("../centralised_metrics");
+    const char *env_sweep_id = getenv("CENTRALISED_SWEEP_ID");
+    const string sweep_id = env_sweep_id && *env_sweep_id
+                                ? string(env_sweep_id)
+                                : string("adhoc");
     const string run_started = current_datetime_string();
+    // Harness-assigned, sweep-unique id (CENTRALISED_RUN_ID); timestamp+PID
+    // fallback for direct runs. Keeps every run's directory unique.
+    const string run_id = resolve_run_id("CENTRALISED_RUN_ID");
     ensure_directory(output_root);
-    const string output_dir = output_root + "/" + run_started;
+    const string output_dir = output_root + "/" + run_id;
     ensure_directory(output_dir);
 
     vector<vector<float>> test_images = get_images("../data/t10k-images-idx3-ubyte/t10k-images.idx3-ubyte");
@@ -120,6 +130,14 @@ int main(){
 
     auto train_images =get_images("../data/train-images-idx3-ubyte/train-images.idx3-ubyte");
     auto train_labels = get_labels("../data/train-labels-idx1-ubyte/train-labels.idx1-ubyte");
+
+    if (test_images.empty() || test_labels.empty() ||
+        train_images.empty() || train_labels.empty()) {
+        cerr << "[Centralised] Failed to load MNIST data from ../data/. "
+                "Aborting run.\n";
+        return 1;
+    }
+
     auto train_pair = make_pairs(train_labels, train_images);
     mean_std_norm(train_pair);
 
@@ -197,9 +215,12 @@ int main(){
     double run_time_seconds =
         duration<double>(steady_clock::now() - run_timer_start).count();
 
-    string summary_path = output_root + "/summary.csv";
-    append_centralised_summary(
-        summary_path,
+    // Write only this run's own row, into this run's own directory; the
+    // aggregate phase gathers every run_summary.csv into summary.csv.
+    write_centralised_run_summary(
+        output_dir + "/run_summary.csv",
+        sweep_id,
+        run_id,
         run_started,
         epochs_to_80,
         final_test_accuracy,

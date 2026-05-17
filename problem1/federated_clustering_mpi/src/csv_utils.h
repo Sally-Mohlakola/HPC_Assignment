@@ -2,6 +2,7 @@
 #define CSV_UTILS_H
 
 #include <cerrno>
+#include <cstdlib>
 #include <ctime>
 #include <fstream>
 #include <iostream>
@@ -10,6 +11,7 @@
 #include <vector>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <unistd.h>
 
 namespace csv_utils {
 
@@ -40,10 +42,17 @@ inline bool ensure_directory(const string &path) {
     return false;
 }
 
-inline bool csv_needs_header(const string &path) {
-    ifstream existing(path);
-    return !existing.good() ||
-           existing.peek() == ifstream::traits_type::eof();
+// Resolve this run's unique identifier. The harness sets `env_var` to a value
+// it has guaranteed unique across the whole sweep, so concurrent runs never
+// collide on an output directory. When the binary is launched directly with no
+// harness, fall back to a timestamp plus PID -- still collision-free even if a
+// few runs are started by hand at the same second.
+inline string resolve_run_id(const string &env_var) {
+    const char *v = getenv(env_var.c_str());
+    if (v && *v) {
+        return string(v);
+    }
+    return current_datetime_string() + "_pid" + to_string(getpid());
 }
 
 inline ofstream create_metrics_csv(
@@ -87,30 +96,34 @@ inline void write_worker_metrics(
         << train_accuracy << "\n";
 }
 
-inline void append_centralised_summary(
-    const string &summary_path,
+// Each run writes its own self-contained summary row into its private result
+// directory (run_summary.csv). Nothing is ever appended to a shared file, so
+// concurrent runs cannot race or interleave. The aggregate phase later gathers
+// every run_summary.csv into a single summary.csv, single-threaded and safely.
+inline void write_centralised_run_summary(
+    const string &path,
+    const string &sweep_id,
+    const string &run_id,
     const string &run_started,
     int epochs_to_80,
     float final_test_accuracy,
     double run_time_seconds)
 {
-    bool write_header = csv_needs_header(summary_path);
-    ofstream summary_csv(summary_path, ios::app);
-    if (write_header) {
-        summary_csv << "date_time_started,epochs_to_80,test_acc,run_time_seconds\n";
-    }
-
-    summary_csv << run_started << ","
-                << (epochs_to_80 < 0 ? "not_reached" : to_string(epochs_to_80))
-                << ","
-                << final_test_accuracy
-                << ","
-                << run_time_seconds
-                << "\n";
+    ofstream csv(path, ios::trunc);
+    csv << "sweep_id,run_id,date_time_started,epochs_to_80,test_acc,"
+           "run_time_seconds\n";
+    csv << sweep_id << ","
+        << run_id << ","
+        << run_started << ","
+        << (epochs_to_80 < 0 ? "not_reached" : to_string(epochs_to_80)) << ","
+        << final_test_accuracy << ","
+        << run_time_seconds << "\n";
 }
 
-inline void append_federated_summary(
-    const string &summary_path,
+inline void write_federated_run_summary(
+    const string &path,
+    const string &sweep_id,
+    const string &run_id,
     const string &run_started,
     int num_processes,
     int num_nodes,
@@ -118,55 +131,17 @@ inline void append_federated_summary(
     int epochs_to_80,
     double run_time_seconds)
 {
-    const string NEW_HEADER =
-        "date_time_started,num_processes,num_nodes,data_distribution,epochs_to_80,run_time_seconds";
-    const string OLD_HEADER =
-        "date_time_started,num_processes,data_distribution,epochs_to_80,run_time_seconds";
-
-    // Self-heal: if the file was written by the pre-num_nodes binary, migrate
-    // it in-place so this run can append cleanly. Backfills num_nodes=1 on
-    // every existing row (those runs were all single-node by construction).
-    {
-        ifstream existing(summary_path);
-        if (existing.good() && existing.peek() != ifstream::traits_type::eof()) {
-            string first_line;
-            getline(existing, first_line);
-            if (first_line == OLD_HEADER) {
-                vector<string> migrated;
-                string line;
-                while (getline(existing, line)) {
-                    size_t c1 = line.find(',');
-                    size_t c2 = (c1 == string::npos) ? string::npos
-                                                    : line.find(',', c1 + 1);
-                    if (c2 == string::npos) {
-                        migrated.push_back(line);
-                    } else {
-                        migrated.push_back(line.substr(0, c2) + ",1" +
-                                           line.substr(c2));
-                    }
-                }
-                existing.close();
-                ofstream rewrite(summary_path, ios::trunc);
-                rewrite << NEW_HEADER << "\n";
-                for (const auto &r : migrated) rewrite << r << "\n";
-            }
-        }
-    }
-
-    bool write_header = csv_needs_header(summary_path);
-    ofstream summary_csv(summary_path, ios::app);
-    if (write_header) {
-        summary_csv << NEW_HEADER << "\n";
-    }
-
-    summary_csv << run_started << ","
-                << num_processes << ","
-                << num_nodes << ","
-                << data_distribution << ","
-                << (epochs_to_80 < 0 ? "not_reached" : to_string(epochs_to_80))
-                << ","
-                << run_time_seconds
-                << "\n";
+    ofstream csv(path, ios::trunc);
+    csv << "sweep_id,run_id,date_time_started,num_processes,num_nodes,"
+           "data_distribution,epochs_to_80,run_time_seconds\n";
+    csv << sweep_id << ","
+        << run_id << ","
+        << run_started << ","
+        << num_processes << ","
+        << num_nodes << ","
+        << data_distribution << ","
+        << (epochs_to_80 < 0 ? "not_reached" : to_string(epochs_to_80)) << ","
+        << run_time_seconds << "\n";
 }
 
 } // namespace csv_utils

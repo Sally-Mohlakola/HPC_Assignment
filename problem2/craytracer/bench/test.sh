@@ -7,8 +7,8 @@
 #SBATCH --error=metrics/slurm_%x_%j.err
 set -euo pipefail
 
-SCRIPT_DIR="${SLURM_SUBMIT_DIR:-$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)}"
-cd "$SCRIPT_DIR"
+PROJECT_ROOT="${SLURM_SUBMIT_DIR:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
+cd "$PROJECT_ROOT"
 
 mkdir -p output metrics
 make
@@ -26,9 +26,20 @@ RAY_DEPTHS=(75 100)
 
 RUNS_PER_TEST=3
 
-LOG_DIR="metrics/logs"
-PLOT_DIR="metrics/plots"
-mkdir -p "$LOG_DIR" "$PLOT_DIR"
+# ----- Allocate the next sweep id -----------------------------------------
+# All generated files for this run live under metrics/sweep_<N>/.
+COUNTER="metrics/.sweep_counter"
+SWEEP_ID=$(( $(cat "$COUNTER" 2>/dev/null || echo 0) + 1 ))
+echo "$SWEEP_ID" > "$COUNTER"
+
+SWEEP_DIR="${PROJECT_ROOT}/metrics/sweep_${SWEEP_ID}"
+LOG_DIR="${SWEEP_DIR}/logs"
+PLOT_DIR="${SWEEP_DIR}/plots"
+mkdir -p "$SWEEP_DIR" "$LOG_DIR" "$PLOT_DIR"
+
+export CRAYTRACER_METRICS_DIR="$SWEEP_DIR"
+export CRAYTRACER_SWEEP_ID="$SWEEP_ID"
+
 STAMP="$(date +%Y-%m-%d_%H-%M-%S)"
 
 run_one() {
@@ -84,17 +95,12 @@ done
 echo
 echo "All sweeps complete."
 echo "Per-run logs:    $LOG_DIR/${STAMP}_*.log"
-echo "Aggregated CSV:  metrics/summary.csv"
+echo "Aggregated CSV:  ${SWEEP_DIR}/summary.csv"
 
 echo
 echo "###################################################################"
-echo "# Generating averaged plots from this session (since $STAMP)"
+echo "# Generating averaged plots for sweep ${SWEEP_ID}"
 echo "###################################################################"
-python3 "$SCRIPT_DIR/plot_results.py" \
-    --csv "$SCRIPT_DIR/metrics/summary.csv" \
-    --since "$STAMP" \
-    --output-dir "$PLOT_DIR" \
-    --stamp "$STAMP" \
-    --base-block "$BASE_BLOCK" \
-    --base-depth "$BASE_DEPTH" \
-    --base-spheres "$BASE_SPHERES"
+python3 "$PROJECT_ROOT/bench/plot_results.py" \
+    --project-dir "$PROJECT_ROOT" \
+    --sweep-id "$SWEEP_ID"

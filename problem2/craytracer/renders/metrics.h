@@ -3,13 +3,15 @@
 
 #include <errno.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <time.h>
 
-#define METRICS_DIR "metrics"
-#define METRICS_SUMMARY_PATH "metrics/summary.csv"
+#define METRICS_DIR_DEFAULT "metrics"
+#define METRICS_SUMMARY_FILE "summary.csv"
+#define METRICS_PATH_BUFFER_SIZE 4096
 
 typedef struct {
     char dateTime[32];
@@ -57,6 +59,34 @@ static inline int metrics_ensure_directory(const char *path)
     return 1;
 }
 
+static inline const char *metrics_get_directory(void)
+{
+    const char *dir = getenv("CRAYTRACER_METRICS_DIR");
+    return (dir != NULL && dir[0] != '\0') ? dir : METRICS_DIR_DEFAULT;
+}
+
+static inline const char *metrics_get_sweep_id(void)
+{
+    const char *sweepId = getenv("CRAYTRACER_SWEEP_ID");
+    return (sweepId != NULL && sweepId[0] != '\0') ? sweepId : "0";
+}
+
+static inline int metrics_summary_path(char *buffer, size_t bufferSize)
+{
+    int written = snprintf(buffer,
+                           bufferSize,
+                           "%s/%s",
+                           metrics_get_directory(),
+                           METRICS_SUMMARY_FILE);
+
+    if (written < 0 || (size_t)written >= bufferSize) {
+        fprintf(stderr, "Metrics summary path is too long\n");
+        return 1;
+    }
+
+    return 0;
+}
+
 static inline int metrics_summary_needs_header(const char *path)
 {
     FILE *file = fopen(path, "r");
@@ -101,23 +131,30 @@ static inline int metrics_append_summary_row(
     const char *implementation,
     const MetricsTiming *timing)
 {
-    if (metrics_ensure_directory(METRICS_DIR) != 0) {
+    const char *metricsDir = metrics_get_directory();
+    char summaryPath[METRICS_PATH_BUFFER_SIZE];
+
+    if (metrics_ensure_directory(metricsDir) != 0) {
         return 1;
     }
 
-    int writeHeader = metrics_summary_needs_header(METRICS_SUMMARY_PATH);
-    FILE *file = fopen(METRICS_SUMMARY_PATH, "a");
+    if (metrics_summary_path(summaryPath, sizeof(summaryPath)) != 0) {
+        return 1;
+    }
+
+    int writeHeader = metrics_summary_needs_header(summaryPath);
+    FILE *file = fopen(summaryPath, "a");
 
     if (file == NULL) {
         fprintf(stderr, "Failed to open '%s': %s\n",
-                METRICS_SUMMARY_PATH,
+                summaryPath,
                 strerror(errno));
         return 1;
     }
 
     if (writeHeader) {
         fprintf(file,
-                "date_time,max_spheres,ray_depth,num_spheres,block_size,"
+                "sweep_id,date_time,max_spheres,ray_depth,num_spheres,block_size,"
                 "implementation,openmp_time_s,kernel_time_s,"
                 "memory_transfer_time_s,total_without_mem_s,total_with_mem_s,"
                 "throughput_mpixels_sec,speedup_vs_openmp_kernel,"
@@ -125,7 +162,8 @@ static inline int metrics_append_summary_row(
     }
 
     fprintf(file,
-            "%s,%d,%d,%d,%d,%s,%.3f,%.3f,%.3f,%.3f,%.3f,%.6f,%.6f,%.6f\n",
+            "%s,%s,%d,%d,%d,%d,%s,%.3f,%.3f,%.3f,%.3f,%.3f,%.6f,%.6f,%.6f\n",
+            metrics_get_sweep_id(),
             config->dateTime,
             config->maxSpheres,
             config->rayDepth,

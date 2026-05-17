@@ -11,7 +11,7 @@ Averages over repetitions for each (data_distribution, num_processes).
 
 import argparse
 import csv
-import os
+import sys
 from collections import defaultdict
 from datetime import datetime
 from pathlib import Path
@@ -35,13 +35,27 @@ def read_summary(path: Path):
         return list(csv.DictReader(f))
 
 
+def run_dir_name(row):
+    """Per-run output directory name: a unique run_id for new data, or the
+    start timestamp for legacy data that predates run-id naming."""
+    return row.get("run_id") or row["date_time_started"]
+
+
 def read_run_metrics(path: Path):
-    """Returns (epochs, train_loss, train_acc, test_acc) as numpy arrays."""
+    """Returns (epochs, train_loss, train_acc, test_acc) as numpy arrays, or
+    None if the file is empty or malformed. A malformed row signals a write
+    collision (several runs sharing one timestamped directory), which garbles
+    the whole file, so the entire file is rejected rather than partially read."""
     rows = []
     with path.open() as f:
         for r in csv.DictReader(f):
-            rows.append((int(r["epoch"]), float(r["train_loss"]),
-                         float(r["train_acc"]), float(r["test_acc"])))
+            try:
+                rows.append((int(r["epoch"]), float(r["train_loss"]),
+                             float(r["train_acc"]), float(r["test_acc"])))
+            except (TypeError, ValueError, KeyError):
+                print(f"[plot] warning: malformed row in {path}; "
+                      f"dropping this run's curve", file=sys.stderr)
+                return None
     if not rows:
         return None
     rows.sort(key=lambda r: r[0])
@@ -78,35 +92,32 @@ def closest_centralised(ts: datetime, centralised_rows):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--project-dir", required=True, type=Path)
+    ap.add_argument("--sweep-id", required=True,
+                    help="Read metrics/sweep_<id>/summary_*.csv.")
     ap.add_argument("--reps", type=int, default=3)
-    ap.add_argument("--start", required=True,
-                    help="Sweep start timestamp; older summary rows are ignored.")
     ap.add_argument("--nps", type=int, nargs="+", required=True)
     ap.add_argument("--dists", type=str, nargs="+", required=True)
     args = ap.parse_args()
 
     project = args.project_dir
-    cdir = project / "centralised_metrics"
-    fdir = project / "federated_metrics"
-    out = project / "plots"
-    out.mkdir(exist_ok=True)
+    sweep_dir = project / "metrics" / f"sweep_{args.sweep_id}"
+    cdir = sweep_dir / "centralised"
+    fdir = sweep_dir / "federated"
+    out = sweep_dir / "plots"
+    out.mkdir(parents=True, exist_ok=True)
 
-    sweep_start = parse_ts(args.start)
-
-    central_rows = [r for r in read_summary(cdir / "summary.csv")
-                    if parse_ts(r["date_time_started"]) >= sweep_start]
-    fed_rows = [r for r in read_summary(fdir / "summary.csv")
-                if parse_ts(r["date_time_started"]) >= sweep_start]
+    central_rows = read_summary(sweep_dir / "summary_centralised.csv")
+    fed_rows = read_summary(sweep_dir / "summary_onenode.csv")
 
     if not central_rows:
-        raise SystemExit(f"No centralised runs found at or after {args.start}")
+        raise SystemExit(f"No centralised runs found in {sweep_dir}")
     if not fed_rows:
-        raise SystemExit(f"No federated runs found at or after {args.start}")
+        raise SystemExit(f"No one-node federated runs found in {sweep_dir}")
 
     # ----- Per-run metric curves -------------------------------------------
     central_curves = []
     for r in central_rows:
-        m = cdir / r["date_time_started"] / "centralised_metrics.csv"
+        m = cdir / run_dir_name(r) / "centralised_metrics.csv"
         c = read_run_metrics(m)
         if c is not None:
             central_curves.append(c)
@@ -131,7 +142,7 @@ def main():
         if r["epochs_to_80"] != "not_reached":
             fed_epochs_to_80[(dist, np_count)].append(int(r["epochs_to_80"]))
 
-        m = fdir / r["date_time_started"] / "federated_metrics.csv"
+        m = fdir / run_dir_name(r) / "federated_metrics.csv"
         c = read_run_metrics(m)
         if c is not None:
             fed_curves[(dist, np_count)].append(c)

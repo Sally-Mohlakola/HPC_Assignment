@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
 """Aggregate craytracer benchmark CSV rows and plot sweep results.
 
-Reads metrics/summary.csv, filters to rows written during this benchmark
-session (date_time >= --since), averages repeated runs of the same config,
-and produces one figure per sweep (block-size, sphere-count, ray-depth)
-with three subplots: kernel time, throughput, speedup vs OpenMP.
+Reads metrics/sweep_<N>/summary.csv, averages repeated runs of the same
+config, and produces one figure per sweep (block-size, sphere-count,
+ray-depth) with three subplots: kernel time, throughput, speedup vs OpenMP.
 """
 
 import argparse
@@ -54,36 +53,43 @@ IMPL_STYLE = {
     "REALISTIC": {"color": "#e377c2", "marker": "*"},
 }
 
+BASE_BLOCK = 256
+BASE_DEPTH = 50
+BASE_SPHERES = 200
+
 
 def parse_args():
     p = argparse.ArgumentParser()
-    p.add_argument("--csv", required=True, help="Path to metrics/summary.csv")
-    p.add_argument("--since", required=True,
-                   help="Only rows with date_time >= this stamp are used "
-                        "(format YYYY-MM-DD_HH-MM-SS)")
-    p.add_argument("--output-dir", required=True, help="Where to write plots")
-    p.add_argument("--stamp", default="",
-                   help="Optional stamp to prefix output filenames")
-    p.add_argument("--base-block", type=int, default=256)
-    p.add_argument("--base-depth", type=int, default=50)
-    p.add_argument("--base-spheres", type=int, default=200,
-                   help="Requested sphere count (actual recorded count may "
-                        "differ by a small amount due to scene generation)")
+    p.add_argument("--project-dir", required=True, type=Path)
+    p.add_argument("--sweep-id", required=True,
+                   help="Read metrics/sweep_<id>/summary.csv.")
     return p.parse_args()
 
 
-def load_rows(csv_path, since_stamp):
+def load_rows(csv_path, sweep_id):
     rows = []
+    skipped = 0
     with open(csv_path, newline="") as f:
         reader = csv.DictReader(f)
         for row in reader:
-            if row.get("date_time", "") < since_stamp:
+            if row.get("sweep_id") not in (None, "", str(sweep_id)):
                 continue
             for col in INT_COLS:
                 row[col] = int(row[col])
             for col in NUMERIC_COLS:
                 row[col] = float(row[col])
+            # A non-positive kernel time means the kernel never actually ran
+            # (e.g. a CUDA launch that failed because the block size exceeds
+            # the kernel's per-block resource budget). Such rows carry a ~0 s
+            # time and a meaningless throughput/speedup, so drop them rather
+            # than let them skew the averages and autoscale the plots.
+            if row["kernel_time_s"] <= 0.0:
+                skipped += 1
+                continue
             rows.append(row)
+    if skipped:
+        print(f"  [warn] dropped {skipped} row(s) with non-positive kernel "
+              f"time (failed kernel launches)", file=sys.stderr)
     return rows
 
 
@@ -206,40 +212,52 @@ def plot_sweep(averaged, sweep_var, sweep_label, filter_fn, fixed_desc,
 
 def main():
     args = parse_args()
-    out_dir = Path(args.output_dir)
+    sweep_dir = args.project_dir / "metrics" / f"sweep_{args.sweep_id}"
+    csv_path = sweep_dir / "summary.csv"
+    out_dir = sweep_dir / "plots"
     out_dir.mkdir(parents=True, exist_ok=True)
 
-    rows = load_rows(args.csv, args.since)
+    rows = load_rows(csv_path, args.sweep_id)
     if not rows:
-        print(f"No rows in {args.csv} with date_time >= {args.since}",
-              file=sys.stderr)
+        print(f"No rows found in {csv_path}", file=sys.stderr)
         sys.exit(1)
-    print(f"Loaded {len(rows)} rows (since {args.since})")
+    print(f"Loaded {len(rows)} rows from {csv_path}")
 
     averaged = average_rows(rows)
     run_counts = {r["run_count"] for r in averaged}
     print(f"Averaged into {len(averaged)} (config, implementation) groups; "
           f"runs per group: {sorted(run_counts)}")
 
-    prefix = f"{args.stamp}_" if args.stamp else ""
-    avg_csv = out_dir / f"{prefix}averaged.csv"
+    avg_csv = out_dir / "averaged.csv"
     write_averaged_csv(averaged, avg_csv)
     print(f"  wrote {avg_csv}")
 
-    base_block = args.base_block
-    base_depth = args.base_depth
-    base_spheres_actual = closest_num_spheres(averaged, args.base_spheres)
+    base_block = BASE_BLOCK
+    base_depth = BASE_DEPTH
+    base_spheres_actual = closest_num_spheres(averaged, BASE_SPHERES)
     print(f"Using actual base sphere count = {base_spheres_actual} "
-          f"(requested {args.base_spheres})")
+          f"(requested {BASE_SPHERES})")
+
+    # A block size is only a meaningful sweep point if at least one CUDA
+    # implementation produced a valid run at it. A size where every GPU
+    # kernel launch failed (e.g. 1024 exceeds the kernel's per-block resource
+    # budget) leaves only the block-size-independent OpenMP baseline, which
+    # would just dangle an empty tick on the axis.
+    def block_sweep_base(r):
+        return (r["ray_depth"] == base_depth
+                and r["num_spheres"] == base_spheres_actual)
+
+    gpu_block_sizes = {r["block_size"] for r in averaged
+                       if block_sweep_base(r) and r["implementation"] != "OPENMP"}
 
     plot_sweep(
         averaged,
         sweep_var="block_size",
         sweep_label="CUDA block size (threads)",
-        filter_fn=lambda r: (r["ray_depth"] == base_depth
-                             and r["num_spheres"] == base_spheres_actual),
+        filter_fn=lambda r: (block_sweep_base(r)
+                             and r["block_size"] in gpu_block_sizes),
         fixed_desc=f"depth={base_depth}, spheres={base_spheres_actual}",
-        out_path=out_dir / f"{prefix}sweep_block_size.png",
+        out_path=out_dir / "sweep_block_size.png",
     )
 
     plot_sweep(
@@ -249,7 +267,7 @@ def main():
         filter_fn=lambda r: (r["block_size"] == base_block
                              and r["ray_depth"] == base_depth),
         fixed_desc=f"block={base_block}, depth={base_depth}",
-        out_path=out_dir / f"{prefix}sweep_num_spheres.png",
+        out_path=out_dir / "sweep_num_spheres.png",
     )
 
     plot_sweep(
@@ -259,7 +277,7 @@ def main():
         filter_fn=lambda r: (r["block_size"] == base_block
                              and r["num_spheres"] == base_spheres_actual),
         fixed_desc=f"block={base_block}, spheres={base_spheres_actual}",
-        out_path=out_dir / f"{prefix}sweep_ray_depth.png",
+        out_path=out_dir / "sweep_ray_depth.png",
     )
 
 

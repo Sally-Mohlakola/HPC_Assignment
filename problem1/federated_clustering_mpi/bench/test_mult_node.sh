@@ -27,11 +27,11 @@ set -euo pipefail
 #      so configurations with PPN > 16 are skipped automatically.
 #
 # Rank 0 is the federated server (lives on node 0). All other ranks are
-# workers. Output writes to the shared federated_metrics/ tree (same as the
-# one-node sweep); every summary row is tagged with num_nodes so multi-node
-# runs can be filtered apart from single-node ones at plot time.
+# workers. Output goes to this sweep's own metrics/sweep_<N>/ folder; the
+# aggregate phase writes it to summary_multinode.csv.
 
-PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+BENCH_DIR="${PROJECT_DIR}/bench"
 cd "$PROJECT_DIR"
 
 # ---------------------------------------------------------------------------
@@ -73,11 +73,17 @@ RUN_STRATEGY_B="${RUN_STRATEGY_B:-1}"
 SBATCH_PARTITION="${SBATCH_PARTITION:-stampede}"
 SBATCH_TIME="${SBATCH_TIME:-02:00:00}"
 
-mkdir -p "$PROJECT_DIR/logs"
-mkdir -p "$PROJECT_DIR/federated_metrics"
+# ----- Allocate the next sweep id -----------------------------------------
+# An incrementing counter; this multi-node sweep's entire contents live under
+# metrics/sweep_<N>/. The id is exported into every job and carried in each
+# run's summary row.
+mkdir -p "$PROJECT_DIR/metrics"
+COUNTER="$PROJECT_DIR/metrics/.sweep_counter"
+SWEEP_ID=$(( $(cat "$COUNTER" 2>/dev/null || echo 0) + 1 ))
+echo "$SWEEP_ID" > "$COUNTER"
 
-# Stamped before any sbatch so plot_multi_node.py can filter to this sweep.
-SWEEP_START="$(date +%Y-%m-%d_%H-%M-%S)"
+SWEEP_DIR="${PROJECT_DIR}/metrics/sweep_${SWEEP_ID}"
+mkdir -p "${SWEEP_DIR}/federated" "${SWEEP_DIR}/logs" "${SWEEP_DIR}/plots"
 
 # ---------------------------------------------------------------------------
 # Build once. All sbatched jobs share src/federated.
@@ -85,6 +91,10 @@ SWEEP_START="$(date +%Y-%m-%d_%H-%M-%S)"
 echo "[build] federated  defines=${FEDERATED_DEFINES}"
 make clean
 make federated FEDERATED_DEFINES="${FEDERATED_DEFINES}"
+
+# Job ids of every submitted sweep job, so the aggregate phase can depend on
+# all of them.
+JOB_IDS=()
 
 submit_job() {
     local strategy="$1"
@@ -95,23 +105,26 @@ submit_job() {
 
     if (( ppn > MAX_PPN )); then
         echo "[skip] strategy=${strategy} nodes=${nodes} ppn=${ppn} exceeds MAX_PPN=${MAX_PPN}"
-        return
+        return 0
     fi
 
     echo
     echo "[sbatch] strategy=${strategy}  nodes=${nodes}  ntasks-per-node=${ppn}  total=${total}"
 
-    sbatch \
+    local jid
+    jid="$(sbatch --parsable \
         --partition="${SBATCH_PARTITION}" \
         --time="${SBATCH_TIME}" \
         --nodes="${nodes}" \
         --ntasks="${total}" \
         --ntasks-per-node="${ppn}" \
         --job-name="${jobname}" \
-        --output="${PROJECT_DIR}/logs/${jobname}_%j.out" \
-        --error="${PROJECT_DIR}/logs/${jobname}_%j.err" \
-        --export=ALL,REPS="${REPS}",STRATEGY_NAME="${strategy}" \
-        "${PROJECT_DIR}/mult_node.slurm"
+        --output="${SWEEP_DIR}/logs/${jobname}_%j.out" \
+        --error="${SWEEP_DIR}/logs/${jobname}_%j.err" \
+        --export=ALL,REPS="${REPS}",STRATEGY_NAME="${strategy}",SWEEP_ID="${SWEEP_ID}",SWEEP_DIR="${SWEEP_DIR}" \
+        "${BENCH_DIR}/mult_node.slurm")"
+    JOB_IDS+=("${jid}")
+    echo "         submitted job ${jid}"
 }
 
 # ---------------------------------------------------------------------------
@@ -145,11 +158,37 @@ if [[ "${RUN_STRATEGY_B}" == "1" ]]; then
     done
 fi
 
+if [[ ${#JOB_IDS[@]} -eq 0 ]]; then
+    echo
+    echo "[done] no jobs submitted (all strategies disabled or every config skipped)."
+    exit 0
+fi
+
+# Phase 2 (aggregate) runs automatically once every sweep job has finished, via
+# a Slurm dependency. afterany (not afterok) so a partial sweep still aggregates
+# whatever succeeded -- aggregate.sh is robust to missing/failed runs.
+# Aggregation is pure bash and so cluster-safe, unlike plotting, which needs
+# matplotlib and is done locally afterwards.
+DEP="$(IFS=:; echo "${JOB_IDS[*]}")"
+AGG_JID="$(sbatch --parsable \
+    --partition="${SBATCH_PARTITION}" \
+    --time="00:10:00" \
+    --job-name="fed_aggregate" \
+    --output="${SWEEP_DIR}/logs/fed_aggregate_%j.out" \
+    --error="${SWEEP_DIR}/logs/fed_aggregate_%j.err" \
+    --dependency="afterany:${DEP}" \
+    --wrap "cd '${PROJECT_DIR}' && bench/aggregate.sh '${SWEEP_DIR}'")"
+
 echo
-echo "[done] all jobs submitted. Track with: squeue -u \$USER"
-echo "       output -> federated_metrics/  (rows tagged with num_nodes; filter by it at plot time)"
+echo "[done] submitted ${#JOB_IDS[@]} sweep job(s) + aggregate job ${AGG_JID}."
+echo "       sweep id:   ${SWEEP_ID}"
+echo "       sweep dir:  ${SWEEP_DIR}"
+echo "       track with: squeue -u \$USER"
 echo
-echo "       Once every job has finished, plot with:"
-echo "         python3 plot_multi_node.py --project-dir ${PROJECT_DIR} \\"
-echo "             --start ${SWEEP_START} --reps ${REPS} \\"
+echo "       The aggregate job runs automatically when the sweep finishes and"
+echo "       builds ${SWEEP_DIR}/summary_multinode.csv. Then plot locally"
+echo "       (plotting needs matplotlib, which the cluster nodes do not have):"
+echo
+echo "         python3 bench/plot_multi_node.py --project-dir ${PROJECT_DIR} \\"
+echo "             --sweep-id ${SWEEP_ID} --reps ${REPS} \\"
 echo "             --fixed-ppn ${PPN_FIXED} --fixed-total ${TOTAL_B}"

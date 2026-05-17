@@ -173,7 +173,9 @@ int main(int argc, char **argv) {
         if (rank == 0)
             cerr << "Launch at least 3 processes for federated learning\n";
         MPI_Finalize();
-        return 0;
+        // Non-zero exit so the harness (set -e) detects the failed run instead
+        // of recording it as a successful, empty result.
+        return 1;
     }
 
     int MAX_ROUNDS = 50;
@@ -191,14 +193,23 @@ int main(int argc, char **argv) {
     const char *env_num_nodes = getenv("SLURM_JOB_NUM_NODES");
     int num_nodes = env_num_nodes && *env_num_nodes ? atoi(env_num_nodes) : 1;
     if (num_nodes < 1) num_nodes = 1;
+    const char *env_sweep_id = getenv("FEDERATED_SWEEP_ID");
+    const string sweep_id = env_sweep_id && *env_sweep_id
+                                ? string(env_sweep_id)
+                                : string("adhoc");
     string run_started;
+    string run_id;
     string output_dir;
     char output_dir_buffer[512] = {};
 
     if (rank == 0) {
         run_started = current_datetime_string();
+        // The harness assigns a sweep-unique run id via FEDERATED_RUN_ID; the
+        // fallback is timestamp+PID. Either way the output directory name is
+        // unique, so concurrent jobs can never share (and corrupt) a directory.
+        run_id = resolve_run_id("FEDERATED_RUN_ID");
         ensure_directory(output_root);
-        output_dir = output_root + "/" + run_started;
+        output_dir = output_root + "/" + run_id;
         ensure_directory(output_dir);
         snprintf(output_dir_buffer, sizeof(output_dir_buffer), "%s", output_dir.c_str());
     }
@@ -211,6 +222,12 @@ int main(int argc, char **argv) {
 
         vector<vector<float>> test_images = get_images("../data/t10k-images-idx3-ubyte/t10k-images.idx3-ubyte");
         vector<int> test_labels = get_labels("../data/t10k-labels-idx1-ubyte/t10k-labels.idx1-ubyte");
+
+        if (test_images.empty() || test_labels.empty()) {
+            cerr << "[Central] Failed to load MNIST test data from ../data/. "
+                    "Aborting run.\n";
+            MPI_Abort(MPI_COMM_WORLD, 1);
+        }
 
         vector<Image> test_pair =make_pairs(test_labels, test_images);
         mean_std_norm(test_pair);
@@ -305,9 +322,12 @@ int main(int argc, char **argv) {
         double run_time_seconds =
             duration<double>(steady_clock::now() - run_timer_start).count();
 
-        string summary_path = output_root + "/summary.csv";
-        append_federated_summary(
-            summary_path,
+        // Write only this run's own row, into this run's own directory.
+        // No shared file is touched, so concurrent runs cannot race.
+        write_federated_run_summary(
+            output_dir + "/run_summary.csv",
+            sweep_id,
+            run_id,
             run_started,
             comm_size,
             num_nodes,
@@ -328,6 +348,13 @@ else {
 
     auto train_images = get_images("../data/train-images-idx3-ubyte/train-images.idx3-ubyte");
     auto train_labels = get_labels("../data/train-labels-idx1-ubyte/train-labels.idx1-ubyte");
+
+    if (train_images.empty() || train_labels.empty()) {
+        cerr << "[Worker " << rank << "] Failed to load MNIST training data "
+                "from ../data/. Aborting run.\n";
+        MPI_Abort(MPI_COMM_WORLD, 1);
+    }
+
     auto train_pair = make_pairs(train_labels, train_images);
 
     const int data_holder_id = rank;
