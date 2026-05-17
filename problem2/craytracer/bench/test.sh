@@ -3,11 +3,12 @@
 #SBATCH --cpus-per-task=4
 #SBATCH --time=09:00:00
 #SBATCH --job-name=craytracer_sweep
-#SBATCH --output=metrics/slurm_%x_%j.out
-#SBATCH --error=metrics/slurm_%x_%j.err
+#SBATCH --output=slurm_%x_%j.out
+#SBATCH --error=slurm_%x_%j.err
 set -euo pipefail
 
-PROJECT_ROOT="${SLURM_SUBMIT_DIR:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 cd "$PROJECT_ROOT"
 
 mkdir -p output metrics
