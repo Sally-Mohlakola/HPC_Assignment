@@ -1,0 +1,133 @@
+Rank 2 of 3 processes
+Rank 0 of 3 processes
+Rank 1 of 3 processes
+Softmax regression: 10 classes; 784 features
+[Mode] Non-IID Label Shard Distribution
+[Mode] Non-IID Label Shard Distribution
+[Distributed Worker 2] Shard size: 30000
+Softmax regression: 10 classes; 784 features
+[Distributed Worker 1] Shard size: 30000
+Softmax regression: 10 classes; 784 features
+[Worker 2] Round 1 | Loss: 0.218506 | Train Acc: 93.5073%
+[Worker 1] Round 1 | Loss: 0.120939 | Train Acc: 96.532%
+[Central Round] 1 [Global Test Accuracy]: 70.13%
+[Worker 1] Round 2 | Loss: 0.106171 | Train Acc: 96.9553%
+[Worker 2] Round 2 | Loss: 0.192304 | Train Acc: 94.2827%
+[Central Round] 2 [Global Test Accuracy]: 77.2%
+[Worker 1] Round 3 | Loss: 0.100362 | Train Acc: 97.0827%
+[Worker 2] Round 3 | Loss: 0.181457 | Train Acc: 94.56%
+[Central Round] 3 [Global Test Accuracy]: 81.07%
+[Worker 1] Round 4 | Loss: 0.0967916 | Train Acc: 97.1747%
+[Worker 2] Round 4 | Loss: 0.175251 | Train Acc: 94.7733%
+[Central Round] 4 [Global Test Accuracy]: 81.92%
+[Worker 1] Round 5 | Loss: 0.0973591 | Train Acc: 97.1422%
+[Worker 2] Round 5 | Loss: 0.174318 | Train Acc: 94.8167%
+[Central Round] 5 [Global Test Accuracy]: 82.18%
+[Worker 1] Round 6 | Loss: 0.0960323 | Train Acc: 97.2456%
+[Worker 2] Round 6 | Loss: 0.172569 | Train Acc: 94.8289%
+[Central Round] 6 [Global Test Accuracy]: 81.73%
+[Worker 1] Round 7 | Loss: 0.0951179 | Train Acc: 97.21%
+[Worker 2] Round 7 | Loss: 0.170651 | Train Acc: 94.9033%
+[Central Round] 7 [Global Test Accuracy]: 83.19%
+[Worker 1] Round 8 | Loss: 0.0940966 | Train Acc: 97.3022%
+[Worker 2] Round 8 | Loss: 0.169547 | Train Acc: 94.9611%
+[Central Round] 8 [Global Test Accuracy]: 83.33%
+[Worker 1] Round 9 | Loss: 0.0933829 | Train Acc: 97.3244%
+[Worker 2] Round 9 | Loss: 0.16773 | Train Acc: 95.0078%
+[Central Round] 9 [Global Test Accuracy]: 83.42%
+[Worker 1] Round 10 | Loss: 0.0924634 | Train Acc: 97.3589%
+[Worker 2] Round 10 | Loss: 0.166465 | Train Acc: 95.0544%
+[Central Round] 10 [Global Test Accuracy]: 84.39%
+[Worker 1] Round 11 | Loss: 0.0917756 | Train Acc: 97.3722%
+[Worker 2] Round 11 | Loss: 0.165342 | Train Acc: 95.0867%
+[Central Round] 11 [Global Test Accuracy]: 83.46%
+[Worker 1] Round 12 | Loss: 0.0913297 | Train Acc: 97.3833%
+[Worker 2] Round 12 | Loss: 0.164705 | Train Acc: 95.1011%
+[Central Round] 12 [Global Test Accuracy]: 84.25%
+[Worker 1] Round 13 | Loss: 0.0906098 | Train Acc: 97.4278%
+[Worker 2] Round 13 | Loss: 0.163567 | Train Acc: 95.1589%
+[Central Round] 13 [Global Test Accuracy]: 84.46%
+[Worker 1] Round 14 | Loss: 0.0900965 | Train Acc: 97.4144%
+[Worker 2] Round 14 | Loss: 0.162663 | Train Acc: 95.1844%
+[Central Round] 14 [Global Test Accuracy]: 83.77%
+[Worker 1] Round 15 | Loss: 0.0896991 | Train Acc: 97.4444%
+[Worker 2] Round 15 | Loss: 0.161873 | Train Acc: 95.1689%
+[Central Round] 15 [Global Test Accuracy]: 83.24%
+[Worker 1] Round 16 | Loss: 0.0891827 | Train Acc: 97.4422%
+[Worker 2] Round 16 | Loss: 0.161395 | Train Acc: 95.1844%
+[Central Round] 16 [Global Test Accuracy]: 83.49%
+[Worker 1] Round 17 | Loss: 0.0886169 | Train Acc: 97.4767%
+[Worker 2] Round 17 | Loss: 0.160829 | Train Acc: 95.1922%
+[Central Round] 17 [Global Test Accuracy]: 84.28%
+[Worker 1] Round 18 | Loss: 0.0883827 | Train Acc: 97.5022%
+[Worker 2] Round 18 | Loss: 0.15985 | Train Acc: 95.27%
+[Central Round] 18 [Global Test Accuracy]: 83.9%
+[Worker 1] Round 19 | Loss: 0.0880255 | Train Acc: 97.4711%
+[Worker 2] Round 19 | Loss: 0.159454 | Train Acc: 95.2378%
+[Central Round] 19 [Global Test Accuracy]: 84.45%
+[Worker 1] Round 20 | Loss: 0.0878217 | Train Acc: 97.4933%
+[Worker 2] Round 20 | Loss: 0.159062 | Train Acc: 95.2222%
+[Central Round] 20 [Global Test Accuracy]: 84.26%
+[Worker 1] Round 21 | Loss: 0.0874769 | Train Acc: 97.51%
+[Worker 2] Round 21 | Loss: 0.158483 | Train Acc: 95.3044%
+[Central Round] 21 [Global Test Accuracy]: 84.55%
+[Worker 1] Round 22 | Loss: 0.0869971 | Train Acc: 97.4967%
+[Worker 2] Round 22 | Loss: 0.157668 | Train Acc: 95.3233%
+[Central Round] 22 [Global Test Accuracy]: 84.14%
+[Worker 1] Round 23 | Loss: 0.0871134 | Train Acc: 97.5089%
+[Worker 2] Round 23 | Loss: 0.157525 | Train Acc: 95.32%
+[Central Round] 23 [Global Test Accuracy]: 84.06%
+[Worker 1] Round 24 | Loss: 0.0862738 | Train Acc: 97.5444%
+[Worker 2] Round 24 | Loss: 0.15693 | Train Acc: 95.3322%
+[Central Round] 24 [Global Test Accuracy]: 84.25%
+[Worker 1] Round 25 | Loss: 0.0863191 | Train Acc: 97.5378%
+[Worker 2] Round 25 | Loss: 0.156592 | Train Acc: 95.3489%
+[Central Round] 25 [Global Test Accuracy]: 84.46%
+[Worker 1] Round 26 | Loss: 0.085854 | Train Acc: 97.5667%
+[Worker 2] Round 26 | Loss: 0.155978 | Train Acc: 95.3989%
+[Central Round] 26 [Global Test Accuracy]: 84.14%
+[Worker 1] Round 27 | Loss: 0.0855068 | Train Acc: 97.5444%
+[Worker 2] Round 27 | Loss: 0.156045 | Train Acc: 95.3467%
+[Central Round] 27 [Global Test Accuracy]: 84.31%
+[Worker 1] Round 28 | Loss: 0.0855768 | Train Acc: 97.5411%
+[Worker 2] Round 28 | Loss: 0.155696 | Train Acc: 95.3933%
+[Central Round] 28 [Global Test Accuracy]: 83.82%
+[Worker 1] Round 29 | Loss: 0.085347 | Train Acc: 97.5444%
+[Worker 2] Round 29 | Loss: 0.155126 | Train Acc: 95.3989%
+[Central Round] 29 [Global Test Accuracy]: 84.72%
+[Worker 1] Round 30 | Loss: 0.0847806 | Train Acc: 97.5956%
+[Worker 2] Round 30 | Loss: 0.154661 | Train Acc: 95.3844%
+[Central Round] 30 [Global Test Accuracy]: 84.65%
+[Worker 1] Round 31 | Loss: 0.0846837 | Train Acc: 97.5711%
+[Worker 2] Round 31 | Loss: 0.154454 | Train Acc: 95.3978%
+[Central Round] 31 [Global Test Accuracy]: 83.49%
+[Worker 1] Round 32 | Loss: 0.0842302 | Train Acc: 97.6%
+[Worker 2] Round 32 | Loss: 0.154095 | Train Acc: 95.4211%
+[Central Round] 32 [Global Test Accuracy]: 84.38%
+[Worker 1] Round 33 | Loss: 0.0844175 | Train Acc: 97.5989%
+[Worker 2] Round 33 | Loss: 0.153892 | Train Acc: 95.4178%
+[Central Round] 33 [Global Test Accuracy]: 84.77%
+[Worker 1] Round 34 | Loss: 0.084181 | Train Acc: 97.6133%
+[Worker 2] Round 34 | Loss: 0.153516 | Train Acc: 95.4411%
+[Central Round] 34 [Global Test Accuracy]: 84.5%
+[Worker 1] Round 35 | Loss: 0.0837844 | Train Acc: 97.6267%
+[Worker 2] Round 35 | Loss: 0.153373 | Train Acc: 95.4656%
+[Central Round] 35 [Global Test Accuracy]: 85.14%
+[Worker 1] Round 36 | Loss: 0.0838825 | Train Acc: 97.6133%
+[Worker 2] Round 36 | Loss: 0.15295 | Train Acc: 95.4267%
+[Central Round] 36 [Global Test Accuracy]: 84.29%
+[Worker 1] Round 37 | Loss: 0.0834441 | Train Acc: 97.6278%
+[Worker 2] Round 37 | Loss: 0.152743 | Train Acc: 95.4289%
+[Central Round] 37 [Global Test Accuracy]: 84.91%
+[Worker 1] Round 38 | Loss: 0.0832056 | Train Acc: 97.6578%
+[Worker 2] Round 38 | Loss: 0.152458 | Train Acc: 95.4756%
+[Central Round] 38 [Global Test Accuracy]: 84.11%
+[Worker 1] Round 39 | Loss: 0.0829974 | Train Acc: 97.6689%
+[Worker 2] Round 39 | Loss: 0.152159 | Train Acc: 95.4556%
+[Central Round] 39 [Global Test Accuracy]: 85.08%
+[Worker 1] Round 40 | Loss: 0.0829664 | Train Acc: 97.6667%
+[Worker 2] Round 40 | Loss: 0.151961 | Train Acc: 95.4089%
+[Central Round] 40 [Global Test Accuracy]: 84.74%
+[Central] Early stopping at round 40 after 5 rounds without global accuracy improvement.
+
+[Central] Done. Federated data saved to /home-mscluster/ldemelo/HPC_Assignment/problem1/federated_clustering_mpi/metrics/sweep_1/federated/label_shard_noniid_np3_rep2

@@ -1,0 +1,23 @@
+srun: error: Couldn't find the specified plugin name for mpi/pmix looking at all files
+srun: error: cannot find mpi plugin for mpi/pmix
+srun: error: cannot create mpi context for mpi/pmix
+srun: error: invalid MPI type 'pmix', --mpi=list for acceptable types
+srun: error: Couldn't find the specified plugin name for mpi/pmix looking at all files
+srun: error: cannot find mpi plugin for mpi/pmix
+srun: error: cannot create mpi context for mpi/pmix
+srun: error: invalid MPI type 'pmix', --mpi=list for acceptable types
+--------------------------------------------------------------------------
+A system call failed during shared memory initialization that should
+not have.  It is likely that your MPI job will now either abort or
+experience performance degradation.
+
+  Local host:  mscluster31.ms.wits.ac.za
+  System call: unlink(2) /dev/shm/vader_segment.mscluster31.21051.83640001.0
+  Error:       No such file or directory (errno 2)
+--------------------------------------------------------------------------
+[mscluster31.ms.wits.ac.za:841584] 7 more processes have sent help message help-opal-shmem-mmap.txt / sys call fail
+[mscluster31.ms.wits.ac.za:841584] Set MCA parameter "orte_base_help_aggregate" to 0 to see all help / error messages
+srun: error: Couldn't find the specified plugin name for mpi/pmix looking at all files
+srun: error: cannot find mpi plugin for mpi/pmix
+srun: error: cannot create mpi context for mpi/pmix
+srun: error: invalid MPI type 'pmix', --mpi=list for acceptable types
