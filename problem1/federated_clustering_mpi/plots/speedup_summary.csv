@@ -1,7 +1,0 @@
-data_distribution,num_processes,speedup_mean,speedup_std,fed_time_mean_s,epochs_to_80_mean,n_reps
-label_shard_noniid,3,0.7620,0.0015,48.256,3.00,3
-label_shard_noniid,5,1.3046,0.0203,28.193,9.00,3
-label_shard_noniid,7,1.5075,0.0853,24.473,33.00,3
-label_shard_noniid,9,1.5509,0.0271,23.716,23.67,3
-label_shard_noniid,13,2.2674,0.1588,16.300,6.00,3
-label_shard_noniid,16,2.3439,0.0957,15.715,8.33,3
