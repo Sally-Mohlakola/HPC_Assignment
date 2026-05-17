@@ -11,7 +11,20 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 cd "$PROJECT_ROOT"
 
-mkdir -p output metrics
+OUTPUT_DIR="${PROJECT_ROOT}/output"
+METRICS_ROOT="${PROJECT_ROOT}/metrics"
+
+echo "[bench] script dir:   ${SCRIPT_DIR}"
+echo "[bench] project root: ${PROJECT_ROOT}"
+echo "[bench] work dir:     $(pwd)"
+
+if [[ ! -w "$PROJECT_ROOT" ]]; then
+    echo "Project root is not writable on this node: ${PROJECT_ROOT}" >&2
+    echo "Check ownership/permissions, or submit from a writable copy of the repository." >&2
+    exit 1
+fi
+
+mkdir -p "$OUTPUT_DIR" "$METRICS_ROOT"
 make
 
 BIN="./renders/raytracer"
@@ -29,11 +42,11 @@ RUNS_PER_TEST=3
 
 # ----- Allocate the next sweep id -----------------------------------------
 # All generated files for this run live under metrics/sweep_<N>/.
-COUNTER="metrics/.sweep_counter"
+COUNTER="${METRICS_ROOT}/.sweep_counter"
 SWEEP_ID=$(( $(cat "$COUNTER" 2>/dev/null || echo 0) + 1 ))
 echo "$SWEEP_ID" > "$COUNTER"
 
-SWEEP_DIR="${PROJECT_ROOT}/metrics/sweep_${SWEEP_ID}"
+SWEEP_DIR="${METRICS_ROOT}/sweep_${SWEEP_ID}"
 LOG_DIR="${SWEEP_DIR}/logs"
 PLOT_DIR="${SWEEP_DIR}/plots"
 mkdir -p "$SWEEP_DIR" "$LOG_DIR" "$PLOT_DIR"
