@@ -1,120 +1,72 @@
-#!/bin/bash
-#SBATCH --partition=stampede
-#SBATCH --cpus-per-task=4
-#SBATCH --time=09:00:00
-#SBATCH --job-name=craytracer_sweep
-#SBATCH --output=slurm_%x_%j.out
-#SBATCH --error=slurm_%x_%j.err
+#!/usr/bin/env bash
 set -euo pipefail
+
+# Submission wrapper for the craytracer benchmark sweep. Run this directly:
+#
+#   cd problem2/craytracer
+#   bench/test.sh
+#
+# Do not submit this wrapper with sbatch; it submits the Slurm script below.
+# If it is submitted with sbatch anyway, Slurm runs a copied script from its
+# spool directory and the wrapper can no longer locate this repository.
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
-cd "$PROJECT_ROOT"
+SLURM_SCRIPT="${SCRIPT_DIR}/craytracer_sweep.slurm"
+
+case "$SCRIPT_DIR" in
+    /var/lib/slurm/*|/var/spool/slurm/*|/run/slurm/*)
+        echo "bench/test.sh was submitted to Slurm as the batch script." >&2
+        echo "Run it directly instead: bench/test.sh" >&2
+        exit 1
+        ;;
+esac
+
+if [[ ! -f "$SLURM_SCRIPT" ]]; then
+    echo "Could not find Slurm payload script: ${SLURM_SCRIPT}" >&2
+    echo "Run this wrapper from the checked-out repository, not from a copied Slurm script." >&2
+    exit 1
+fi
 
 OUTPUT_DIR="${PROJECT_ROOT}/output"
 METRICS_ROOT="${PROJECT_ROOT}/metrics"
 
-echo "[bench] script dir:   ${SCRIPT_DIR}"
-echo "[bench] project root: ${PROJECT_ROOT}"
-echo "[bench] work dir:     $(pwd)"
-
 if [[ ! -w "$PROJECT_ROOT" ]]; then
-    echo "Project root is not writable on this node: ${PROJECT_ROOT}" >&2
-    echo "Check ownership/permissions, or submit from a writable copy of the repository." >&2
+    echo "Project root is not writable: ${PROJECT_ROOT}" >&2
+    exit 1
+fi
+
+if ! command -v sbatch >/dev/null 2>&1; then
+    echo "sbatch was not found in PATH. Run this wrapper on the Slurm login node." >&2
     exit 1
 fi
 
 mkdir -p "$OUTPUT_DIR" "$METRICS_ROOT"
-make
 
-BIN="./renders/raytracer"
+if [[ ! -w "$OUTPUT_DIR" || ! -w "$METRICS_ROOT" ]]; then
+    echo "Project directories are not writable:" >&2
+    echo "  project: ${PROJECT_ROOT}" >&2
+    echo "  output:  ${OUTPUT_DIR}" >&2
+    echo "  metrics: ${METRICS_ROOT}" >&2
+    exit 1
+fi
 
-BASE_BLOCK=256
-BASE_DEPTH=50
-BASE_SPHERES=200
+SBATCH_PARTITION="${SBATCH_PARTITION:-stampede}"
+SBATCH_CPUS_PER_TASK="${SBATCH_CPUS_PER_TASK:-4}"
+SBATCH_TIME="${SBATCH_TIME:-09:00:00}"
+SBATCH_JOB_NAME="${SBATCH_JOB_NAME:-craytracer_sweep}"
 
-#BLOCK_SIZES=(32 64 128 256 512 1024)
-#SPHERE_COUNTS=(50 100 200 400 800)
-#RAY_DEPTHS=(5 10 25 50 75 100)
-RAY_DEPTHS=(75 100)
+echo "[submit] project root: ${PROJECT_ROOT}"
+echo "[submit] slurm script: ${SLURM_SCRIPT}"
+echo "[submit] logs:         ${METRICS_ROOT}/slurm_${SBATCH_JOB_NAME}_<jobid>.{out,err}"
 
-RUNS_PER_TEST=3
-
-# ----- Allocate the next sweep id -----------------------------------------
-# All generated files for this run live under metrics/sweep_<N>/.
-COUNTER="${METRICS_ROOT}/.sweep_counter"
-SWEEP_ID=$(( $(cat "$COUNTER" 2>/dev/null || echo 0) + 1 ))
-echo "$SWEEP_ID" > "$COUNTER"
-
-SWEEP_DIR="${METRICS_ROOT}/sweep_${SWEEP_ID}"
-LOG_DIR="${SWEEP_DIR}/logs"
-PLOT_DIR="${SWEEP_DIR}/plots"
-mkdir -p "$SWEEP_DIR" "$LOG_DIR" "$PLOT_DIR"
-
-export CRAYTRACER_METRICS_DIR="$SWEEP_DIR"
-export CRAYTRACER_SWEEP_ID="$SWEEP_ID"
-
-STAMP="$(date +%Y-%m-%d_%H-%M-%S)"
-
-run_one() {
-    local label="$1"; shift
-    local logfile="$LOG_DIR/${STAMP}_${label}.log"
-    echo
-    echo "==================================================================="
-    echo "[$label] $BIN $*"
-    echo "==================================================================="
-    "$BIN" "$@" 2>&1 | tee "$logfile"
-}
-
-run_repeated() {
-    local label="$1"; shift
-    for r in $(seq 1 "$RUNS_PER_TEST"); do
-        run_one "${label}_r${r}" "$@"
-    done
-}
-
-#echo "###################################################################"
-#echo "# Sweep 1: block size  (depth=$BASE_DEPTH, spheres=$BASE_SPHERES)"
-#echo "# Each config run ${RUNS_PER_TEST}x"
-#echo "###################################################################"
-#for bs in "${BLOCK_SIZES[@]}"; do
-#    run_repeated "block_${bs}" \
-#        --block-size "$bs" \
-#        --max-depth "$BASE_DEPTH" \
-#        --num-spheres "$BASE_SPHERES"
-#done
-
-#echo "###################################################################"
-#echo "# Sweep 2: object count  (block=$BASE_BLOCK, depth=$BASE_DEPTH)"
-#echo "# Each config run ${RUNS_PER_TEST}x"
-#echo "###################################################################"
-#for n in "${SPHERE_COUNTS[@]}"; do
-#    run_repeated "spheres_${n}" \
-#        --block-size "$BASE_BLOCK" \
-#        --max-depth "$BASE_DEPTH" \
-#        --num-spheres "$n"
-#done
-
-echo "###################################################################"
-echo "# Sweep 3: ray depth  (block=$BASE_BLOCK, spheres=$BASE_SPHERES)"
-echo "# Each config run ${RUNS_PER_TEST}x"
-echo "###################################################################"
-for d in "${RAY_DEPTHS[@]}"; do
-    run_repeated "depth_${d}" \
-        --block-size "$BASE_BLOCK" \
-        --max-depth "$d" \
-        --num-spheres "$BASE_SPHERES"
-done
-
-echo
-echo "All sweeps complete."
-echo "Per-run logs:    $LOG_DIR/${STAMP}_*.log"
-echo "Aggregated CSV:  ${SWEEP_DIR}/summary.csv"
-
-echo
-echo "###################################################################"
-echo "# Generating averaged plots for sweep ${SWEEP_ID}"
-echo "###################################################################"
-python3 "$PROJECT_ROOT/bench/plot_results.py" \
-    --project-dir "$PROJECT_ROOT" \
-    --sweep-id "$SWEEP_ID"
+sbatch \
+    --partition="${SBATCH_PARTITION}" \
+    --cpus-per-task="${SBATCH_CPUS_PER_TASK}" \
+    --time="${SBATCH_TIME}" \
+    --job-name="${SBATCH_JOB_NAME}" \
+    --chdir="${PROJECT_ROOT}" \
+    --output="${METRICS_ROOT}/slurm_%x_%j.out" \
+    --error="${METRICS_ROOT}/slurm_%x_%j.err" \
+    --export=ALL,CRAYTRACER_PROJECT_ROOT="${PROJECT_ROOT}" \
+    "${SLURM_SCRIPT}" "$@"
