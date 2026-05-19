@@ -11,6 +11,7 @@ Averages over repetitions for each (data_distribution, num_processes).
 
 import argparse
 import csv
+import re
 import sys
 from collections import defaultdict
 from datetime import datetime
@@ -22,6 +23,18 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 TS_FMT = "%Y-%m-%d_%H-%M-%S"
+CENTRAL_LOG_RE = re.compile(
+    r"Epoch\s+(\d+)\s+\|\s+Loss:\s+([0-9.eE+-]+)\s+\|\s+"
+    r"Train Accuracy:\s+([0-9.eE+-]+)%\s+\|\s+"
+    r"Test Accuracy:\s+([0-9.eE+-]+)%"
+)
+WORKER_LOG_RE = re.compile(
+    r"\[Worker\s+\d+\]\s+Round\s+(\d+)\s+\|\s+Loss:\s+([0-9.eE+-]+)\s+\|\s+"
+    r"Train Acc:\s+([0-9.eE+-]+)%"
+)
+GLOBAL_LOG_RE = re.compile(
+    r"\[Central Round\]\s+(\d+)\s+\[Global Test Accuracy\]:\s+([0-9.eE+-]+)%"
+)
 
 
 def parse_ts(s: str) -> datetime:
@@ -61,6 +74,69 @@ def read_run_metrics(path: Path):
     rows.sort(key=lambda r: r[0])
     arr = np.array(rows)
     return arr[:, 0].astype(int), arr[:, 1], arr[:, 2], arr[:, 3]
+
+
+def read_central_log_metrics(path: Path):
+    rows = []
+    with path.open(errors="replace") as f:
+        for line in f:
+            m = CENTRAL_LOG_RE.search(line)
+            if m:
+                rows.append((
+                    int(m.group(1)),
+                    float(m.group(2)),
+                    float(m.group(3)),
+                    float(m.group(4)),
+                ))
+    if not rows:
+        return None
+    rows.sort(key=lambda r: r[0])
+    arr = np.array(rows)
+    return arr[:, 0].astype(int), arr[:, 1], arr[:, 2], arr[:, 3]
+
+
+def read_federated_log_metrics(path: Path):
+    worker_loss = defaultdict(list)
+    worker_acc = defaultdict(list)
+    test_acc = {}
+    with path.open(errors="replace") as f:
+        for line in f:
+            wm = WORKER_LOG_RE.search(line)
+            if wm:
+                round_id = int(wm.group(1))
+                worker_loss[round_id].append(float(wm.group(2)))
+                worker_acc[round_id].append(float(wm.group(3)))
+                continue
+            gm = GLOBAL_LOG_RE.search(line)
+            if gm:
+                test_acc[int(gm.group(1))] = float(gm.group(2))
+
+    rows = []
+    for round_id in sorted(test_acc):
+        if not worker_loss[round_id] or not worker_acc[round_id]:
+            continue
+        rows.append((
+            round_id,
+            float(np.mean(worker_loss[round_id])),
+            float(np.mean(worker_acc[round_id])),
+            test_acc[round_id],
+        ))
+    if not rows:
+        return None
+    arr = np.array(rows)
+    return arr[:, 0].astype(int), arr[:, 1], arr[:, 2], arr[:, 3]
+
+
+def read_metrics_or_log(csv_path: Path, log_path: Path, log_reader):
+    if csv_path.exists():
+        return read_run_metrics(csv_path)
+    if log_path.exists():
+        curve = log_reader(log_path)
+        if curve is not None:
+            print(f"[plot] using log fallback for {log_path.name}", file=sys.stderr)
+            return curve
+    print(f"[plot] warning: no metrics found for {csv_path}", file=sys.stderr)
+    return None
 
 
 def avg_curves(curves):
@@ -118,7 +194,8 @@ def main():
     central_curves = []
     for r in central_rows:
         m = cdir / run_dir_name(r) / "centralised_metrics.csv"
-        c = read_run_metrics(m)
+        log = sweep_dir / "logs" / f"{run_dir_name(r)}.log"
+        c = read_metrics_or_log(m, log, read_central_log_metrics)
         if c is not None:
             central_curves.append(c)
 
@@ -143,7 +220,8 @@ def main():
             fed_epochs_to_80[(dist, np_count)].append(int(r["epochs_to_80"]))
 
         m = fdir / run_dir_name(r) / "federated_metrics.csv"
-        c = read_run_metrics(m)
+        log = sweep_dir / "logs" / f"{run_dir_name(r)}.log"
+        c = read_metrics_or_log(m, log, read_federated_log_metrics)
         if c is not None:
             fed_curves[(dist, np_count)].append(c)
 
