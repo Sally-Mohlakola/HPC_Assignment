@@ -1,0 +1,4564 @@
+[bench] project root: /home-mscluster/ldemelo/HPC_Assignment/problem2/craytracer
+[bench] work dir:     /home-mscluster/ldemelo/HPC_Assignment/problem2/craytracer
+[bench] output dir:   /home-mscluster/ldemelo/HPC_Assignment/problem2/craytracer/output
+[bench] metrics root: /home-mscluster/ldemelo/HPC_Assignment/problem2/craytracer/metrics
+make: Nothing to be done for 'all'.
+###################################################################
+# Sweep 1: block size  (depth=50, spheres=200)
+# Each config run 3x
+###################################################################
+
+===================================================================
+[block_32_r1] ./renders/raytracer --block-size 32 --max-depth 50 --num-spheres 200
+===================================================================
+Config: blockSize=32 MAX_SPHERES=512 maxDepth=50 numSpheres=200
+Scene initialized
+
+============= OPENMP =============
+Time:                          656.390 s
+Wrote 'output/openmp.jpg'
+
+Spheres generated: 200 (requested 200)
+CUDA error: invalid device ordinal
+
+============= GLOBAL =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_global.jpg'
+CUDA error: invalid device ordinal
+
+============= CONSTANT =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_constant.jpg'
+CUDA error: invalid device ordinal
+
+============= SHARED =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_shared.jpg'
+CUDA error: invalid device ordinal
+
+============= 1D TEXTURE =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_1d_texture.jpg'
+CUDA error: invalid device ordinal
+
+============= 2D TEXTURE =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_2d_texture.jpg'
+CUDA error: invalid device ordinal
+
+============= 2D TEXTURE + CONSTANT =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_2d_texture_constant.jpg'
+CUDA error: invalid device ordinal
+
+============= REALISTIC =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_realistic.jpg'
+
+===================================================================
+[block_32_r2] ./renders/raytracer --block-size 32 --max-depth 50 --num-spheres 200
+===================================================================
+Config: blockSize=32 MAX_SPHERES=512 maxDepth=50 numSpheres=200
+Scene initialized
+
+============= OPENMP =============
+Time:                          656.388 s
+Wrote 'output/openmp.jpg'
+
+Spheres generated: 200 (requested 200)
+CUDA error: invalid device ordinal
+
+============= GLOBAL =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_global.jpg'
+CUDA error: invalid device ordinal
+
+============= CONSTANT =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_constant.jpg'
+CUDA error: invalid device ordinal
+
+============= SHARED =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_shared.jpg'
+CUDA error: invalid device ordinal
+
+============= 1D TEXTURE =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_1d_texture.jpg'
+CUDA error: invalid device ordinal
+
+============= 2D TEXTURE =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_2d_texture.jpg'
+CUDA error: invalid device ordinal
+
+============= 2D TEXTURE + CONSTANT =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_2d_texture_constant.jpg'
+CUDA error: invalid device ordinal
+
+============= REALISTIC =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_realistic.jpg'
+
+===================================================================
+[block_32_r3] ./renders/raytracer --block-size 32 --max-depth 50 --num-spheres 200
+===================================================================
+Config: blockSize=32 MAX_SPHERES=512 maxDepth=50 numSpheres=200
+Scene initialized
+
+============= OPENMP =============
+Time:                          658.284 s
+Wrote 'output/openmp.jpg'
+
+Spheres generated: 200 (requested 200)
+CUDA error: invalid device ordinal
+
+============= GLOBAL =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_global.jpg'
+CUDA error: invalid device ordinal
+
+============= CONSTANT =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_constant.jpg'
+CUDA error: invalid device ordinal
+
+============= SHARED =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_shared.jpg'
+CUDA error: invalid device ordinal
+
+============= 1D TEXTURE =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_1d_texture.jpg'
+CUDA error: invalid device ordinal
+
+============= 2D TEXTURE =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_2d_texture.jpg'
+CUDA error: invalid device ordinal
+
+============= 2D TEXTURE + CONSTANT =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_2d_texture_constant.jpg'
+CUDA error: invalid device ordinal
+
+============= REALISTIC =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_realistic.jpg'
+
+===================================================================
+[block_64_r1] ./renders/raytracer --block-size 64 --max-depth 50 --num-spheres 200
+===================================================================
+Config: blockSize=64 MAX_SPHERES=512 maxDepth=50 numSpheres=200
+Scene initialized
+
+============= OPENMP =============
+Time:                          657.434 s
+Wrote 'output/openmp.jpg'
+
+Spheres generated: 200 (requested 200)
+CUDA error: invalid device ordinal
+
+============= GLOBAL =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_global.jpg'
+CUDA error: invalid device ordinal
+
+============= CONSTANT =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_constant.jpg'
+CUDA error: invalid device ordinal
+
+============= SHARED =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_shared.jpg'
+CUDA error: invalid device ordinal
+
+============= 1D TEXTURE =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_1d_texture.jpg'
+CUDA error: invalid device ordinal
+
+============= 2D TEXTURE =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_2d_texture.jpg'
+CUDA error: invalid device ordinal
+
+============= 2D TEXTURE + CONSTANT =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_2d_texture_constant.jpg'
+CUDA error: invalid device ordinal
+
+============= REALISTIC =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_realistic.jpg'
+
+===================================================================
+[block_64_r2] ./renders/raytracer --block-size 64 --max-depth 50 --num-spheres 200
+===================================================================
+Config: blockSize=64 MAX_SPHERES=512 maxDepth=50 numSpheres=200
+Scene initialized
+
+============= OPENMP =============
+Time:                          656.668 s
+Wrote 'output/openmp.jpg'
+
+Spheres generated: 200 (requested 200)
+CUDA error: invalid device ordinal
+
+============= GLOBAL =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_global.jpg'
+CUDA error: invalid device ordinal
+
+============= CONSTANT =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_constant.jpg'
+CUDA error: invalid device ordinal
+
+============= SHARED =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_shared.jpg'
+CUDA error: invalid device ordinal
+
+============= 1D TEXTURE =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_1d_texture.jpg'
+CUDA error: invalid device ordinal
+
+============= 2D TEXTURE =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_2d_texture.jpg'
+CUDA error: invalid device ordinal
+
+============= 2D TEXTURE + CONSTANT =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_2d_texture_constant.jpg'
+CUDA error: invalid device ordinal
+
+============= REALISTIC =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_realistic.jpg'
+
+===================================================================
+[block_64_r3] ./renders/raytracer --block-size 64 --max-depth 50 --num-spheres 200
+===================================================================
+Config: blockSize=64 MAX_SPHERES=512 maxDepth=50 numSpheres=200
+Scene initialized
+
+============= OPENMP =============
+Time:                          656.612 s
+Wrote 'output/openmp.jpg'
+
+Spheres generated: 200 (requested 200)
+CUDA error: invalid device ordinal
+
+============= GLOBAL =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_global.jpg'
+CUDA error: invalid device ordinal
+
+============= CONSTANT =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_constant.jpg'
+CUDA error: invalid device ordinal
+
+============= SHARED =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_shared.jpg'
+CUDA error: invalid device ordinal
+
+============= 1D TEXTURE =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_1d_texture.jpg'
+CUDA error: invalid device ordinal
+
+============= 2D TEXTURE =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_2d_texture.jpg'
+CUDA error: invalid device ordinal
+
+============= 2D TEXTURE + CONSTANT =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_2d_texture_constant.jpg'
+CUDA error: invalid device ordinal
+
+============= REALISTIC =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_realistic.jpg'
+
+===================================================================
+[block_128_r1] ./renders/raytracer --block-size 128 --max-depth 50 --num-spheres 200
+===================================================================
+Config: blockSize=128 MAX_SPHERES=512 maxDepth=50 numSpheres=200
+Scene initialized
+
+============= OPENMP =============
+Time:                          658.141 s
+Wrote 'output/openmp.jpg'
+
+Spheres generated: 200 (requested 200)
+CUDA error: invalid device ordinal
+
+============= GLOBAL =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_global.jpg'
+CUDA error: invalid device ordinal
+
+============= CONSTANT =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_constant.jpg'
+CUDA error: invalid device ordinal
+
+============= SHARED =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_shared.jpg'
+CUDA error: invalid device ordinal
+
+============= 1D TEXTURE =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_1d_texture.jpg'
+CUDA error: invalid device ordinal
+
+============= 2D TEXTURE =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_2d_texture.jpg'
+CUDA error: invalid device ordinal
+
+============= 2D TEXTURE + CONSTANT =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_2d_texture_constant.jpg'
+CUDA error: invalid device ordinal
+
+============= REALISTIC =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_realistic.jpg'
+
+===================================================================
+[block_128_r2] ./renders/raytracer --block-size 128 --max-depth 50 --num-spheres 200
+===================================================================
+Config: blockSize=128 MAX_SPHERES=512 maxDepth=50 numSpheres=200
+Scene initialized
+
+============= OPENMP =============
+Time:                          656.612 s
+Wrote 'output/openmp.jpg'
+
+Spheres generated: 200 (requested 200)
+CUDA error: invalid device ordinal
+
+============= GLOBAL =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_global.jpg'
+CUDA error: invalid device ordinal
+
+============= CONSTANT =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_constant.jpg'
+CUDA error: invalid device ordinal
+
+============= SHARED =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_shared.jpg'
+CUDA error: invalid device ordinal
+
+============= 1D TEXTURE =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_1d_texture.jpg'
+CUDA error: invalid device ordinal
+
+============= 2D TEXTURE =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_2d_texture.jpg'
+CUDA error: invalid device ordinal
+
+============= 2D TEXTURE + CONSTANT =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_2d_texture_constant.jpg'
+CUDA error: invalid device ordinal
+
+============= REALISTIC =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_realistic.jpg'
+
+===================================================================
+[block_128_r3] ./renders/raytracer --block-size 128 --max-depth 50 --num-spheres 200
+===================================================================
+Config: blockSize=128 MAX_SPHERES=512 maxDepth=50 numSpheres=200
+Scene initialized
+
+============= OPENMP =============
+Time:                          656.811 s
+Wrote 'output/openmp.jpg'
+
+Spheres generated: 200 (requested 200)
+CUDA error: invalid device ordinal
+
+============= GLOBAL =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_global.jpg'
+CUDA error: invalid device ordinal
+
+============= CONSTANT =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_constant.jpg'
+CUDA error: invalid device ordinal
+
+============= SHARED =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_shared.jpg'
+CUDA error: invalid device ordinal
+
+============= 1D TEXTURE =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_1d_texture.jpg'
+CUDA error: invalid device ordinal
+
+============= 2D TEXTURE =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_2d_texture.jpg'
+CUDA error: invalid device ordinal
+
+============= 2D TEXTURE + CONSTANT =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_2d_texture_constant.jpg'
+CUDA error: invalid device ordinal
+
+============= REALISTIC =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_realistic.jpg'
+
+===================================================================
+[block_256_r1] ./renders/raytracer --block-size 256 --max-depth 50 --num-spheres 200
+===================================================================
+Config: blockSize=256 MAX_SPHERES=512 maxDepth=50 numSpheres=200
+Scene initialized
+
+============= OPENMP =============
+Time:                          660.634 s
+Wrote 'output/openmp.jpg'
+
+Spheres generated: 200 (requested 200)
+CUDA error: invalid device ordinal
+
+============= GLOBAL =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_global.jpg'
+CUDA error: invalid device ordinal
+
+============= CONSTANT =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_constant.jpg'
+CUDA error: invalid device ordinal
+
+============= SHARED =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_shared.jpg'
+CUDA error: invalid device ordinal
+
+============= 1D TEXTURE =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_1d_texture.jpg'
+CUDA error: invalid device ordinal
+
+============= 2D TEXTURE =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_2d_texture.jpg'
+CUDA error: invalid device ordinal
+
+============= 2D TEXTURE + CONSTANT =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_2d_texture_constant.jpg'
+CUDA error: invalid device ordinal
+
+============= REALISTIC =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_realistic.jpg'
+
+===================================================================
+[block_256_r2] ./renders/raytracer --block-size 256 --max-depth 50 --num-spheres 200
+===================================================================
+Config: blockSize=256 MAX_SPHERES=512 maxDepth=50 numSpheres=200
+Scene initialized
+
+============= OPENMP =============
+Time:                          657.580 s
+Wrote 'output/openmp.jpg'
+
+Spheres generated: 200 (requested 200)
+CUDA error: invalid device ordinal
+
+============= GLOBAL =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_global.jpg'
+CUDA error: invalid device ordinal
+
+============= CONSTANT =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_constant.jpg'
+CUDA error: invalid device ordinal
+
+============= SHARED =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_shared.jpg'
+CUDA error: invalid device ordinal
+
+============= 1D TEXTURE =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_1d_texture.jpg'
+CUDA error: invalid device ordinal
+
+============= 2D TEXTURE =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_2d_texture.jpg'
+CUDA error: invalid device ordinal
+
+============= 2D TEXTURE + CONSTANT =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_2d_texture_constant.jpg'
+CUDA error: invalid device ordinal
+
+============= REALISTIC =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_realistic.jpg'
+
+===================================================================
+[block_256_r3] ./renders/raytracer --block-size 256 --max-depth 50 --num-spheres 200
+===================================================================
+Config: blockSize=256 MAX_SPHERES=512 maxDepth=50 numSpheres=200
+Scene initialized
+
+============= OPENMP =============
+Time:                          659.070 s
+Wrote 'output/openmp.jpg'
+
+Spheres generated: 200 (requested 200)
+CUDA error: invalid device ordinal
+
+============= GLOBAL =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_global.jpg'
+CUDA error: invalid device ordinal
+
+============= CONSTANT =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_constant.jpg'
+CUDA error: invalid device ordinal
+
+============= SHARED =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_shared.jpg'
+CUDA error: invalid device ordinal
+
+============= 1D TEXTURE =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_1d_texture.jpg'
+CUDA error: invalid device ordinal
+
+============= 2D TEXTURE =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_2d_texture.jpg'
+CUDA error: invalid device ordinal
+
+============= 2D TEXTURE + CONSTANT =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_2d_texture_constant.jpg'
+CUDA error: invalid device ordinal
+
+============= REALISTIC =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_realistic.jpg'
+
+===================================================================
+[block_512_r1] ./renders/raytracer --block-size 512 --max-depth 50 --num-spheres 200
+===================================================================
+Config: blockSize=512 MAX_SPHERES=512 maxDepth=50 numSpheres=200
+Scene initialized
+
+============= OPENMP =============
+Time:                          660.192 s
+Wrote 'output/openmp.jpg'
+
+Spheres generated: 200 (requested 200)
+CUDA error: invalid device ordinal
+
+============= GLOBAL =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_global.jpg'
+CUDA error: invalid device ordinal
+
+============= CONSTANT =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_constant.jpg'
+CUDA error: invalid device ordinal
+
+============= SHARED =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_shared.jpg'
+CUDA error: invalid device ordinal
+
+============= 1D TEXTURE =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_1d_texture.jpg'
+CUDA error: invalid device ordinal
+
+============= 2D TEXTURE =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_2d_texture.jpg'
+CUDA error: invalid device ordinal
+
+============= 2D TEXTURE + CONSTANT =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_2d_texture_constant.jpg'
+CUDA error: invalid device ordinal
+
+============= REALISTIC =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_realistic.jpg'
+
+===================================================================
+[block_512_r2] ./renders/raytracer --block-size 512 --max-depth 50 --num-spheres 200
+===================================================================
+Config: blockSize=512 MAX_SPHERES=512 maxDepth=50 numSpheres=200
+Scene initialized
+
+============= OPENMP =============
+Time:                          658.104 s
+Wrote 'output/openmp.jpg'
+
+Spheres generated: 200 (requested 200)
+CUDA error: invalid device ordinal
+
+============= GLOBAL =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_global.jpg'
+CUDA error: invalid device ordinal
+
+============= CONSTANT =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_constant.jpg'
+CUDA error: invalid device ordinal
+
+============= SHARED =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_shared.jpg'
+CUDA error: invalid device ordinal
+
+============= 1D TEXTURE =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_1d_texture.jpg'
+CUDA error: invalid device ordinal
+
+============= 2D TEXTURE =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_2d_texture.jpg'
+CUDA error: invalid device ordinal
+
+============= 2D TEXTURE + CONSTANT =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_2d_texture_constant.jpg'
+CUDA error: invalid device ordinal
+
+============= REALISTIC =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_realistic.jpg'
+
+===================================================================
+[block_512_r3] ./renders/raytracer --block-size 512 --max-depth 50 --num-spheres 200
+===================================================================
+Config: blockSize=512 MAX_SPHERES=512 maxDepth=50 numSpheres=200
+Scene initialized
+
+============= OPENMP =============
+Time:                          657.498 s
+Wrote 'output/openmp.jpg'
+
+Spheres generated: 200 (requested 200)
+CUDA error: invalid device ordinal
+
+============= GLOBAL =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_global.jpg'
+CUDA error: invalid device ordinal
+
+============= CONSTANT =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_constant.jpg'
+CUDA error: invalid device ordinal
+
+============= SHARED =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_shared.jpg'
+CUDA error: invalid device ordinal
+
+============= 1D TEXTURE =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_1d_texture.jpg'
+CUDA error: invalid device ordinal
+
+============= 2D TEXTURE =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_2d_texture.jpg'
+CUDA error: invalid device ordinal
+
+============= 2D TEXTURE + CONSTANT =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_2d_texture_constant.jpg'
+CUDA error: invalid device ordinal
+
+============= REALISTIC =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_realistic.jpg'
+
+===================================================================
+[block_1024_r1] ./renders/raytracer --block-size 1024 --max-depth 50 --num-spheres 200
+===================================================================
+Config: blockSize=1024 MAX_SPHERES=512 maxDepth=50 numSpheres=200
+Scene initialized
+
+============= OPENMP =============
+Time:                          657.875 s
+Wrote 'output/openmp.jpg'
+
+Spheres generated: 200 (requested 200)
+CUDA error: invalid device ordinal
+
+============= GLOBAL =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_global.jpg'
+CUDA error: invalid device ordinal
+
+============= CONSTANT =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_constant.jpg'
+CUDA error: invalid device ordinal
+
+============= SHARED =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_shared.jpg'
+CUDA error: invalid device ordinal
+
+============= 1D TEXTURE =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_1d_texture.jpg'
+CUDA error: invalid device ordinal
+
+============= 2D TEXTURE =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_2d_texture.jpg'
+CUDA error: invalid device ordinal
+
+============= 2D TEXTURE + CONSTANT =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_2d_texture_constant.jpg'
+CUDA error: invalid device ordinal
+
+============= REALISTIC =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_realistic.jpg'
+
+===================================================================
+[block_1024_r2] ./renders/raytracer --block-size 1024 --max-depth 50 --num-spheres 200
+===================================================================
+Config: blockSize=1024 MAX_SPHERES=512 maxDepth=50 numSpheres=200
+Scene initialized
+
+============= OPENMP =============
+Time:                          662.120 s
+Wrote 'output/openmp.jpg'
+
+Spheres generated: 200 (requested 200)
+CUDA error: invalid device ordinal
+
+============= GLOBAL =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_global.jpg'
+CUDA error: invalid device ordinal
+
+============= CONSTANT =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_constant.jpg'
+CUDA error: invalid device ordinal
+
+============= SHARED =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_shared.jpg'
+CUDA error: invalid device ordinal
+
+============= 1D TEXTURE =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_1d_texture.jpg'
+CUDA error: invalid device ordinal
+
+============= 2D TEXTURE =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_2d_texture.jpg'
+CUDA error: invalid device ordinal
+
+============= 2D TEXTURE + CONSTANT =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_2d_texture_constant.jpg'
+CUDA error: invalid device ordinal
+
+============= REALISTIC =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_realistic.jpg'
+
+===================================================================
+[block_1024_r3] ./renders/raytracer --block-size 1024 --max-depth 50 --num-spheres 200
+===================================================================
+Config: blockSize=1024 MAX_SPHERES=512 maxDepth=50 numSpheres=200
+Scene initialized
+
+============= OPENMP =============
+Time:                          655.986 s
+Wrote 'output/openmp.jpg'
+
+Spheres generated: 200 (requested 200)
+CUDA error: invalid device ordinal
+
+============= GLOBAL =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_global.jpg'
+CUDA error: invalid device ordinal
+
+============= CONSTANT =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_constant.jpg'
+CUDA error: invalid device ordinal
+
+============= SHARED =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_shared.jpg'
+CUDA error: invalid device ordinal
+
+============= 1D TEXTURE =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_1d_texture.jpg'
+CUDA error: invalid device ordinal
+
+============= 2D TEXTURE =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_2d_texture.jpg'
+CUDA error: invalid device ordinal
+
+============= 2D TEXTURE + CONSTANT =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_2d_texture_constant.jpg'
+CUDA error: invalid device ordinal
+
+============= REALISTIC =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_realistic.jpg'
+###################################################################
+# Sweep 2: object count  (block=256, depth=50)
+# Each config run 3x
+###################################################################
+
+===================================================================
+[spheres_50_r1] ./renders/raytracer --block-size 256 --max-depth 50 --num-spheres 50
+===================================================================
+Config: blockSize=256 MAX_SPHERES=512 maxDepth=50 numSpheres=50
+Scene initialized
+
+============= OPENMP =============
+Time:                          194.531 s
+Wrote 'output/openmp.jpg'
+
+Spheres generated: 50 (requested 50)
+CUDA error: invalid device ordinal
+
+============= GLOBAL =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_global.jpg'
+CUDA error: invalid device ordinal
+
+============= CONSTANT =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_constant.jpg'
+CUDA error: invalid device ordinal
+
+============= SHARED =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_shared.jpg'
+CUDA error: invalid device ordinal
+
+============= 1D TEXTURE =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_1d_texture.jpg'
+CUDA error: invalid device ordinal
+
+============= 2D TEXTURE =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_2d_texture.jpg'
+CUDA error: invalid device ordinal
+
+============= 2D TEXTURE + CONSTANT =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_2d_texture_constant.jpg'
+CUDA error: invalid device ordinal
+
+============= REALISTIC =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_realistic.jpg'
+
+===================================================================
+[spheres_50_r2] ./renders/raytracer --block-size 256 --max-depth 50 --num-spheres 50
+===================================================================
+Config: blockSize=256 MAX_SPHERES=512 maxDepth=50 numSpheres=50
+Scene initialized
+
+============= OPENMP =============
+Time:                          188.326 s
+Wrote 'output/openmp.jpg'
+
+Spheres generated: 50 (requested 50)
+CUDA error: invalid device ordinal
+
+============= GLOBAL =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_global.jpg'
+CUDA error: invalid device ordinal
+
+============= CONSTANT =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_constant.jpg'
+CUDA error: invalid device ordinal
+
+============= SHARED =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_shared.jpg'
+CUDA error: invalid device ordinal
+
+============= 1D TEXTURE =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_1d_texture.jpg'
+CUDA error: invalid device ordinal
+
+============= 2D TEXTURE =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_2d_texture.jpg'
+CUDA error: invalid device ordinal
+
+============= 2D TEXTURE + CONSTANT =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_2d_texture_constant.jpg'
+CUDA error: invalid device ordinal
+
+============= REALISTIC =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_realistic.jpg'
+
+===================================================================
+[spheres_50_r3] ./renders/raytracer --block-size 256 --max-depth 50 --num-spheres 50
+===================================================================
+Config: blockSize=256 MAX_SPHERES=512 maxDepth=50 numSpheres=50
+Scene initialized
+
+============= OPENMP =============
+Time:                          198.155 s
+Wrote 'output/openmp.jpg'
+
+Spheres generated: 50 (requested 50)
+CUDA error: invalid device ordinal
+
+============= GLOBAL =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_global.jpg'
+CUDA error: invalid device ordinal
+
+============= CONSTANT =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_constant.jpg'
+CUDA error: invalid device ordinal
+
+============= SHARED =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_shared.jpg'
+CUDA error: invalid device ordinal
+
+============= 1D TEXTURE =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_1d_texture.jpg'
+CUDA error: invalid device ordinal
+
+============= 2D TEXTURE =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_2d_texture.jpg'
+CUDA error: invalid device ordinal
+
+============= 2D TEXTURE + CONSTANT =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_2d_texture_constant.jpg'
+CUDA error: invalid device ordinal
+
+============= REALISTIC =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_realistic.jpg'
+
+===================================================================
+[spheres_100_r1] ./renders/raytracer --block-size 256 --max-depth 50 --num-spheres 100
+===================================================================
+Config: blockSize=256 MAX_SPHERES=512 maxDepth=50 numSpheres=100
+Scene initialized
+
+============= OPENMP =============
+Time:                          361.478 s
+Wrote 'output/openmp.jpg'
+
+Spheres generated: 100 (requested 100)
+CUDA error: invalid device ordinal
+
+============= GLOBAL =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_global.jpg'
+CUDA error: invalid device ordinal
+
+============= CONSTANT =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_constant.jpg'
+CUDA error: invalid device ordinal
+
+============= SHARED =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_shared.jpg'
+CUDA error: invalid device ordinal
+
+============= 1D TEXTURE =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_1d_texture.jpg'
+CUDA error: invalid device ordinal
+
+============= 2D TEXTURE =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_2d_texture.jpg'
+CUDA error: invalid device ordinal
+
+============= 2D TEXTURE + CONSTANT =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_2d_texture_constant.jpg'
+CUDA error: invalid device ordinal
+
+============= REALISTIC =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_realistic.jpg'
+
+===================================================================
+[spheres_100_r2] ./renders/raytracer --block-size 256 --max-depth 50 --num-spheres 100
+===================================================================
+Config: blockSize=256 MAX_SPHERES=512 maxDepth=50 numSpheres=100
+Scene initialized
+
+============= OPENMP =============
+Time:                          370.799 s
+Wrote 'output/openmp.jpg'
+
+Spheres generated: 100 (requested 100)
+CUDA error: invalid device ordinal
+
+============= GLOBAL =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_global.jpg'
+CUDA error: invalid device ordinal
+
+============= CONSTANT =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_constant.jpg'
+CUDA error: invalid device ordinal
+
+============= SHARED =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_shared.jpg'
+CUDA error: invalid device ordinal
+
+============= 1D TEXTURE =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_1d_texture.jpg'
+CUDA error: invalid device ordinal
+
+============= 2D TEXTURE =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_2d_texture.jpg'
+CUDA error: invalid device ordinal
+
+============= 2D TEXTURE + CONSTANT =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_2d_texture_constant.jpg'
+CUDA error: invalid device ordinal
+
+============= REALISTIC =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_realistic.jpg'
+
+===================================================================
+[spheres_100_r3] ./renders/raytracer --block-size 256 --max-depth 50 --num-spheres 100
+===================================================================
+Config: blockSize=256 MAX_SPHERES=512 maxDepth=50 numSpheres=100
+Scene initialized
+
+============= OPENMP =============
+Time:                          354.706 s
+Wrote 'output/openmp.jpg'
+
+Spheres generated: 100 (requested 100)
+CUDA error: invalid device ordinal
+
+============= GLOBAL =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_global.jpg'
+CUDA error: invalid device ordinal
+
+============= CONSTANT =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_constant.jpg'
+CUDA error: invalid device ordinal
+
+============= SHARED =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_shared.jpg'
+CUDA error: invalid device ordinal
+
+============= 1D TEXTURE =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_1d_texture.jpg'
+CUDA error: invalid device ordinal
+
+============= 2D TEXTURE =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_2d_texture.jpg'
+CUDA error: invalid device ordinal
+
+============= 2D TEXTURE + CONSTANT =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_2d_texture_constant.jpg'
+CUDA error: invalid device ordinal
+
+============= REALISTIC =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_realistic.jpg'
+
+===================================================================
+[spheres_200_r1] ./renders/raytracer --block-size 256 --max-depth 50 --num-spheres 200
+===================================================================
+Config: blockSize=256 MAX_SPHERES=512 maxDepth=50 numSpheres=200
+Scene initialized
+
+============= OPENMP =============
+Time:                          659.241 s
+Wrote 'output/openmp.jpg'
+
+Spheres generated: 200 (requested 200)
+CUDA error: invalid device ordinal
+
+============= GLOBAL =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_global.jpg'
+CUDA error: invalid device ordinal
+
+============= CONSTANT =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_constant.jpg'
+CUDA error: invalid device ordinal
+
+============= SHARED =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_shared.jpg'
+CUDA error: invalid device ordinal
+
+============= 1D TEXTURE =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_1d_texture.jpg'
+CUDA error: invalid device ordinal
+
+============= 2D TEXTURE =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_2d_texture.jpg'
+CUDA error: invalid device ordinal
+
+============= 2D TEXTURE + CONSTANT =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_2d_texture_constant.jpg'
+CUDA error: invalid device ordinal
+
+============= REALISTIC =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_realistic.jpg'
+
+===================================================================
+[spheres_200_r2] ./renders/raytracer --block-size 256 --max-depth 50 --num-spheres 200
+===================================================================
+Config: blockSize=256 MAX_SPHERES=512 maxDepth=50 numSpheres=200
+Scene initialized
+
+============= OPENMP =============
+Time:                          657.818 s
+Wrote 'output/openmp.jpg'
+
+Spheres generated: 200 (requested 200)
+CUDA error: invalid device ordinal
+
+============= GLOBAL =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_global.jpg'
+CUDA error: invalid device ordinal
+
+============= CONSTANT =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_constant.jpg'
+CUDA error: invalid device ordinal
+
+============= SHARED =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_shared.jpg'
+CUDA error: invalid device ordinal
+
+============= 1D TEXTURE =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_1d_texture.jpg'
+CUDA error: invalid device ordinal
+
+============= 2D TEXTURE =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_2d_texture.jpg'
+CUDA error: invalid device ordinal
+
+============= 2D TEXTURE + CONSTANT =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_2d_texture_constant.jpg'
+CUDA error: invalid device ordinal
+
+============= REALISTIC =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_realistic.jpg'
+
+===================================================================
+[spheres_200_r3] ./renders/raytracer --block-size 256 --max-depth 50 --num-spheres 200
+===================================================================
+Config: blockSize=256 MAX_SPHERES=512 maxDepth=50 numSpheres=200
+Scene initialized
+
+============= OPENMP =============
+Time:                          656.658 s
+Wrote 'output/openmp.jpg'
+
+Spheres generated: 200 (requested 200)
+CUDA error: invalid device ordinal
+
+============= GLOBAL =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_global.jpg'
+CUDA error: invalid device ordinal
+
+============= CONSTANT =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_constant.jpg'
+CUDA error: invalid device ordinal
+
+============= SHARED =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_shared.jpg'
+CUDA error: invalid device ordinal
+
+============= 1D TEXTURE =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_1d_texture.jpg'
+CUDA error: invalid device ordinal
+
+============= 2D TEXTURE =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_2d_texture.jpg'
+CUDA error: invalid device ordinal
+
+============= 2D TEXTURE + CONSTANT =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_2d_texture_constant.jpg'
+CUDA error: invalid device ordinal
+
+============= REALISTIC =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_realistic.jpg'
+
+===================================================================
+[spheres_400_r1] ./renders/raytracer --block-size 256 --max-depth 50 --num-spheres 400
+===================================================================
+Config: blockSize=256 MAX_SPHERES=512 maxDepth=50 numSpheres=400
+Scene initialized
+
+============= OPENMP =============
+Time:                          665.480 s
+Wrote 'output/openmp.jpg'
+
+Spheres generated: 203 (requested 400)
+CUDA error: invalid device ordinal
+
+============= GLOBAL =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_global.jpg'
+CUDA error: invalid device ordinal
+
+============= CONSTANT =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_constant.jpg'
+CUDA error: invalid device ordinal
+
+============= SHARED =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_shared.jpg'
+CUDA error: invalid device ordinal
+
+============= 1D TEXTURE =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_1d_texture.jpg'
+CUDA error: invalid device ordinal
+
+============= 2D TEXTURE =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_2d_texture.jpg'
+CUDA error: invalid device ordinal
+
+============= 2D TEXTURE + CONSTANT =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_2d_texture_constant.jpg'
+CUDA error: invalid device ordinal
+
+============= REALISTIC =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_realistic.jpg'
+
+===================================================================
+[spheres_400_r2] ./renders/raytracer --block-size 256 --max-depth 50 --num-spheres 400
+===================================================================
+Config: blockSize=256 MAX_SPHERES=512 maxDepth=50 numSpheres=400
+Scene initialized
+
+============= OPENMP =============
+Time:                          665.790 s
+Wrote 'output/openmp.jpg'
+
+Spheres generated: 203 (requested 400)
+CUDA error: invalid device ordinal
+
+============= GLOBAL =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_global.jpg'
+CUDA error: invalid device ordinal
+
+============= CONSTANT =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_constant.jpg'
+CUDA error: invalid device ordinal
+
+============= SHARED =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_shared.jpg'
+CUDA error: invalid device ordinal
+
+============= 1D TEXTURE =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_1d_texture.jpg'
+CUDA error: invalid device ordinal
+
+============= 2D TEXTURE =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_2d_texture.jpg'
+CUDA error: invalid device ordinal
+
+============= 2D TEXTURE + CONSTANT =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_2d_texture_constant.jpg'
+CUDA error: invalid device ordinal
+
+============= REALISTIC =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_realistic.jpg'
+
+===================================================================
+[spheres_400_r3] ./renders/raytracer --block-size 256 --max-depth 50 --num-spheres 400
+===================================================================
+Config: blockSize=256 MAX_SPHERES=512 maxDepth=50 numSpheres=400
+Scene initialized
+
+============= OPENMP =============
+Time:                          667.182 s
+Wrote 'output/openmp.jpg'
+
+Spheres generated: 203 (requested 400)
+CUDA error: invalid device ordinal
+
+============= GLOBAL =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_global.jpg'
+CUDA error: invalid device ordinal
+
+============= CONSTANT =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_constant.jpg'
+CUDA error: invalid device ordinal
+
+============= SHARED =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_shared.jpg'
+CUDA error: invalid device ordinal
+
+============= 1D TEXTURE =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_1d_texture.jpg'
+CUDA error: invalid device ordinal
+
+============= 2D TEXTURE =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_2d_texture.jpg'
+CUDA error: invalid device ordinal
+
+============= 2D TEXTURE + CONSTANT =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_2d_texture_constant.jpg'
+CUDA error: invalid device ordinal
+
+============= REALISTIC =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_realistic.jpg'
+
+===================================================================
+[spheres_800_r1] ./renders/raytracer --block-size 256 --max-depth 50 --num-spheres 800
+===================================================================
+Config: blockSize=256 MAX_SPHERES=512 maxDepth=50 numSpheres=800
+Scene initialized
+
+============= OPENMP =============
+Time:                          666.187 s
+Wrote 'output/openmp.jpg'
+
+Spheres generated: 203 (requested 800)
+CUDA error: invalid device ordinal
+
+============= GLOBAL =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_global.jpg'
+CUDA error: invalid device ordinal
+
+============= CONSTANT =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_constant.jpg'
+CUDA error: invalid device ordinal
+
+============= SHARED =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_shared.jpg'
+CUDA error: invalid device ordinal
+
+============= 1D TEXTURE =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_1d_texture.jpg'
+CUDA error: invalid device ordinal
+
+============= 2D TEXTURE =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_2d_texture.jpg'
+CUDA error: invalid device ordinal
+
+============= 2D TEXTURE + CONSTANT =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_2d_texture_constant.jpg'
+CUDA error: invalid device ordinal
+
+============= REALISTIC =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_realistic.jpg'
+
+===================================================================
+[spheres_800_r2] ./renders/raytracer --block-size 256 --max-depth 50 --num-spheres 800
+===================================================================
+Config: blockSize=256 MAX_SPHERES=512 maxDepth=50 numSpheres=800
+Scene initialized
+
+============= OPENMP =============
+Time:                          667.466 s
+Wrote 'output/openmp.jpg'
+
+Spheres generated: 203 (requested 800)
+CUDA error: invalid device ordinal
+
+============= GLOBAL =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_global.jpg'
+CUDA error: invalid device ordinal
+
+============= CONSTANT =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_constant.jpg'
+CUDA error: invalid device ordinal
+
+============= SHARED =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_shared.jpg'
+CUDA error: invalid device ordinal
+
+============= 1D TEXTURE =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_1d_texture.jpg'
+CUDA error: invalid device ordinal
+
+============= 2D TEXTURE =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_2d_texture.jpg'
+CUDA error: invalid device ordinal
+
+============= 2D TEXTURE + CONSTANT =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_2d_texture_constant.jpg'
+CUDA error: invalid device ordinal
+
+============= REALISTIC =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_realistic.jpg'
+
+===================================================================
+[spheres_800_r3] ./renders/raytracer --block-size 256 --max-depth 50 --num-spheres 800
+===================================================================
+Config: blockSize=256 MAX_SPHERES=512 maxDepth=50 numSpheres=800
+Scene initialized
+
+============= OPENMP =============
+Time:                          665.194 s
+Wrote 'output/openmp.jpg'
+
+Spheres generated: 203 (requested 800)
+CUDA error: invalid device ordinal
+
+============= GLOBAL =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_global.jpg'
+CUDA error: invalid device ordinal
+
+============= CONSTANT =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_constant.jpg'
+CUDA error: invalid device ordinal
+
+============= SHARED =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_shared.jpg'
+CUDA error: invalid device ordinal
+
+============= 1D TEXTURE =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_1d_texture.jpg'
+CUDA error: invalid device ordinal
+
+============= 2D TEXTURE =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_2d_texture.jpg'
+CUDA error: invalid device ordinal
+
+============= 2D TEXTURE + CONSTANT =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_2d_texture_constant.jpg'
+CUDA error: invalid device ordinal
+
+============= REALISTIC =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_realistic.jpg'
+###################################################################
+# Sweep 3: ray depth  (block=256, spheres=200)
+# Each config run 3x
+###################################################################
+
+===================================================================
+[depth_5_r1] ./renders/raytracer --block-size 256 --max-depth 5 --num-spheres 200
+===================================================================
+Config: blockSize=256 MAX_SPHERES=512 maxDepth=5 numSpheres=200
+Scene initialized
+
+============= OPENMP =============
+Time:                          644.790 s
+Wrote 'output/openmp.jpg'
+
+Spheres generated: 200 (requested 200)
+CUDA error: invalid device ordinal
+
+============= GLOBAL =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_global.jpg'
+CUDA error: invalid device ordinal
+
+============= CONSTANT =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_constant.jpg'
+CUDA error: invalid device ordinal
+
+============= SHARED =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_shared.jpg'
+CUDA error: invalid device ordinal
+
+============= 1D TEXTURE =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_1d_texture.jpg'
+CUDA error: invalid device ordinal
+
+============= 2D TEXTURE =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_2d_texture.jpg'
+CUDA error: invalid device ordinal
+
+============= 2D TEXTURE + CONSTANT =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_2d_texture_constant.jpg'
+CUDA error: invalid device ordinal
+
+============= REALISTIC =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_realistic.jpg'
+
+===================================================================
+[depth_5_r2] ./renders/raytracer --block-size 256 --max-depth 5 --num-spheres 200
+===================================================================
+Config: blockSize=256 MAX_SPHERES=512 maxDepth=5 numSpheres=200
+Scene initialized
+
+============= OPENMP =============
+Time:                          640.410 s
+Wrote 'output/openmp.jpg'
+
+Spheres generated: 200 (requested 200)
+CUDA error: invalid device ordinal
+
+============= GLOBAL =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_global.jpg'
+CUDA error: invalid device ordinal
+
+============= CONSTANT =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_constant.jpg'
+CUDA error: invalid device ordinal
+
+============= SHARED =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_shared.jpg'
+CUDA error: invalid device ordinal
+
+============= 1D TEXTURE =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_1d_texture.jpg'
+CUDA error: invalid device ordinal
+
+============= 2D TEXTURE =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_2d_texture.jpg'
+CUDA error: invalid device ordinal
+
+============= 2D TEXTURE + CONSTANT =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_2d_texture_constant.jpg'
+CUDA error: invalid device ordinal
+
+============= REALISTIC =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_realistic.jpg'
+
+===================================================================
+[depth_5_r3] ./renders/raytracer --block-size 256 --max-depth 5 --num-spheres 200
+===================================================================
+Config: blockSize=256 MAX_SPHERES=512 maxDepth=5 numSpheres=200
+Scene initialized
+
+============= OPENMP =============
+Time:                          640.180 s
+Wrote 'output/openmp.jpg'
+
+Spheres generated: 200 (requested 200)
+CUDA error: invalid device ordinal
+
+============= GLOBAL =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_global.jpg'
+CUDA error: invalid device ordinal
+
+============= CONSTANT =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_constant.jpg'
+CUDA error: invalid device ordinal
+
+============= SHARED =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_shared.jpg'
+CUDA error: invalid device ordinal
+
+============= 1D TEXTURE =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_1d_texture.jpg'
+CUDA error: invalid device ordinal
+
+============= 2D TEXTURE =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_2d_texture.jpg'
+CUDA error: invalid device ordinal
+
+============= 2D TEXTURE + CONSTANT =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_2d_texture_constant.jpg'
+CUDA error: invalid device ordinal
+
+============= REALISTIC =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_realistic.jpg'
+
+===================================================================
+[depth_10_r1] ./renders/raytracer --block-size 256 --max-depth 10 --num-spheres 200
+===================================================================
+Config: blockSize=256 MAX_SPHERES=512 maxDepth=10 numSpheres=200
+Scene initialized
+
+============= OPENMP =============
+Time:                          652.476 s
+Wrote 'output/openmp.jpg'
+
+Spheres generated: 200 (requested 200)
+CUDA error: invalid device ordinal
+
+============= GLOBAL =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_global.jpg'
+CUDA error: invalid device ordinal
+
+============= CONSTANT =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_constant.jpg'
+CUDA error: invalid device ordinal
+
+============= SHARED =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_shared.jpg'
+CUDA error: invalid device ordinal
+
+============= 1D TEXTURE =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_1d_texture.jpg'
+CUDA error: invalid device ordinal
+
+============= 2D TEXTURE =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_2d_texture.jpg'
+CUDA error: invalid device ordinal
+
+============= 2D TEXTURE + CONSTANT =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_2d_texture_constant.jpg'
+CUDA error: invalid device ordinal
+
+============= REALISTIC =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_realistic.jpg'
+
+===================================================================
+[depth_10_r2] ./renders/raytracer --block-size 256 --max-depth 10 --num-spheres 200
+===================================================================
+Config: blockSize=256 MAX_SPHERES=512 maxDepth=10 numSpheres=200
+Scene initialized
+
+============= OPENMP =============
+Time:                          651.841 s
+Wrote 'output/openmp.jpg'
+
+Spheres generated: 200 (requested 200)
+CUDA error: invalid device ordinal
+
+============= GLOBAL =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_global.jpg'
+CUDA error: invalid device ordinal
+
+============= CONSTANT =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_constant.jpg'
+CUDA error: invalid device ordinal
+
+============= SHARED =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_shared.jpg'
+CUDA error: invalid device ordinal
+
+============= 1D TEXTURE =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_1d_texture.jpg'
+CUDA error: invalid device ordinal
+
+============= 2D TEXTURE =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_2d_texture.jpg'
+CUDA error: invalid device ordinal
+
+============= 2D TEXTURE + CONSTANT =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_2d_texture_constant.jpg'
+CUDA error: invalid device ordinal
+
+============= REALISTIC =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_realistic.jpg'
+
+===================================================================
+[depth_10_r3] ./renders/raytracer --block-size 256 --max-depth 10 --num-spheres 200
+===================================================================
+Config: blockSize=256 MAX_SPHERES=512 maxDepth=10 numSpheres=200
+Scene initialized
+
+============= OPENMP =============
+Time:                          652.019 s
+Wrote 'output/openmp.jpg'
+
+Spheres generated: 200 (requested 200)
+CUDA error: invalid device ordinal
+
+============= GLOBAL =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_global.jpg'
+CUDA error: invalid device ordinal
+
+============= CONSTANT =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_constant.jpg'
+CUDA error: invalid device ordinal
+
+============= SHARED =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_shared.jpg'
+CUDA error: invalid device ordinal
+
+============= 1D TEXTURE =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_1d_texture.jpg'
+CUDA error: invalid device ordinal
+
+============= 2D TEXTURE =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_2d_texture.jpg'
+CUDA error: invalid device ordinal
+
+============= 2D TEXTURE + CONSTANT =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_2d_texture_constant.jpg'
+CUDA error: invalid device ordinal
+
+============= REALISTIC =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_realistic.jpg'
+
+===================================================================
+[depth_25_r1] ./renders/raytracer --block-size 256 --max-depth 25 --num-spheres 200
+===================================================================
+Config: blockSize=256 MAX_SPHERES=512 maxDepth=25 numSpheres=200
+Scene initialized
+
+============= OPENMP =============
+Time:                          655.900 s
+Wrote 'output/openmp.jpg'
+
+Spheres generated: 200 (requested 200)
+CUDA error: invalid device ordinal
+
+============= GLOBAL =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_global.jpg'
+CUDA error: invalid device ordinal
+
+============= CONSTANT =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_constant.jpg'
+CUDA error: invalid device ordinal
+
+============= SHARED =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_shared.jpg'
+CUDA error: invalid device ordinal
+
+============= 1D TEXTURE =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_1d_texture.jpg'
+CUDA error: invalid device ordinal
+
+============= 2D TEXTURE =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_2d_texture.jpg'
+CUDA error: invalid device ordinal
+
+============= 2D TEXTURE + CONSTANT =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_2d_texture_constant.jpg'
+CUDA error: invalid device ordinal
+
+============= REALISTIC =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_realistic.jpg'
+
+===================================================================
+[depth_25_r2] ./renders/raytracer --block-size 256 --max-depth 25 --num-spheres 200
+===================================================================
+Config: blockSize=256 MAX_SPHERES=512 maxDepth=25 numSpheres=200
+Scene initialized
+
+============= OPENMP =============
+Time:                          656.676 s
+Wrote 'output/openmp.jpg'
+
+Spheres generated: 200 (requested 200)
+CUDA error: invalid device ordinal
+
+============= GLOBAL =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_global.jpg'
+CUDA error: invalid device ordinal
+
+============= CONSTANT =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_constant.jpg'
+CUDA error: invalid device ordinal
+
+============= SHARED =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_shared.jpg'
+CUDA error: invalid device ordinal
+
+============= 1D TEXTURE =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_1d_texture.jpg'
+CUDA error: invalid device ordinal
+
+============= 2D TEXTURE =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_2d_texture.jpg'
+CUDA error: invalid device ordinal
+
+============= 2D TEXTURE + CONSTANT =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_2d_texture_constant.jpg'
+CUDA error: invalid device ordinal
+
+============= REALISTIC =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_realistic.jpg'
+
+===================================================================
+[depth_25_r3] ./renders/raytracer --block-size 256 --max-depth 25 --num-spheres 200
+===================================================================
+Config: blockSize=256 MAX_SPHERES=512 maxDepth=25 numSpheres=200
+Scene initialized
+
+============= OPENMP =============
+Time:                          656.186 s
+Wrote 'output/openmp.jpg'
+
+Spheres generated: 200 (requested 200)
+CUDA error: invalid device ordinal
+
+============= GLOBAL =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_global.jpg'
+CUDA error: invalid device ordinal
+
+============= CONSTANT =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_constant.jpg'
+CUDA error: invalid device ordinal
+
+============= SHARED =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_shared.jpg'
+CUDA error: invalid device ordinal
+
+============= 1D TEXTURE =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_1d_texture.jpg'
+CUDA error: invalid device ordinal
+
+============= 2D TEXTURE =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_2d_texture.jpg'
+CUDA error: invalid device ordinal
+
+============= 2D TEXTURE + CONSTANT =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_2d_texture_constant.jpg'
+CUDA error: invalid device ordinal
+
+============= REALISTIC =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_realistic.jpg'
+
+===================================================================
+[depth_50_r1] ./renders/raytracer --block-size 256 --max-depth 50 --num-spheres 200
+===================================================================
+Config: blockSize=256 MAX_SPHERES=512 maxDepth=50 numSpheres=200
+Scene initialized
+
+============= OPENMP =============
+Time:                          657.199 s
+Wrote 'output/openmp.jpg'
+
+Spheres generated: 200 (requested 200)
+CUDA error: invalid device ordinal
+
+============= GLOBAL =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_global.jpg'
+CUDA error: invalid device ordinal
+
+============= CONSTANT =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_constant.jpg'
+CUDA error: invalid device ordinal
+
+============= SHARED =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_shared.jpg'
+CUDA error: invalid device ordinal
+
+============= 1D TEXTURE =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_1d_texture.jpg'
+CUDA error: invalid device ordinal
+
+============= 2D TEXTURE =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_2d_texture.jpg'
+CUDA error: invalid device ordinal
+
+============= 2D TEXTURE + CONSTANT =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_2d_texture_constant.jpg'
+CUDA error: invalid device ordinal
+
+============= REALISTIC =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_realistic.jpg'
+
+===================================================================
+[depth_50_r2] ./renders/raytracer --block-size 256 --max-depth 50 --num-spheres 200
+===================================================================
+Config: blockSize=256 MAX_SPHERES=512 maxDepth=50 numSpheres=200
+Scene initialized
+
+============= OPENMP =============
+Time:                          658.252 s
+Wrote 'output/openmp.jpg'
+
+Spheres generated: 200 (requested 200)
+CUDA error: invalid device ordinal
+
+============= GLOBAL =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_global.jpg'
+CUDA error: invalid device ordinal
+
+============= CONSTANT =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_constant.jpg'
+CUDA error: invalid device ordinal
+
+============= SHARED =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_shared.jpg'
+CUDA error: invalid device ordinal
+
+============= 1D TEXTURE =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_1d_texture.jpg'
+CUDA error: invalid device ordinal
+
+============= 2D TEXTURE =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_2d_texture.jpg'
+CUDA error: invalid device ordinal
+
+============= 2D TEXTURE + CONSTANT =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_2d_texture_constant.jpg'
+CUDA error: invalid device ordinal
+
+============= REALISTIC =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_realistic.jpg'
+
+===================================================================
+[depth_50_r3] ./renders/raytracer --block-size 256 --max-depth 50 --num-spheres 200
+===================================================================
+Config: blockSize=256 MAX_SPHERES=512 maxDepth=50 numSpheres=200
+Scene initialized
+
+============= OPENMP =============
+Time:                          656.301 s
+Wrote 'output/openmp.jpg'
+
+Spheres generated: 200 (requested 200)
+CUDA error: invalid device ordinal
+
+============= GLOBAL =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_global.jpg'
+CUDA error: invalid device ordinal
+
+============= CONSTANT =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_constant.jpg'
+CUDA error: invalid device ordinal
+
+============= SHARED =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_shared.jpg'
+CUDA error: invalid device ordinal
+
+============= 1D TEXTURE =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_1d_texture.jpg'
+CUDA error: invalid device ordinal
+
+============= 2D TEXTURE =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_2d_texture.jpg'
+CUDA error: invalid device ordinal
+
+============= 2D TEXTURE + CONSTANT =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_2d_texture_constant.jpg'
+CUDA error: invalid device ordinal
+
+============= REALISTIC =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_realistic.jpg'
+
+===================================================================
+[depth_75_r1] ./renders/raytracer --block-size 256 --max-depth 75 --num-spheres 200
+===================================================================
+Config: blockSize=256 MAX_SPHERES=512 maxDepth=75 numSpheres=200
+Scene initialized
+
+============= OPENMP =============
+Time:                          657.445 s
+Wrote 'output/openmp.jpg'
+
+Spheres generated: 200 (requested 200)
+CUDA error: invalid device ordinal
+
+============= GLOBAL =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_global.jpg'
+CUDA error: invalid device ordinal
+
+============= CONSTANT =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_constant.jpg'
+CUDA error: invalid device ordinal
+
+============= SHARED =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_shared.jpg'
+CUDA error: invalid device ordinal
+
+============= 1D TEXTURE =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_1d_texture.jpg'
+CUDA error: invalid device ordinal
+
+============= 2D TEXTURE =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_2d_texture.jpg'
+CUDA error: invalid device ordinal
+
+============= 2D TEXTURE + CONSTANT =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_2d_texture_constant.jpg'
+CUDA error: invalid device ordinal
+
+============= REALISTIC =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_realistic.jpg'
+
+===================================================================
+[depth_75_r2] ./renders/raytracer --block-size 256 --max-depth 75 --num-spheres 200
+===================================================================
+Config: blockSize=256 MAX_SPHERES=512 maxDepth=75 numSpheres=200
+Scene initialized
+
+============= OPENMP =============
+Time:                          656.648 s
+Wrote 'output/openmp.jpg'
+
+Spheres generated: 200 (requested 200)
+CUDA error: invalid device ordinal
+
+============= GLOBAL =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_global.jpg'
+CUDA error: invalid device ordinal
+
+============= CONSTANT =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_constant.jpg'
+CUDA error: invalid device ordinal
+
+============= SHARED =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_shared.jpg'
+CUDA error: invalid device ordinal
+
+============= 1D TEXTURE =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_1d_texture.jpg'
+CUDA error: invalid device ordinal
+
+============= 2D TEXTURE =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_2d_texture.jpg'
+CUDA error: invalid device ordinal
+
+============= 2D TEXTURE + CONSTANT =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_2d_texture_constant.jpg'
+CUDA error: invalid device ordinal
+
+============= REALISTIC =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_realistic.jpg'
+
+===================================================================
+[depth_75_r3] ./renders/raytracer --block-size 256 --max-depth 75 --num-spheres 200
+===================================================================
+Config: blockSize=256 MAX_SPHERES=512 maxDepth=75 numSpheres=200
+Scene initialized
+
+============= OPENMP =============
+Time:                          656.688 s
+Wrote 'output/openmp.jpg'
+
+Spheres generated: 200 (requested 200)
+CUDA error: invalid device ordinal
+
+============= GLOBAL =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_global.jpg'
+CUDA error: invalid device ordinal
+
+============= CONSTANT =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_constant.jpg'
+CUDA error: invalid device ordinal
+
+============= SHARED =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_shared.jpg'
+CUDA error: invalid device ordinal
+
+============= 1D TEXTURE =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_1d_texture.jpg'
+CUDA error: invalid device ordinal
+
+============= 2D TEXTURE =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_2d_texture.jpg'
+CUDA error: invalid device ordinal
+
+============= 2D TEXTURE + CONSTANT =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_2d_texture_constant.jpg'
+CUDA error: invalid device ordinal
+
+============= REALISTIC =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_realistic.jpg'
+
+===================================================================
+[depth_100_r1] ./renders/raytracer --block-size 256 --max-depth 100 --num-spheres 200
+===================================================================
+Config: blockSize=256 MAX_SPHERES=512 maxDepth=100 numSpheres=200
+Scene initialized
+
+============= OPENMP =============
+Time:                          657.449 s
+Wrote 'output/openmp.jpg'
+
+Spheres generated: 200 (requested 200)
+CUDA error: invalid device ordinal
+
+============= GLOBAL =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_global.jpg'
+CUDA error: invalid device ordinal
+
+============= CONSTANT =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_constant.jpg'
+CUDA error: invalid device ordinal
+
+============= SHARED =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_shared.jpg'
+CUDA error: invalid device ordinal
+
+============= 1D TEXTURE =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_1d_texture.jpg'
+CUDA error: invalid device ordinal
+
+============= 2D TEXTURE =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_2d_texture.jpg'
+CUDA error: invalid device ordinal
+
+============= 2D TEXTURE + CONSTANT =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_2d_texture_constant.jpg'
+CUDA error: invalid device ordinal
+
+============= REALISTIC =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_realistic.jpg'
+
+===================================================================
+[depth_100_r2] ./renders/raytracer --block-size 256 --max-depth 100 --num-spheres 200
+===================================================================
+Config: blockSize=256 MAX_SPHERES=512 maxDepth=100 numSpheres=200
+Scene initialized
+
+============= OPENMP =============
+Time:                          655.656 s
+Wrote 'output/openmp.jpg'
+
+Spheres generated: 200 (requested 200)
+CUDA error: invalid device ordinal
+
+============= GLOBAL =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_global.jpg'
+CUDA error: invalid device ordinal
+
+============= CONSTANT =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_constant.jpg'
+CUDA error: invalid device ordinal
+
+============= SHARED =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_shared.jpg'
+CUDA error: invalid device ordinal
+
+============= 1D TEXTURE =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_1d_texture.jpg'
+CUDA error: invalid device ordinal
+
+============= 2D TEXTURE =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_2d_texture.jpg'
+CUDA error: invalid device ordinal
+
+============= 2D TEXTURE + CONSTANT =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_2d_texture_constant.jpg'
+CUDA error: invalid device ordinal
+
+============= REALISTIC =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_realistic.jpg'
+
+===================================================================
+[depth_100_r3] ./renders/raytracer --block-size 256 --max-depth 100 --num-spheres 200
+===================================================================
+Config: blockSize=256 MAX_SPHERES=512 maxDepth=100 numSpheres=200
+Scene initialized
+
+============= OPENMP =============
+Time:                          656.975 s
+Wrote 'output/openmp.jpg'
+
+Spheres generated: 200 (requested 200)
+CUDA error: invalid device ordinal
+
+============= GLOBAL =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_global.jpg'
+CUDA error: invalid device ordinal
+
+============= CONSTANT =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_constant.jpg'
+CUDA error: invalid device ordinal
+
+============= SHARED =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_shared.jpg'
+CUDA error: invalid device ordinal
+
+============= 1D TEXTURE =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_1d_texture.jpg'
+CUDA error: invalid device ordinal
+
+============= 2D TEXTURE =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_2d_texture.jpg'
+CUDA error: invalid device ordinal
+
+============= 2D TEXTURE + CONSTANT =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_2d_texture_constant.jpg'
+CUDA error: invalid device ordinal
+
+============= REALISTIC =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.000 s
+Total (without mem):             0.000 s
+Total (with mem):                0.000 s
+Throughput:                       0.00 Mpixels/sec
+Speedup vs OpenMP (kernel):       0.00x
+Speedup vs OpenMP (with mem):     0.00x
+Wrote 'output/cuda_realistic.jpg'
+
+All sweeps complete.
+Per-run logs:    /home-mscluster/ldemelo/HPC_Assignment/problem2/craytracer/metrics/sweep_2/logs/2026-05-18_11-25-10_*.log
+Aggregated CSV:  /home-mscluster/ldemelo/HPC_Assignment/problem2/craytracer/metrics/sweep_2/summary.csv
+
+###################################################################
+# Generating averaged plots for sweep 2
+###################################################################
