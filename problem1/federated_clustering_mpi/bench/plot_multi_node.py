@@ -334,8 +334,8 @@ def main():
         x_label="Number of nodes",
     )
 
-    # ----- Plot 3: test accuracy curves, side-by-side per strategy ----------
-    fig, axes = plt.subplots(1, 2, figsize=(13, 5), sharey=True)
+    # ----- Plot 3: test accuracy curves, stacked per strategy ----------------
+    fig, axes = plt.subplots(2, 1, figsize=(8, 9), sharex=True, sharey=True)
     for ax, curves, label_prefix, title in [
         (axes[0], curves_A, "A", f"Test accuracy (fixed ppn={args.fixed_ppn})"),
         (axes[1], curves_B, "B", f"Test accuracy (fixed total={args.fixed_total} ranks)"),
@@ -351,9 +351,9 @@ def main():
         ax.set_title(title)
         ax.grid(True, alpha=0.3)
         ax.legend(fontsize=8, loc="lower right")
-    axes[0].set_ylabel("Test accuracy (%)")
+        ax.set_ylabel("Test accuracy (%)")
     fig.suptitle("Multi-node convergence")
-    fig.tight_layout()
+    fig.tight_layout(rect=(0, 0, 1, 0.96))
     fig.savefig(out / "multinode_test_accuracy.png", dpi=150)
     plt.close(fig)
 

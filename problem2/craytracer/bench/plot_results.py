@@ -159,7 +159,7 @@ def plot_sweep(averaged, sweep_var, sweep_label, filter_fn, fixed_desc,
     for impl in by_impl:
         by_impl[impl].sort(key=lambda r: r[sweep_var])
 
-    fig, axes = plt.subplots(1, 3, figsize=(18, 5.5))
+    fig, axes = plt.subplots(3, 1, figsize=(8, 12), sharex=True)
     fig.suptitle(f"Sweep: {sweep_label}   ({fixed_desc})", fontsize=14)
 
     ax_time, ax_thr, ax_spd = axes
@@ -202,9 +202,9 @@ def plot_sweep(averaged, sweep_var, sweep_label, filter_fn, fixed_desc,
                 matplotlib.ticker.ScalarFormatter())
 
     handles, labels = ax_time.get_legend_handles_labels()
-    fig.legend(handles, labels, loc="lower center", ncol=len(labels),
+    fig.legend(handles, labels, loc="lower center", ncol=min(3, len(labels)),
                bbox_to_anchor=(0.5, -0.02), fontsize=9)
-    fig.tight_layout(rect=(0, 0.04, 1, 0.96))
+    fig.tight_layout(rect=(0, 0.07, 1, 0.96))
     fig.savefig(out_path, dpi=150, bbox_inches="tight")
     plt.close(fig)
     print(f"  wrote {out_path}")
