@@ -1,0 +1,44 @@
+Softmax regression: 10 classes; 784 features
+Epoch 1 | Loss: 0.554809 | Train Accuracy: 86.2617% | Test Accuracy: 90.04%
+Epoch 2 | Loss: 0.365862 | Train Accuracy: 89.7633% | Test Accuracy: 90.89%
+Epoch 3 | Loss: 0.336629 | Train Accuracy: 90.485% | Test Accuracy: 91.29%
+Epoch 4 | Loss: 0.321405 | Train Accuracy: 90.895% | Test Accuracy: 91.3%
+Epoch 5 | Loss: 0.311717 | Train Accuracy: 91.165% | Test Accuracy: 91.59%
+Epoch 6 | Loss: 0.304788 | Train Accuracy: 91.4217% | Test Accuracy: 91.65%
+Epoch 7 | Loss: 0.299492 | Train Accuracy: 91.5283% | Test Accuracy: 91.93%
+Epoch 8 | Loss: 0.295218 | Train Accuracy: 91.645% | Test Accuracy: 91.85%
+Epoch 9 | Loss: 0.291653 | Train Accuracy: 91.7433% | Test Accuracy: 92%
+Epoch 10 | Loss: 0.288767 | Train Accuracy: 91.8467% | Test Accuracy: 91.95%
+Epoch 11 | Loss: 0.286207 | Train Accuracy: 91.9283% | Test Accuracy: 92.16%
+Epoch 12 | Loss: 0.283859 | Train Accuracy: 91.995% | Test Accuracy: 92.12%
+Epoch 13 | Loss: 0.282078 | Train Accuracy: 92.0683% | Test Accuracy: 92.09%
+Epoch 14 | Loss: 0.279923 | Train Accuracy: 92.1217% | Test Accuracy: 92.05%
+Epoch 15 | Loss: 0.278359 | Train Accuracy: 92.2333% | Test Accuracy: 92.24%
+Epoch 16 | Loss: 0.277068 | Train Accuracy: 92.29% | Test Accuracy: 92.04%
+Epoch 17 | Loss: 0.275612 | Train Accuracy: 92.2767% | Test Accuracy: 92.23%
+Epoch 18 | Loss: 0.274508 | Train Accuracy: 92.2983% | Test Accuracy: 92.15%
+Epoch 19 | Loss: 0.273078 | Train Accuracy: 92.3983% | Test Accuracy: 92.34%
+Epoch 20 | Loss: 0.272199 | Train Accuracy: 92.3617% | Test Accuracy: 92.19%
+Epoch 21 | Loss: 0.271171 | Train Accuracy: 92.455% | Test Accuracy: 92.13%
+Epoch 22 | Loss: 0.270274 | Train Accuracy: 92.475% | Test Accuracy: 92.21%
+Epoch 23 | Loss: 0.269232 | Train Accuracy: 92.4767% | Test Accuracy: 92.24%
+Epoch 24 | Loss: 0.268497 | Train Accuracy: 92.5117% | Test Accuracy: 92.26%
+Epoch 25 | Loss: 0.267618 | Train Accuracy: 92.5867% | Test Accuracy: 92.33%
+Epoch 26 | Loss: 0.266939 | Train Accuracy: 92.5783% | Test Accuracy: 92.4%
+Epoch 27 | Loss: 0.266165 | Train Accuracy: 92.635% | Test Accuracy: 92.28%
+Epoch 28 | Loss: 0.265524 | Train Accuracy: 92.6283% | Test Accuracy: 92.35%
+Epoch 29 | Loss: 0.264771 | Train Accuracy: 92.6383% | Test Accuracy: 92.27%
+Epoch 30 | Loss: 0.264353 | Train Accuracy: 92.7217% | Test Accuracy: 92.48%
+Epoch 31 | Loss: 0.263618 | Train Accuracy: 92.6817% | Test Accuracy: 92.43%
+Epoch 32 | Loss: 0.262985 | Train Accuracy: 92.6583% | Test Accuracy: 92.41%
+Epoch 33 | Loss: 0.262472 | Train Accuracy: 92.6683% | Test Accuracy: 92.36%
+Epoch 34 | Loss: 0.261989 | Train Accuracy: 92.77% | Test Accuracy: 92.38%
+Epoch 35 | Loss: 0.261428 | Train Accuracy: 92.75% | Test Accuracy: 92.41%
+Epoch 36 | Loss: 0.260804 | Train Accuracy: 92.8083% | Test Accuracy: 92.41%
+Epoch 37 | Loss: 0.260276 | Train Accuracy: 92.79% | Test Accuracy: 92.29%
+Epoch 38 | Loss: 0.26 | Train Accuracy: 92.7883% | Test Accuracy: 92.4%
+Epoch 39 | Loss: 0.259471 | Train Accuracy: 92.7967% | Test Accuracy: 92.23%
+Epoch 40 | Loss: 0.259088 | Train Accuracy: 92.8567% | Test Accuracy: 92.46%
+[Centralised] Early stopping at epoch 40 after 5 epochs without test accuracy improvement.
+
+[Centralised] Done. Centralised data saved to /home-mscluster/ldemelo/HPC_Assignment/problem1/federated_clustering_mpi/metrics/sweep_5/centralised/central_rep3

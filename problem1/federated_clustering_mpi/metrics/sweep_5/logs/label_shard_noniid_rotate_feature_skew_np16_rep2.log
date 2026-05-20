@@ -1,0 +1,720 @@
+Rank 10 of 16 processes
+Rank 12 of 16 processes
+Rank 2 of 16 processes
+Rank 4 of 16 processes
+Rank 8 of 16 processes
+Rank 6 of 16 processes
+Rank 13 of 16 processes
+Rank 14 of 16 processes
+Rank 15 of 16 processes
+Rank 0 of 16 processes
+Rank 1 of 16 processes
+Rank 11 of 16 processes
+Rank 5 of 16 processes
+Rank 7 of 16 processes
+Rank 9 of 16 processes
+Rank 3 of 16 processes
+Softmax regression: 10 classes; 784 features
+[Mode] Non-IID Label Shard Distribution
+[Mode] Non-IID Label Shard Distribution
+[Mode] Non-IID Label Shard Distribution
+[Mode] Non-IID Label Shard Distribution
+[Mode] Non-IID Label Shard Distribution
+[Mode] Non-IID Label Shard Distribution
+[Mode] Non-IID Label Shard Distribution
+[Mode] Non-IID Label Shard Distribution
+[Mode] Non-IID Label Shard Distribution
+[Mode] Non-IID Label Shard Distribution
+[Mode] Non-IID Label Shard Distribution
+[Mode] Non-IID Label Shard Distribution
+[Mode] Non-IID Label Shard Distribution
+[Mode] Non-IID Label Shard Distribution
+[Mode] Non-IID Label Shard Distribution
+[Worker 12] Applied feature skew rotation: 120 degrees
+[Worker 4] Applied feature skew rotation: 40 degrees
+[Distributed Worker 12] Shard size: 4000
+Softmax regression: 10 classes; 784 features
+[Distributed Worker 4] Shard size: 4000
+Softmax regression: 10 classes; 784 features
+[Worker 14] Applied feature skew rotation: 140 degrees
+[Distributed Worker 14] Shard size: 4000
+Softmax regression: 10 classes; 784 features
+[Worker 15] Applied feature skew rotation: 150 degrees
+[Worker 10] Applied feature skew rotation: 100 degrees
+[Worker 13] Applied feature skew rotation: 130 degrees
+[Worker 11] Applied feature skew rotation: 110 degrees
+[Worker 8] Applied feature skew rotation: 80 degrees
+[Worker 2] Applied feature skew rotation: 20 degrees
+[Worker 6] Applied feature skew rotation: 60 degrees
+[Distributed Worker 15] Shard size: 4000
+[Distributed Worker 10] Shard size: 4000
+Softmax regression: 10 classes; 784 features
+[Worker 7] Applied feature skew rotation: 70 degrees
+Softmax regression: 10 classes; 784 features
+[Distributed Worker 13] Shard size: 4000
+Softmax regression: 10 classes; 784 features
+[Distributed Worker 11] Shard size: 4000
+[Worker 9] Applied feature skew rotation: 90 degrees
+Softmax regression: 10 classes; 784 features
+[Distributed Worker 8] Shard size: 4000
+Softmax regression: 10 classes; 784 features
+[Distributed Worker 2] Shard size: 4000
+Softmax regression: 10 classes; 784 features
+[Distributed Worker 6] Shard size: 4000
+Softmax regression: 10 classes; 784 features
+[Distributed Worker 7] Shard size: 4000
+Softmax regression: 10 classes; 784 features
+[Distributed Worker 9] Shard size: 4000
+Softmax regression: 10 classes; 784 features
+[Worker 1] Applied feature skew rotation: 10 degrees
+[Distributed Worker 1] Shard size: 4000
+Softmax regression: 10 classes; 784 features
+[Worker 5] Applied feature skew rotation: 50 degrees
+[Worker 3] Applied feature skew rotation: 30 degrees
+[Distributed Worker 5] Shard size: 4000
+[Distributed Worker 3] Shard size: 4000
+Softmax regression: 10 classes; 784 features
+Softmax regression: 10 classes; 784 features
+[Worker 12] Round 1 | Loss: 0.0106538 | Train Acc: 99.84%
+[Worker 4] Round 1 | Loss: 0.0524862 | Train Acc: 98.86%
+[Worker 8] Round 1 | Loss: 0.0608096 | Train Acc: 98.53%
+[Worker 14] Round 1 | Loss: 0.095457 | Train Acc: 97.215%
+[Worker 2] Round 1 | Loss: 0.0194551 | Train Acc: 99.655%
+[Worker 10] Round 1 | Loss: 0.0181915 | Train Acc: 99.575%
+[Worker 6] Round 1 | Loss: 0.00921172 | Train Acc: 99.89%
+[Worker 9] Round 1 | Loss: 0.0127567 | Train Acc: 99.835%
+[Worker 13] Round 1 | Loss: 0.0252745 | Train Acc: 99.44%
+[Worker 5] Round 1 | Loss: 0.0961119 | Train Acc: 97.135%
+[Worker 3] Round 1 | Loss: 0.00953375 | Train Acc: 99.85%
+[Worker 1] Round 1 | Loss: 0.00781995 | Train Acc: 99.865%
+[Worker 11] Round 1 | Loss: 0.0284955 | Train Acc: 99.645%
+[Worker 15] Round 1 | Loss: 0.00906219 | Train Acc: 99.89%
+[Worker 7] Round 1 | Loss: 0.0363434 | Train Acc: 99.185%
+[Central Round] 1 [Global Test Accuracy]: 29.14%
+[Worker 2] Round 2 | Loss: 0.0166972 | Train Acc: 99.785%
+[Worker 14] Round 2 | Loss: 0.0911378 | Train Acc: 97.495%
+[Worker 1] Round 2 | Loss: 0.00736805 | Train Acc: 99.935%
+[Worker 3] Round 2 | Loss: 0.00728075 | Train Acc: 99.995%
+[Worker 12] Round 2 | Loss: 0.00904312 | Train Acc: 99.97%
+[Worker 13] Round 2 | Loss: 0.0213667 | Train Acc: 99.64%
+[Worker 8] Round 2 | Loss: 0.0562638 | Train Acc: 98.835%
+[Worker 6] Round 2 | Loss: 0.00768111 | Train Acc: 99.995%
+[Worker 5] Round 2 | Loss: 0.091349 | Train Acc: 97.31%
+[Worker 9] Round 2 | Loss: 0.0111045 | Train Acc: 99.94%
+[Worker 10] Round 2 | Loss: 0.0165606 | Train Acc: 99.635%
+[Worker 15] Round 2 | Loss: 0.00890948 | Train Acc: 99.87%
+[Worker 11] Round 2 | Loss: 0.0256074 | Train Acc: 99.755%
+[Worker 7] Round 2 | Loss: 0.0332769 | Train Acc: 99.37%
+[Worker 4] Round 2 | Loss: 0.0477736 | Train Acc: 99.015%
+[Central Round] 2 [Global Test Accuracy]: 30.54%
+[Worker 2] Round 3 | Loss: 0.0151651 | Train Acc: 99.8%
+[Worker 14] Round 3 | Loss: 0.0880201 | Train Acc: 97.625%
+[Worker 1] Round 3 | Loss: 0.00690455 | Train Acc: 99.955%
+[Worker 9] Round 3 | Loss: 0.0105247 | Train Acc: 99.95%
+[Worker 12] Round 3 | Loss: 0.00835162 | Train Acc: 99.99%
+[Worker 6] Round 3 | Loss: 0.00733722 | Train Acc: 99.995%
+[Worker 3] Round 3 | Loss: 0.00639524 | Train Acc: 99.995%
+[Worker 8] Round 3 | Loss: 0.0533742 | Train Acc: 98.93%
+[Worker 13] Round 3 | Loss: 0.0191922 | Train Acc: 99.665%
+[Worker 5] Round 3 | Loss: 0.0887723 | Train Acc: 97.485%
+[Worker 10] Round 3 | Loss: 0.014763 | Train Acc: 99.705%
+[Worker 15] Round 3 | Loss: 0.00844956 | Train Acc: 99.86%
+[Worker 11] Round 3 | Loss: 0.0234247 | Train Acc: 99.795%
+[Worker 4] Round 3 | Loss: 0.0443812 | Train Acc: 99.165%
+[Worker 7] Round 3 | Loss: 0.0310585 | Train Acc: 99.43%
+[Central Round] 3 [Global Test Accuracy]: 31.36%
+[Worker 2] Round 4 | Loss: 0.0143927 | Train Acc: 99.79%
+[Worker 14] Round 4 | Loss: 0.0855331 | Train Acc: 97.595%
+[Worker 1] Round 4 | Loss: 0.00656498 | Train Acc: 99.975%
+[Worker 9] Round 4 | Loss: 0.0102553 | Train Acc: 99.935%
+[Worker 8] Round 4 | Loss: 0.0508374 | Train Acc: 98.955%
+[Worker 13] Round 4 | Loss: 0.0172611 | Train Acc: 99.795%
+[Worker 3] Round 4 | Loss: 0.005991 | Train Acc: 100%
+[Worker 6] Round 4 | Loss: 0.00732451 | Train Acc: 99.98%
+[Worker 12] Round 4 | Loss: 0.00805985 | Train Acc: 99.975%
+[Worker 11] Round 4 | Loss: 0.0223186 | Train Acc: 99.795%
+[Worker 10] Round 4 | Loss: 0.0141222 | Train Acc: 99.73%
+[Worker 15] Round 4 | Loss: 0.00825167 | Train Acc: 99.88%
+[Worker 7] Round 4 | Loss: 0.0296494 | Train Acc: 99.44%
+[Worker 5] Round 4 | Loss: 0.0865482 | Train Acc: 97.485%
+[Worker 4] Round 4 | Loss: 0.0423548 | Train Acc: 99.235%
+[Central Round] 4 [Global Test Accuracy]: 31.78%
+[Worker 2] Round 5 | Loss: 0.019166 | Train Acc: 99.7583%
+[Worker 1] Round 5 | Loss: 0.00955557 | Train Acc: 99.9667%
+[Worker 14] Round 5 | Loss: 0.0969821 | Train Acc: 97.4417%
+[Worker 13] Round 5 | Loss: 0.0221685 | Train Acc: 99.6917%
+[Worker 3] Round 5 | Loss: 0.00869637 | Train Acc: 99.9833%
+[Worker 8] Round 5 | Loss: 0.0624088 | Train Acc: 98.85%
+[Worker 9] Round 5 | Loss: 0.0152161 | Train Acc: 99.8833%
+[Worker 12] Round 5 | Loss: 0.011888 | Train Acc: 99.9583%
+[Worker 6] Round 5 | Loss: 0.0112304 | Train Acc: 99.9167%
+[Worker 11] Round 5 | Loss: 0.0290989 | Train Acc: 99.7583%
+[Worker 15] Round 5 | Loss: 0.0128798 | Train Acc: 99.7917%
+[Worker 5] Round 5 | Loss: 0.0958593 | Train Acc: 97.375%
+[Worker 10] Round 5 | Loss: 0.0180717 | Train Acc: 99.675%
+[Worker 4] Round 5 | Loss: 0.0508632 | Train Acc: 99.0833%
+[Worker 7] Round 5 | Loss: 0.0369924 | Train Acc: 99.3583%
+[Central Round] 5 [Global Test Accuracy]: 32.28%
+[Worker 2] Round 6 | Loss: 0.0185304 | Train Acc: 99.7833%
+[Worker 14] Round 6 | Loss: 0.0945099 | Train Acc: 97.45%
+[Worker 1] Round 6 | Loss: 0.00935133 | Train Acc: 99.9833%
+[Worker 3] Round 6 | Loss: 0.00843357 | Train Acc: 99.9667%
+[Worker 13] Round 6 | Loss: 0.0210886 | Train Acc: 99.7667%
+[Worker 9] Round 6 | Loss: 0.0148304 | Train Acc: 99.9167%
+[Worker 12] Round 6 | Loss: 0.0121228 | Train Acc: 99.9333%
+[Worker 11] Round 6 | Loss: 0.0282324 | Train Acc: 99.7083%
+[Worker 8] Round 6 | Loss: 0.0594682 | Train Acc: 98.8583%
+[Worker 6] Round 6 | Loss: 0.0111537 | Train Acc: 99.9417%
+[Worker 15] Round 6 | Loss: 0.0125855 | Train Acc: 99.775%
+[Worker 5] Round 6 | Loss: 0.0940524 | Train Acc: 97.3583%
+[Worker 10] Round 6 | Loss: 0.0178252 | Train Acc: 99.7083%
+[Worker 4] Round 6 | Loss: 0.0488647 | Train Acc: 99.1333%
+[Worker 7] Round 6 | Loss: 0.0358427 | Train Acc: 99.45%
+[Central Round] 6 [Global Test Accuracy]: 32.44%
+[Worker 2] Round 7 | Loss: 0.0177204 | Train Acc: 99.7583%
+[Worker 14] Round 7 | Loss: 0.0925034 | Train Acc: 97.4833%
+[Worker 8] Round 7 | Loss: 0.0583646 | Train Acc: 98.8333%
+[Worker 12] Round 7 | Loss: 0.0118005 | Train Acc: 99.925%
+[Worker 6] Round 7 | Loss: 0.0113183 | Train Acc: 99.9167%
+[Worker 1] Round 7 | Loss: 0.00922465 | Train Acc: 99.95%
+[Worker 13] Round 7 | Loss: 0.020182 | Train Acc: 99.7583%
+[Worker 3] Round 7 | Loss: 0.00836207 | Train Acc: 99.9583%
+[Worker 10] Round 7 | Loss: 0.0167954 | Train Acc: 99.725%
+[Worker 5] Round 7 | Loss: 0.0926344 | Train Acc: 97.3583%
+[Worker 9] Round 7 | Loss: 0.0145949 | Train Acc: 99.9083%
+[Worker 15] Round 7 | Loss: 0.0122091 | Train Acc: 99.8083%
+[Worker 4] Round 7 | Loss: 0.047977 | Train Acc: 99.1417%
+[Worker 11] Round 7 | Loss: 0.0272975 | Train Acc: 99.6833%
+[Worker 7] Round 7 | Loss: 0.0356464 | Train Acc: 99.3833%
+[Central Round] 7 [Global Test Accuracy]: 32.56%
+[Worker 2] Round 8 | Loss: 0.0173708 | Train Acc: 99.7583%
+[Worker 14] Round 8 | Loss: 0.0906049 | Train Acc: 97.5667%
+[Worker 12] Round 8 | Loss: 0.0119202 | Train Acc: 99.95%
+[Worker 13] Round 8 | Loss: 0.0194381 | Train Acc: 99.8%
+[Worker 9] Round 8 | Loss: 0.0146372 | Train Acc: 99.8667%
+[Worker 3] Round 8 | Loss: 0.0080805 | Train Acc: 99.975%
+[Worker 1] Round 8 | Loss: 0.00917044 | Train Acc: 99.95%
+[Worker 8] Round 8 | Loss: 0.0567283 | Train Acc: 98.9%
+[Worker 11] Round 8 | Loss: 0.0259833 | Train Acc: 99.775%
+[Worker 5] Round 8 | Loss: 0.0915379 | Train Acc: 97.5167%
+[Worker 15] Round 8 | Loss: 0.0122487 | Train Acc: 99.875%
+[Worker 7] Round 8 | Loss: 0.0349922 | Train Acc: 99.3667%
+[Worker 10] Round 8 | Loss: 0.0165922 | Train Acc: 99.7333%
+[Worker 6] Round 8 | Loss: 0.0112926 | Train Acc: 99.9167%
+[Worker 4] Round 8 | Loss: 0.0463104 | Train Acc: 99.2167%
+[Central Round] 8 [Global Test Accuracy]: 32.78%
+[Worker 2] Round 9 | Loss: 0.0172081 | Train Acc: 99.7583%
+[Worker 1] Round 9 | Loss: 0.00968861 | Train Acc: 99.925%
+[Worker 14] Round 9 | Loss: 0.0897563 | Train Acc: 97.675%
+[Worker 9] Round 9 | Loss: 0.0145822 | Train Acc: 99.8917%
+[Worker 12] Round 9 | Loss: 0.0120094 | Train Acc: 99.9083%
+[Worker 3] Round 9 | Loss: 0.00824411 | Train Acc: 99.9333%
+[Worker 13] Round 9 | Loss: 0.0193325 | Train Acc: 99.7833%
+[Worker 11] Round 9 | Loss: 0.0256358 | Train Acc: 99.6917%
+[Worker 8] Round 9 | Loss: 0.0555124 | Train Acc: 98.925%
+[Worker 6] Round 9 | Loss: 0.0116018 | Train Acc: 99.9%
+[Worker 15] Round 9 | Loss: 0.0120263 | Train Acc: 99.8417%
+[Worker 10] Round 9 | Loss: 0.0161527 | Train Acc: 99.7083%
+[Worker 7] Round 9 | Loss: 0.0348978 | Train Acc: 99.3583%
+[Worker 5] Round 9 | Loss: 0.0903695 | Train Acc: 97.5333%
+[Worker 4] Round 9 | Loss: 0.0459774 | Train Acc: 99.0833%
+[Central Round] 9 [Global Test Accuracy]: 32.93%
+[Worker 2] Round 10 | Loss: 0.0170457 | Train Acc: 99.7417%
+[Worker 14] Round 10 | Loss: 0.0878601 | Train Acc: 97.6917%
+[Worker 12] Round 10 | Loss: 0.0121845 | Train Acc: 99.9083%
+[Worker 1] Round 10 | Loss: 0.00921189 | Train Acc: 99.9333%
+[Worker 3] Round 10 | Loss: 0.00819885 | Train Acc: 99.9167%
+[Worker 8] Round 10 | Loss: 0.0543769 | Train Acc: 98.925%
+[Worker 13] Round 10 | Loss: 0.0185228 | Train Acc: 99.8%
+[Worker 9] Round 10 | Loss: 0.0144262 | Train Acc: 99.925%
+[Worker 5] Round 10 | Loss: 0.0898661 | Train Acc: 97.525%
+[Worker 15] Round 10 | Loss: 0.0121168 | Train Acc: 99.8083%
+[Worker 6] Round 10 | Loss: 0.0111221 | Train Acc: 99.925%
+[Worker 10] Round 10 | Loss: 0.0159179 | Train Acc: 99.7333%
+[Worker 11] Round 10 | Loss: 0.0250909 | Train Acc: 99.7083%
+[Worker 4] Round 10 | Loss: 0.0447585 | Train Acc: 99.175%
+[Worker 7] Round 10 | Loss: 0.0343065 | Train Acc: 99.375%
+[Central Round] 10 [Global Test Accuracy]: 33.06%
+[Worker 2] Round 11 | Loss: 0.0167288 | Train Acc: 99.75%
+[Worker 14] Round 11 | Loss: 0.0868253 | Train Acc: 97.7083%
+[Worker 1] Round 11 | Loss: 0.00927555 | Train Acc: 99.9333%
+[Worker 12] Round 11 | Loss: 0.0118089 | Train Acc: 99.9%
+[Worker 3] Round 11 | Loss: 0.00801372 | Train Acc: 99.9083%
+[Worker 8] Round 11 | Loss: 0.0529941 | Train Acc: 98.9833%
+[Worker 13] Round 11 | Loss: 0.0182599 | Train Acc: 99.8083%
+[Worker 9] Round 11 | Loss: 0.0144698 | Train Acc: 99.8583%
+[Worker 10] Round 11 | Loss: 0.0155764 | Train Acc: 99.7167%
+[Worker 11] Round 11 | Loss: 0.024823 | Train Acc: 99.65%
+[Worker 15] Round 11 | Loss: 0.0119045 | Train Acc: 99.85%
+[Worker 5] Round 11 | Loss: 0.0880464 | Train Acc: 97.55%
+[Worker 6] Round 11 | Loss: 0.0115144 | Train Acc: 99.9083%
+[Worker 4] Round 11 | Loss: 0.0446155 | Train Acc: 99.1667%
+[Worker 7] Round 11 | Loss: 0.0342401 | Train Acc: 99.3667%
+[Central Round] 11 [Global Test Accuracy]: 33.03%
+[Worker 2] Round 12 | Loss: 0.0164546 | Train Acc: 99.7667%
+[Worker 14] Round 12 | Loss: 0.0854346 | Train Acc: 97.6833%
+[Worker 12] Round 12 | Loss: 0.0117416 | Train Acc: 99.8833%
+[Worker 1] Round 12 | Loss: 0.0090553 | Train Acc: 99.9417%
+[Worker 9] Round 12 | Loss: 0.0141815 | Train Acc: 99.9%
+[Worker 3] Round 12 | Loss: 0.00809294 | Train Acc: 99.9333%
+[Worker 13] Round 12 | Loss: 0.0178251 | Train Acc: 99.7833%
+[Worker 8] Round 12 | Loss: 0.0518748 | Train Acc: 98.9833%
+[Worker 11] Round 12 | Loss: 0.0242077 | Train Acc: 99.725%
+[Worker 5] Round 12 | Loss: 0.0883947 | Train Acc: 97.4833%
+[Worker 15] Round 12 | Loss: 0.0118387 | Train Acc: 99.825%
+[Worker 10] Round 12 | Loss: 0.0154044 | Train Acc: 99.7167%
+[Worker 6] Round 12 | Loss: 0.0115974 | Train Acc: 99.8833%
+[Worker 4] Round 12 | Loss: 0.0441186 | Train Acc: 99.15%
+[Worker 7] Round 12 | Loss: 0.0337832 | Train Acc: 99.35%
+[Central Round] 12 [Global Test Accuracy]: 32.91%
+[Worker 2] Round 13 | Loss: 0.0162744 | Train Acc: 99.75%
+[Worker 14] Round 13 | Loss: 0.0843994 | Train Acc: 97.8167%
+[Worker 1] Round 13 | Loss: 0.0091269 | Train Acc: 99.9%
+[Worker 13] Round 13 | Loss: 0.0177611 | Train Acc: 99.775%
+[Worker 12] Round 13 | Loss: 0.011871 | Train Acc: 99.9%
+[Worker 8] Round 13 | Loss: 0.0513413 | Train Acc: 98.9667%
+[Worker 3] Round 13 | Loss: 0.00807383 | Train Acc: 99.9083%
+[Worker 9] Round 13 | Loss: 0.0140411 | Train Acc: 99.925%
+[Worker 5] Round 13 | Loss: 0.087033 | Train Acc: 97.6167%
+[Worker 10] Round 13 | Loss: 0.0153072 | Train Acc: 99.7083%
+[Worker 11] Round 13 | Loss: 0.0234746 | Train Acc: 99.6833%
+[Worker 6] Round 13 | Loss: 0.0119543 | Train Acc: 99.8417%
+[Worker 15] Round 13 | Loss: 0.0118121 | Train Acc: 99.9083%
+[Worker 7] Round 13 | Loss: 0.0334466 | Train Acc: 99.3833%
+[Worker 4] Round 13 | Loss: 0.0435355 | Train Acc: 99.2083%
+[Central Round] 13 [Global Test Accuracy]: 32.96%
+[Worker 2] Round 14 | Loss: 0.0159632 | Train Acc: 99.75%
+[Worker 1] Round 14 | Loss: 0.00903639 | Train Acc: 99.9417%
+[Worker 14] Round 14 | Loss: 0.0835712 | Train Acc: 97.8833%
+[Worker 9] Round 14 | Loss: 0.0142257 | Train Acc: 99.85%
+[Worker 12] Round 14 | Loss: 0.0120672 | Train Acc: 99.8667%
+[Worker 3] Round 14 | Loss: 0.00817803 | Train Acc: 99.9083%
+[Worker 13] Round 14 | Loss: 0.0172735 | Train Acc: 99.8%
+[Worker 8] Round 14 | Loss: 0.0504165 | Train Acc: 99.0083%
+[Worker 11] Round 14 | Loss: 0.0238866 | Train Acc: 99.65%
+[Worker 6] Round 14 | Loss: 0.0120567 | Train Acc: 99.8333%
+[Worker 15] Round 14 | Loss: 0.0120077 | Train Acc: 99.8667%
+[Worker 10] Round 14 | Loss: 0.0157027 | Train Acc: 99.6833%
+[Worker 7] Round 14 | Loss: 0.0333419 | Train Acc: 99.375%
+[Worker 5] Round 14 | Loss: 0.0868483 | Train Acc: 97.525%
+[Worker 4] Round 14 | Loss: 0.0427783 | Train Acc: 99.225%
+[Central Round] 14 [Global Test Accuracy]: 33.06%
+[Worker 2] Round 15 | Loss: 0.0160244 | Train Acc: 99.7417%
+[Worker 12] Round 15 | Loss: 0.0118084 | Train Acc: 99.8333%
+[Worker 14] Round 15 | Loss: 0.0828026 | Train Acc: 97.75%
+[Worker 1] Round 15 | Loss: 0.00908541 | Train Acc: 99.95%
+[Worker 9] Round 15 | Loss: 0.0140695 | Train Acc: 99.8917%
+[Worker 13] Round 15 | Loss: 0.0173114 | Train Acc: 99.7667%
+[Worker 3] Round 15 | Loss: 0.00820456 | Train Acc: 99.8917%
+[Worker 8] Round 15 | Loss: 0.0502136 | Train Acc: 98.975%
+[Worker 5] Round 15 | Loss: 0.0860097 | Train Acc: 97.65%
+[Worker 10] Round 15 | Loss: 0.0149598 | Train Acc: 99.7417%
+[Worker 15] Round 15 | Loss: 0.0118701 | Train Acc: 99.85%
+[Worker 6] Round 15 | Loss: 0.0116438 | Train Acc: 99.85%
+[Worker 11] Round 15 | Loss: 0.0232859 | Train Acc: 99.6417%
+[Worker 7] Round 15 | Loss: 0.0332844 | Train Acc: 99.3333%
+[Worker 4] Round 15 | Loss: 0.0423705 | Train Acc: 99.2083%
+[Central Round] 15 [Global Test Accuracy]: 33.18%
+[Worker 2] Round 16 | Loss: 0.0157073 | Train Acc: 99.7583%
+[Worker 14] Round 16 | Loss: 0.0821262 | Train Acc: 97.8167%
+[Worker 1] Round 16 | Loss: 0.00895985 | Train Acc: 99.95%
+[Worker 12] Round 16 | Loss: 0.0117384 | Train Acc: 99.8917%
+[Worker 8] Round 16 | Loss: 0.0493876 | Train Acc: 98.9833%
+[Worker 9] Round 16 | Loss: 0.0142683 | Train Acc: 99.8583%
+[Worker 3] Round 16 | Loss: 0.00827628 | Train Acc: 99.8583%
+[Worker 13] Round 16 | Loss: 0.0173961 | Train Acc: 99.7583%
+[Worker 10] Round 16 | Loss: 0.0152277 | Train Acc: 99.7%
+[Worker 11] Round 16 | Loss: 0.0230877 | Train Acc: 99.65%
+[Worker 6] Round 16 | Loss: 0.0116227 | Train Acc: 99.8667%
+[Worker 5] Round 16 | Loss: 0.0858389 | Train Acc: 97.4333%
+[Worker 15] Round 16 | Loss: 0.011665 | Train Acc: 99.875%
+[Worker 7] Round 16 | Loss: 0.0336514 | Train Acc: 99.3833%
+[Worker 4] Round 16 | Loss: 0.0423918 | Train Acc: 99.2083%
+[Central Round] 16 [Global Test Accuracy]: 33.25%
+[Worker 2] Round 17 | Loss: 0.0158802 | Train Acc: 99.775%
+[Worker 14] Round 17 | Loss: 0.0810145 | Train Acc: 97.775%
+[Worker 1] Round 17 | Loss: 0.00901284 | Train Acc: 99.925%
+[Worker 12] Round 17 | Loss: 0.0118637 | Train Acc: 99.8833%
+[Worker 3] Round 17 | Loss: 0.00836495 | Train Acc: 99.85%
+[Worker 13] Round 17 | Loss: 0.0170882 | Train Acc: 99.7917%
+[Worker 9] Round 17 | Loss: 0.0144838 | Train Acc: 99.9%
+[Worker 8] Round 17 | Loss: 0.0487142 | Train Acc: 99.0083%
+[Worker 5] Round 17 | Loss: 0.0847145 | Train Acc: 97.525%
+[Worker 10] Round 17 | Loss: 0.0148957 | Train Acc: 99.7167%
+[Worker 15] Round 17 | Loss: 0.0114859 | Train Acc: 99.8917%
+[Worker 11] Round 17 | Loss: 0.0228569 | Train Acc: 99.725%
+[Worker 6] Round 17 | Loss: 0.0115498 | Train Acc: 99.85%
+[Worker 4] Round 17 | Loss: 0.0420118 | Train Acc: 99.1583%
+[Worker 7] Round 17 | Loss: 0.0333004 | Train Acc: 99.35%
+[Central Round] 17 [Global Test Accuracy]: 33.3%
+[Worker 2] Round 18 | Loss: 0.0155428 | Train Acc: 99.7417%
+[Worker 14] Round 18 | Loss: 0.0802271 | Train Acc: 97.825%
+[Worker 12] Round 18 | Loss: 0.0117144 | Train Acc: 99.9%
+[Worker 13] Round 18 | Loss: 0.0169721 | Train Acc: 99.7917%
+[Worker 1] Round 18 | Loss: 0.00890493 | Train Acc: 99.9167%
+[Worker 3] Round 18 | Loss: 0.00825232 | Train Acc: 99.9%
+[Worker 9] Round 18 | Loss: 0.0138233 | Train Acc: 99.8917%
+[Worker 5] Round 18 | Loss: 0.0844116 | Train Acc: 97.6583%
+[Worker 8] Round 18 | Loss: 0.048148 | Train Acc: 98.9583%
+[Worker 15] Round 18 | Loss: 0.0116079 | Train Acc: 99.85%
+[Worker 10] Round 18 | Loss: 0.0145282 | Train Acc: 99.7667%
+[Worker 11] Round 18 | Loss: 0.0225541 | Train Acc: 99.65%
+[Worker 6] Round 18 | Loss: 0.0116148 | Train Acc: 99.875%
+[Worker 7] Round 18 | Loss: 0.032762 | Train Acc: 99.3917%
+[Worker 4] Round 18 | Loss: 0.041317 | Train Acc: 99.1333%
+[Central Round] 18 [Global Test Accuracy]: 33.34%
+[Worker 2] Round 19 | Loss: 0.0153608 | Train Acc: 99.7833%
+[Worker 1] Round 19 | Loss: 0.00917738 | Train Acc: 99.8833%
+[Worker 14] Round 19 | Loss: 0.0796595 | Train Acc: 97.9%
+[Worker 3] Round 19 | Loss: 0.00833338 | Train Acc: 99.8833%
+[Worker 9] Round 19 | Loss: 0.0141766 | Train Acc: 99.825%
+[Worker 12] Round 19 | Loss: 0.011693 | Train Acc: 99.8667%
+[Worker 13] Round 19 | Loss: 0.016843 | Train Acc: 99.7917%
+[Worker 8] Round 19 | Loss: 0.0473343 | Train Acc: 98.9667%
+[Worker 11] Round 19 | Loss: 0.0225874 | Train Acc: 99.6667%
+[Worker 15] Round 19 | Loss: 0.0117782 | Train Acc: 99.85%
+[Worker 6] Round 19 | Loss: 0.0119636 | Train Acc: 99.8667%
+[Worker 10] Round 19 | Loss: 0.0147073 | Train Acc: 99.7%
+[Worker 7] Round 19 | Loss: 0.0327503 | Train Acc: 99.375%
+[Worker 5] Round 19 | Loss: 0.084261 | Train Acc: 97.6%
+[Worker 4] Round 19 | Loss: 0.0409491 | Train Acc: 99.1667%
+[Central Round] 19 [Global Test Accuracy]: 33.38%
+[Worker 2] Round 20 | Loss: 0.0154963 | Train Acc: 99.7333%
+[Worker 12] Round 20 | Loss: 0.0122318 | Train Acc: 99.85%
+[Worker 14] Round 20 | Loss: 0.0790818 | Train Acc: 97.8667%
+[Worker 1] Round 20 | Loss: 0.00910612 | Train Acc: 99.9083%
+[Worker 9] Round 20 | Loss: 0.0139219 | Train Acc: 99.85%
+[Worker 3] Round 20 | Loss: 0.0081692 | Train Acc: 99.8833%
+[Worker 13] Round 20 | Loss: 0.0164614 | Train Acc: 99.775%
+[Worker 5] Round 20 | Loss: 0.0832986 | Train Acc: 97.5167%
+[Worker 8] Round 20 | Loss: 0.047239 | Train Acc: 99.025%
+[Worker 10] Round 20 | Loss: 0.0145872 | Train Acc: 99.7417%
+[Worker 15] Round 20 | Loss: 0.0118829 | Train Acc: 99.8667%
+[Worker 6] Round 20 | Loss: 0.0118647 | Train Acc: 99.85%
+[Worker 11] Round 20 | Loss: 0.0220829 | Train Acc: 99.6417%
+[Worker 7] Round 20 | Loss: 0.0330225 | Train Acc: 99.3333%
+[Worker 4] Round 20 | Loss: 0.0409866 | Train Acc: 99.1583%
+[Central Round] 20 [Global Test Accuracy]: 33.33%
+[Worker 2] Round 21 | Loss: 0.0153881 | Train Acc: 99.7417%
+[Worker 1] Round 21 | Loss: 0.00894519 | Train Acc: 99.9167%
+[Worker 13] Round 21 | Loss: 0.0166674 | Train Acc: 99.7833%
+[Worker 12] Round 21 | Loss: 0.0115647 | Train Acc: 99.8417%
+[Worker 3] Round 21 | Loss: 0.00837947 | Train Acc: 99.8333%
+[Worker 14] Round 21 | Loss: 0.0777733 | Train Acc: 97.9583%
+[Worker 9] Round 21 | Loss: 0.0135488 | Train Acc: 99.9083%
+[Worker 11] Round 21 | Loss: 0.0220424 | Train Acc: 99.6583%
+[Worker 8] Round 21 | Loss: 0.0471945 | Train Acc: 99.0333%
+[Worker 15] Round 21 | Loss: 0.011505 | Train Acc: 99.8833%
+[Worker 5] Round 21 | Loss: 0.0833667 | Train Acc: 97.5417%
+[Worker 10] Round 21 | Loss: 0.0143674 | Train Acc: 99.7583%
+[Worker 6] Round 21 | Loss: 0.0119425 | Train Acc: 99.85%
+[Worker 7] Round 21 | Loss: 0.0325685 | Train Acc: 99.3333%
+[Worker 4] Round 21 | Loss: 0.0403658 | Train Acc: 99.1833%
+[Central Round] 21 [Global Test Accuracy]: 33.29%
+[Worker 2] Round 22 | Loss: 0.0152116 | Train Acc: 99.7583%
+[Worker 14] Round 22 | Loss: 0.0778168 | Train Acc: 97.8583%
+[Worker 1] Round 22 | Loss: 0.00919737 | Train Acc: 99.9083%
+[Worker 12] Round 22 | Loss: 0.0122012 | Train Acc: 99.8167%
+[Worker 3] Round 22 | Loss: 0.00826789 | Train Acc: 99.8667%
+[Worker 9] Round 22 | Loss: 0.014134 | Train Acc: 99.825%
+[Worker 13] Round 22 | Loss: 0.0169668 | Train Acc: 99.7583%
+[Worker 8] Round 22 | Loss: 0.0465171 | Train Acc: 99.0333%
+[Worker 15] Round 22 | Loss: 0.0120648 | Train Acc: 99.8833%
+[Worker 11] Round 22 | Loss: 0.0218291 | Train Acc: 99.675%
+[Worker 5] Round 22 | Loss: 0.0831477 | Train Acc: 97.6167%
+[Worker 10] Round 22 | Loss: 0.0141562 | Train Acc: 99.7667%
+[Worker 4] Round 22 | Loss: 0.0403849 | Train Acc: 99.1583%
+[Worker 7] Round 22 | Loss: 0.0324879 | Train Acc: 99.375%
+[Worker 6] Round 22 | Loss: 0.0119243 | Train Acc: 99.8333%
+[Central Round] 22 [Global Test Accuracy]: 33.31%
+[Worker 2] Round 23 | Loss: 0.0150862 | Train Acc: 99.7583%
+[Worker 14] Round 23 | Loss: 0.0775479 | Train Acc: 97.9417%
+[Worker 13] Round 23 | Loss: 0.0164651 | Train Acc: 99.7583%
+[Worker 9] Round 23 | Loss: 0.0138585 | Train Acc: 99.9%
+[Worker 1] Round 23 | Loss: 0.00884401 | Train Acc: 99.8917%
+[Worker 12] Round 23 | Loss: 0.0113157 | Train Acc: 99.8667%
+[Worker 3] Round 23 | Loss: 0.00831998 | Train Acc: 99.85%
+[Worker 8] Round 23 | Loss: 0.0463436 | Train Acc: 98.975%
+[Worker 5] Round 23 | Loss: 0.0833332 | Train Acc: 97.525%
+[Worker 11] Round 23 | Loss: 0.0216778 | Train Acc: 99.6667%
+[Worker 10] Round 23 | Loss: 0.0143965 | Train Acc: 99.7417%
+[Worker 15] Round 23 | Loss: 0.0116011 | Train Acc: 99.8667%
+[Worker 6] Round 23 | Loss: 0.0116461 | Train Acc: 99.8417%
+[Worker 7] Round 23 | Loss: 0.0320031 | Train Acc: 99.3167%
+[Worker 4] Round 23 | Loss: 0.0398199 | Train Acc: 99.2167%
+[Central Round] 23 [Global Test Accuracy]: 33.34%
+[Worker 2] Round 24 | Loss: 0.0148838 | Train Acc: 99.7917%
+[Worker 14] Round 24 | Loss: 0.0765583 | Train Acc: 98.0333%
+[Worker 12] Round 24 | Loss: 0.0116862 | Train Acc: 99.8583%
+[Worker 9] Round 24 | Loss: 0.0139715 | Train Acc: 99.8417%
+[Worker 1] Round 24 | Loss: 0.00886311 | Train Acc: 99.9167%
+[Worker 3] Round 24 | Loss: 0.00849313 | Train Acc: 99.8417%
+[Worker 13] Round 24 | Loss: 0.016316 | Train Acc: 99.7583%
+[Worker 11] Round 24 | Loss: 0.0216675 | Train Acc: 99.65%
+[Worker 8] Round 24 | Loss: 0.0456326 | Train Acc: 98.9917%
+[Worker 6] Round 24 | Loss: 0.0118693 | Train Acc: 99.8333%
+[Worker 15] Round 24 | Loss: 0.0119826 | Train Acc: 99.8583%
+[Worker 10] Round 24 | Loss: 0.0146002 | Train Acc: 99.675%
+[Worker 7] Round 24 | Loss: 0.0324795 | Train Acc: 99.35%
+[Worker 5] Round 24 | Loss: 0.0824364 | Train Acc: 97.6%
+[Worker 4] Round 24 | Loss: 0.0402723 | Train Acc: 99.1083%
+[Central Round] 24 [Global Test Accuracy]: 33.39%
+[Worker 2] Round 25 | Loss: 0.0149593 | Train Acc: 99.7417%
+[Worker 14] Round 25 | Loss: 0.0761099 | Train Acc: 97.8667%
+[Worker 12] Round 25 | Loss: 0.0113882 | Train Acc: 99.825%
+[Worker 1] Round 25 | Loss: 0.00906879 | Train Acc: 99.9167%
+[Worker 13] Round 25 | Loss: 0.0163741 | Train Acc: 99.7333%
+[Worker 8] Round 25 | Loss: 0.0448826 | Train Acc: 99.075%
+[Worker 3] Round 25 | Loss: 0.00823655 | Train Acc: 99.8333%
+[Worker 9] Round 25 | Loss: 0.0137493 | Train Acc: 99.875%
+[Worker 10] Round 25 | Loss: 0.0140253 | Train Acc: 99.7417%
+[Worker 15] Round 25 | Loss: 0.0114197 | Train Acc: 99.8917%
+[Worker 5] Round 25 | Loss: 0.0821355 | Train Acc: 97.7333%
+[Worker 11] Round 25 | Loss: 0.0212976 | Train Acc: 99.6583%
+[Worker 6] Round 25 | Loss: 0.0122258 | Train Acc: 99.825%
+[Worker 7] Round 25 | Loss: 0.0317905 | Train Acc: 99.35%
+[Worker 4] Round 25 | Loss: 0.0391384 | Train Acc: 99.175%
+[Central Round] 25 [Global Test Accuracy]: 33.29%
+[Worker 2] Round 26 | Loss: 0.0148732 | Train Acc: 99.75%
+[Worker 1] Round 26 | Loss: 0.00901697 | Train Acc: 99.8833%
+[Worker 14] Round 26 | Loss: 0.0753901 | Train Acc: 97.9917%
+[Worker 9] Round 26 | Loss: 0.0140918 | Train Acc: 99.825%
+[Worker 3] Round 26 | Loss: 0.00839802 | Train Acc: 99.8417%
+[Worker 12] Round 26 | Loss: 0.0116767 | Train Acc: 99.85%
+[Worker 13] Round 26 | Loss: 0.0162596 | Train Acc: 99.75%
+[Worker 8] Round 26 | Loss: 0.0449704 | Train Acc: 99.075%
+[Worker 11] Round 26 | Loss: 0.0216704 | Train Acc: 99.6417%
+[Worker 10] Round 26 | Loss: 0.014034 | Train Acc: 99.7583%
+[Worker 15] Round 26 | Loss: 0.0117593 | Train Acc: 99.85%
+[Worker 5] Round 26 | Loss: 0.0818305 | Train Acc: 97.5833%
+[Worker 6] Round 26 | Loss: 0.0120575 | Train Acc: 99.8333%
+[Worker 7] Round 26 | Loss: 0.0318756 | Train Acc: 99.35%
+[Worker 4] Round 26 | Loss: 0.0395902 | Train Acc: 99.15%
+[Central Round] 26 [Global Test Accuracy]: 33.29%
+[Worker 2] Round 27 | Loss: 0.0148169 | Train Acc: 99.7333%
+[Worker 14] Round 27 | Loss: 0.0753757 | Train Acc: 98%
+[Worker 12] Round 27 | Loss: 0.0116547 | Train Acc: 99.8333%
+[Worker 1] Round 27 | Loss: 0.00875193 | Train Acc: 99.925%
+[Worker 9] Round 27 | Loss: 0.013747 | Train Acc: 99.8583%
+[Worker 3] Round 27 | Loss: 0.00848933 | Train Acc: 99.8333%
+[Worker 8] Round 27 | Loss: 0.0445566 | Train Acc: 98.9917%
+[Worker 13] Round 27 | Loss: 0.0161059 | Train Acc: 99.8%
+[Worker 11] Round 27 | Loss: 0.0209095 | Train Acc: 99.675%
+[Worker 5] Round 27 | Loss: 0.0816811 | Train Acc: 97.5583%
+[Worker 15] Round 27 | Loss: 0.011434 | Train Acc: 99.875%
+[Worker 10] Round 27 | Loss: 0.0137188 | Train Acc: 99.775%
+[Worker 6] Round 27 | Loss: 0.0118272 | Train Acc: 99.825%
+[Worker 4] Round 27 | Loss: 0.0396565 | Train Acc: 99.1333%
+[Worker 7] Round 27 | Loss: 0.0318341 | Train Acc: 99.3667%
+[Central Round] 27 [Global Test Accuracy]: 33.26%
+[Worker 2] Round 28 | Loss: 0.0147967 | Train Acc: 99.725%
+[Worker 14] Round 28 | Loss: 0.0747404 | Train Acc: 97.975%
+[Worker 1] Round 28 | Loss: 0.00941464 | Train Acc: 99.9%
+[Worker 9] Round 28 | Loss: 0.0141889 | Train Acc: 99.8333%
+[Worker 12] Round 28 | Loss: 0.0116529 | Train Acc: 99.8667%
+[Worker 3] Round 28 | Loss: 0.00839093 | Train Acc: 99.85%
+[Worker 13] Round 28 | Loss: 0.0162865 | Train Acc: 99.7667%
+[Worker 8] Round 28 | Loss: 0.044069 | Train Acc: 99.1083%
+[Worker 5] Round 28 | Loss: 0.0817523 | Train Acc: 97.5917%
+[Worker 11] Round 28 | Loss: 0.0209313 | Train Acc: 99.6417%
+[Worker 15] Round 28 | Loss: 0.0116307 | Train Acc: 99.85%
+[Worker 10] Round 28 | Loss: 0.0138766 | Train Acc: 99.75%
+[Worker 6] Round 28 | Loss: 0.012252 | Train Acc: 99.8083%
+[Worker 7] Round 28 | Loss: 0.0319442 | Train Acc: 99.3667%
+[Worker 4] Round 28 | Loss: 0.039281 | Train Acc: 99.175%
+[Central Round] 28 [Global Test Accuracy]: 33.11%
+[Worker 2] Round 29 | Loss: 0.0146589 | Train Acc: 99.7667%
+[Worker 14] Round 29 | Loss: 0.0740744 | Train Acc: 97.9917%
+[Worker 1] Round 29 | Loss: 0.00883371 | Train Acc: 99.9167%
+[Worker 9] Round 29 | Loss: 0.0135635 | Train Acc: 99.9%
+[Worker 12] Round 29 | Loss: 0.0115152 | Train Acc: 99.875%
+[Worker 13] Round 29 | Loss: 0.0159007 | Train Acc: 99.775%
+[Worker 8] Round 29 | Loss: 0.0442988 | Train Acc: 99.0333%
+[Worker 3] Round 29 | Loss: 0.0084538 | Train Acc: 99.8667%
+[Worker 11] Round 29 | Loss: 0.020955 | Train Acc: 99.6583%
+[Worker 6] Round 29 | Loss: 0.011755 | Train Acc: 99.8667%
+[Worker 10] Round 29 | Loss: 0.0141186 | Train Acc: 99.7583%
+[Worker 15] Round 29 | Loss: 0.0121161 | Train Acc: 99.8167%
+[Worker 7] Round 29 | Loss: 0.0320889 | Train Acc: 99.3583%
+[Worker 5] Round 29 | Loss: 0.0810129 | Train Acc: 97.7917%
+[Worker 4] Round 29 | Loss: 0.0385985 | Train Acc: 99.175%
+[Central Round] 29 [Global Test Accuracy]: 33.18%
+[Worker 2] Round 30 | Loss: 0.0144013 | Train Acc: 99.7833%
+[Worker 14] Round 30 | Loss: 0.073889 | Train Acc: 98.0167%
+[Worker 1] Round 30 | Loss: 0.00876448 | Train Acc: 99.8917%
+[Worker 12] Round 30 | Loss: 0.0115152 | Train Acc: 99.8667%
+[Worker 3] Round 30 | Loss: 0.00835361 | Train Acc: 99.8583%
+[Worker 13] Round 30 | Loss: 0.0158446 | Train Acc: 99.7667%
+[Worker 15] Round 30 | Loss: 0.0116991 | Train Acc: 99.8583%
+[Worker 9] Round 30 | Loss: 0.0133325 | Train Acc: 99.8667%
+[Worker 8] Round 30 | Loss: 0.0443278 | Train Acc: 99%
+[Worker 5] Round 30 | Loss: 0.0803392 | Train Acc: 97.675%
+[Worker 11] Round 30 | Loss: 0.0207452 | Train Acc: 99.7%
+[Worker 10] Round 30 | Loss: 0.0135282 | Train Acc: 99.775%
+[Worker 6] Round 30 | Loss: 0.0114566 | Train Acc: 99.8583%
+[Worker 7] Round 30 | Loss: 0.0315011 | Train Acc: 99.4%
+[Worker 4] Round 30 | Loss: 0.0386441 | Train Acc: 99.2083%
+[Central Round] 30 [Global Test Accuracy]: 33.08%
+[Worker 2] Round 31 | Loss: 0.0144999 | Train Acc: 99.7583%
+[Worker 14] Round 31 | Loss: 0.0736761 | Train Acc: 98.0333%
+[Worker 1] Round 31 | Loss: 0.00915752 | Train Acc: 99.9083%
+[Worker 12] Round 31 | Loss: 0.0115329 | Train Acc: 99.85%
+[Worker 13] Round 31 | Loss: 0.0158793 | Train Acc: 99.7833%
+[Worker 3] Round 31 | Loss: 0.00843858 | Train Acc: 99.85%
+[Worker 9] Round 31 | Loss: 0.0138069 | Train Acc: 99.8333%
+[Worker 8] Round 31 | Loss: 0.043303 | Train Acc: 99.0417%
+[Worker 5] Round 31 | Loss: 0.0806571 | Train Acc: 97.6917%
+[Worker 10] Round 31 | Loss: 0.014075 | Train Acc: 99.7583%
+[Worker 15] Round 31 | Loss: 0.0117596 | Train Acc: 99.8917%
+[Worker 6] Round 31 | Loss: 0.0115635 | Train Acc: 99.8667%
+[Worker 11] Round 31 | Loss: 0.0209716 | Train Acc: 99.6583%
+[Worker 7] Round 31 | Loss: 0.0318506 | Train Acc: 99.3417%
+[Worker 4] Round 31 | Loss: 0.0384164 | Train Acc: 99.1667%
+[Central Round] 31 [Global Test Accuracy]: 33.02%
+[Worker 2] Round 32 | Loss: 0.0143902 | Train Acc: 99.775%
+[Worker 1] Round 32 | Loss: 0.00886812 | Train Acc: 99.9%
+[Worker 14] Round 32 | Loss: 0.0733227 | Train Acc: 98.05%
+[Worker 12] Round 32 | Loss: 0.0113561 | Train Acc: 99.8583%
+[Worker 9] Round 32 | Loss: 0.013395 | Train Acc: 99.8667%
+[Worker 3] Round 32 | Loss: 0.00844414 | Train Acc: 99.85%
+[Worker 13] Round 32 | Loss: 0.0156939 | Train Acc: 99.7583%
+[Worker 8] Round 32 | Loss: 0.0434968 | Train Acc: 99.0833%
+[Worker 5] Round 32 | Loss: 0.0805647 | Train Acc: 97.75%
+[Worker 15] Round 32 | Loss: 0.0115691 | Train Acc: 99.8917%
+[Worker 11] Round 32 | Loss: 0.0203683 | Train Acc: 99.6917%
+[Worker 10] Round 32 | Loss: 0.0135366 | Train Acc: 99.7667%
+[Worker 6] Round 32 | Loss: 0.0116727 | Train Acc: 99.8333%
+[Worker 4] Round 32 | Loss: 0.0380336 | Train Acc: 99.1833%
+[Worker 7] Round 32 | Loss: 0.0310815 | Train Acc: 99.375%
+[Central Round] 32 [Global Test Accuracy]: 33%
+[Worker 2] Round 33 | Loss: 0.0143877 | Train Acc: 99.7667%
+[Worker 1] Round 33 | Loss: 0.00857543 | Train Acc: 99.9333%
+[Worker 14] Round 33 | Loss: 0.0727133 | Train Acc: 98.1%
+[Worker 12] Round 33 | Loss: 0.0115824 | Train Acc: 99.8333%
+[Worker 3] Round 33 | Loss: 0.00830522 | Train Acc: 99.825%
+[Worker 13] Round 33 | Loss: 0.0160806 | Train Acc: 99.725%
+[Worker 8] Round 33 | Loss: 0.042953 | Train Acc: 99.0833%
+[Worker 9] Round 33 | Loss: 0.0139035 | Train Acc: 99.8167%
+[Worker 11] Round 33 | Loss: 0.0205245 | Train Acc: 99.65%
+[Worker 5] Round 33 | Loss: 0.08056 | Train Acc: 97.65%
+[Worker 10] Round 33 | Loss: 0.0139879 | Train Acc: 99.7417%
+[Worker 6] Round 33 | Loss: 0.0116482 | Train Acc: 99.8333%
+[Worker 15] Round 33 | Loss: 0.0113372 | Train Acc: 99.875%
+[Worker 7] Round 33 | Loss: 0.0312783 | Train Acc: 99.3667%
+[Worker 4] Round 33 | Loss: 0.0383833 | Train Acc: 99.2%
+[Central Round] 33 [Global Test Accuracy]: 32.89%
+[Worker 2] Round 34 | Loss: 0.0139506 | Train Acc: 99.7833%
+[Worker 14] Round 34 | Loss: 0.0724112 | Train Acc: 98.075%
+[Worker 12] Round 34 | Loss: 0.0119674 | Train Acc: 99.8333%
+[Worker 1] Round 34 | Loss: 0.00888351 | Train Acc: 99.9417%
+[Worker 13] Round 34 | Loss: 0.0153838 | Train Acc: 99.7833%
+[Worker 8] Round 34 | Loss: 0.0429662 | Train Acc: 99.075%
+[Worker 3] Round 34 | Loss: 0.00839075 | Train Acc: 99.8583%
+[Worker 9] Round 34 | Loss: 0.0132316 | Train Acc: 99.8833%
+[Worker 11] Round 34 | Loss: 0.0203996 | Train Acc: 99.65%
+[Worker 10] Round 34 | Loss: 0.0136283 | Train Acc: 99.7583%
+[Worker 6] Round 34 | Loss: 0.011695 | Train Acc: 99.8333%
+[Worker 15] Round 34 | Loss: 0.011369 | Train Acc: 99.8833%
+[Worker 7] Round 34 | Loss: 0.031159 | Train Acc: 99.3833%
+[Worker 5] Round 34 | Loss: 0.079782 | Train Acc: 97.6417%
+[Worker 4] Round 34 | Loss: 0.0378889 | Train Acc: 99.175%
+[Central Round] 34 [Global Test Accuracy]: 33.01%
+[Worker 2] Round 35 | Loss: 0.0140321 | Train Acc: 99.7583%
+[Worker 13] Round 35 | Loss: 0.0158862 | Train Acc: 99.725%
+[Worker 9] Round 35 | Loss: 0.0138698 | Train Acc: 99.8167%
+[Worker 12] Round 35 | Loss: 0.0115997 | Train Acc: 99.825%
+[Worker 14] Round 35 | Loss: 0.0715572 | Train Acc: 98.1583%
+[Worker 1] Round 35 | Loss: 0.00901599 | Train Acc: 99.8917%
+[Worker 3] Round 35 | Loss: 0.00832029 | Train Acc: 99.85%
+[Worker 8] Round 35 | Loss: 0.0429015 | Train Acc: 99.0167%
+[Worker 5] Round 35 | Loss: 0.079677 | Train Acc: 97.7167%
+[Worker 10] Round 35 | Loss: 0.0135872 | Train Acc: 99.7667%
+[Worker 15] Round 35 | Loss: 0.0115104 | Train Acc: 99.85%
+[Worker 11] Round 35 | Loss: 0.0203575 | Train Acc: 99.65%
+[Worker 6] Round 35 | Loss: 0.0118285 | Train Acc: 99.825%
+[Worker 7] Round 35 | Loss: 0.0310899 | Train Acc: 99.3833%
+[Worker 4] Round 35 | Loss: 0.0376405 | Train Acc: 99.225%
+[Central Round] 35 [Global Test Accuracy]: 33%
+[Worker 2] Round 36 | Loss: 0.0140983 | Train Acc: 99.75%
+[Worker 1] Round 36 | Loss: 0.00854302 | Train Acc: 99.9167%
+[Worker 14] Round 36 | Loss: 0.071829 | Train Acc: 98.1083%
+[Worker 12] Round 36 | Loss: 0.0117183 | Train Acc: 99.8167%
+[Worker 3] Round 36 | Loss: 0.00839034 | Train Acc: 99.85%
+[Worker 13] Round 36 | Loss: 0.0154315 | Train Acc: 99.7917%
+[Worker 9] Round 36 | Loss: 0.0134047 | Train Acc: 99.875%
+[Worker 8] Round 36 | Loss: 0.0427887 | Train Acc: 99.075%
+[Worker 11] Round 36 | Loss: 0.0202653 | Train Acc: 99.6417%
+[Worker 15] Round 36 | Loss: 0.0115512 | Train Acc: 99.8583%
+[Worker 5] Round 36 | Loss: 0.0791634 | Train Acc: 97.5833%
+[Worker 10] Round 36 | Loss: 0.0132511 | Train Acc: 99.7583%
+[Worker 6] Round 36 | Loss: 0.0120016 | Train Acc: 99.8%
+[Worker 7] Round 36 | Loss: 0.0311573 | Train Acc: 99.3667%
+[Worker 4] Round 36 | Loss: 0.0376967 | Train Acc: 99.2083%
+[Central Round] 36 [Global Test Accuracy]: 32.93%
+[Worker 2] Round 37 | Loss: 0.0141936 | Train Acc: 99.7583%
+[Worker 1] Round 37 | Loss: 0.00862403 | Train Acc: 99.8917%
+[Worker 14] Round 37 | Loss: 0.0710267 | Train Acc: 98.1833%
+[Worker 3] Round 37 | Loss: 0.00851421 | Train Acc: 99.8417%
+[Worker 12] Round 37 | Loss: 0.0114468 | Train Acc: 99.8583%
+[Worker 9] Round 37 | Loss: 0.013599 | Train Acc: 99.825%
+[Worker 13] Round 37 | Loss: 0.0151418 | Train Acc: 99.825%
+[Worker 15] Round 37 | Loss: 0.0112403 | Train Acc: 99.8667%
+[Worker 8] Round 37 | Loss: 0.0422366 | Train Acc: 99.1417%
+[Worker 10] Round 37 | Loss: 0.0136382 | Train Acc: 99.75%
+[Worker 11] Round 37 | Loss: 0.019873 | Train Acc: 99.6667%
+[Worker 6] Round 37 | Loss: 0.0116586 | Train Acc: 99.8583%
+[Worker 5] Round 37 | Loss: 0.0789546 | Train Acc: 97.7667%
+[Worker 7] Round 37 | Loss: 0.0310436 | Train Acc: 99.3667%
+[Worker 4] Round 37 | Loss: 0.0373502 | Train Acc: 99.2333%
+[Central Round] 37 [Global Test Accuracy]: 32.88%
+[Worker 2] Round 38 | Loss: 0.0141138 | Train Acc: 99.775%
+[Worker 14] Round 38 | Loss: 0.0711521 | Train Acc: 98.0333%
+[Worker 1] Round 38 | Loss: 0.00916386 | Train Acc: 99.925%
+[Worker 12] Round 38 | Loss: 0.0115008 | Train Acc: 99.8417%
+[Worker 9] Round 38 | Loss: 0.0133532 | Train Acc: 99.8417%
+[Worker 8] Round 38 | Loss: 0.0423564 | Train Acc: 99.0583%
+[Worker 3] Round 38 | Loss: 0.00839211 | Train Acc: 99.8417%
+[Worker 13] Round 38 | Loss: 0.0156861 | Train Acc: 99.7417%
+[Worker 10] Round 38 | Loss: 0.0129954 | Train Acc: 99.7583%
+[Worker 6] Round 38 | Loss: 0.0115144 | Train Acc: 99.85%
+[Worker 11] Round 38 | Loss: 0.0198979 | Train Acc: 99.65%
+[Worker 15] Round 38 | Loss: 0.0113904 | Train Acc: 99.8417%
+[Worker 5] Round 38 | Loss: 0.0789671 | Train Acc: 97.6917%
+[Worker 7] Round 38 | Loss: 0.0305621 | Train Acc: 99.3667%
+[Worker 4] Round 38 | Loss: 0.0369107 | Train Acc: 99.1917%
+[Central Round] 38 [Global Test Accuracy]: 32.84%
+[Worker 2] Round 39 | Loss: 0.0140554 | Train Acc: 99.7333%
+[Worker 14] Round 39 | Loss: 0.070216 | Train Acc: 98.0417%
+[Worker 13] Round 39 | Loss: 0.0152335 | Train Acc: 99.8167%
+[Worker 9] Round 39 | Loss: 0.0142137 | Train Acc: 99.8333%
+[Worker 12] Round 39 | Loss: 0.0115842 | Train Acc: 99.8583%
+[Worker 1] Round 39 | Loss: 0.0086443 | Train Acc: 99.925%
+[Worker 3] Round 39 | Loss: 0.0082907 | Train Acc: 99.8667%
+[Worker 11] Round 39 | Loss: 0.0197578 | Train Acc: 99.625%
+[Worker 8] Round 39 | Loss: 0.0422714 | Train Acc: 99.125%
+[Worker 7] Round 39 | Loss: 0.0308251 | Train Acc: 99.35%
+[Worker 6] Round 39 | Loss: 0.012334 | Train Acc: 99.8%
+[Worker 10] Round 39 | Loss: 0.0138306 | Train Acc: 99.775%
+[Worker 15] Round 39 | Loss: 0.0117009 | Train Acc: 99.8333%
+[Worker 5] Round 39 | Loss: 0.0790481 | Train Acc: 97.7083%
+[Worker 4] Round 39 | Loss: 0.0373217 | Train Acc: 99.1833%
+[Central Round] 39 [Global Test Accuracy]: 32.75%
+[Worker 2] Round 40 | Loss: 0.0137672 | Train Acc: 99.7833%
+[Worker 14] Round 40 | Loss: 0.070194 | Train Acc: 98.1667%
+[Worker 1] Round 40 | Loss: 0.00858332 | Train Acc: 99.9167%
+[Worker 12] Round 40 | Loss: 0.0115753 | Train Acc: 99.8333%
+[Worker 9] Round 40 | Loss: 0.0141822 | Train Acc: 99.8417%
+[Worker 13] Round 40 | Loss: 0.0152077 | Train Acc: 99.7917%
+[Worker 3] Round 40 | Loss: 0.00847377 | Train Acc: 99.85%
+[Worker 5] Round 40 | Loss: 0.0783836 | Train Acc: 97.75%
+[Worker 8] Round 40 | Loss: 0.0421156 | Train Acc: 99.0917%
+[Worker 15] Round 40 | Loss: 0.0111151 | Train Acc: 99.8583%
+[Worker 11] Round 40 | Loss: 0.0199377 | Train Acc: 99.6917%
+[Worker 10] Round 40 | Loss: 0.0132252 | Train Acc: 99.7667%
+[Worker 6] Round 40 | Loss: 0.01172 | Train Acc: 99.7917%
+[Worker 7] Round 40 | Loss: 0.0312488 | Train Acc: 99.4333%
+[Worker 4] Round 40 | Loss: 0.0376462 | Train Acc: 99.225%
+[Central Round] 40 [Global Test Accuracy]: 32.75%
+[Central] Early stopping at round 40 after 5 rounds without global accuracy improvement.
+
+[Central] Done. Federated data saved to /home-mscluster/ldemelo/HPC_Assignment/problem1/federated_clustering_mpi/metrics/sweep_5/federated/label_shard_noniid_rotate_feature_skew_np16_rep2
