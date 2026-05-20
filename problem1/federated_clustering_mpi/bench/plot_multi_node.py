@@ -315,9 +315,9 @@ def main():
         grouped_A[dist].sort()
     wrote_A = speedup_plot(
         out / "multinode_speedup_fixed_ppn.png",
-        f"Speedup vs nodes  (ppn={args.fixed_ppn}, avg of {args.reps} reps)",
+        f"Speedup vs number of nodes (fixed ppn={args.fixed_ppn})",
         grouped_A, args.dists, speedups_A,
-        x_label=f"Number of nodes (ppn={args.fixed_ppn}, ranks = ppn × nodes)",
+        x_label="Number of nodes",
     )
 
     # ----- Plot 2: Strategy B — speedup vs nodes at fixed total -------------
@@ -329,16 +329,16 @@ def main():
         grouped_B[dist].sort()
     wrote_B = speedup_plot(
         out / "multinode_speedup_fixed_total.png",
-        f"Speedup vs nodes  (total ranks={args.fixed_total}, avg of {args.reps} reps)",
+        f"Speedup vs number of nodes (fixed total={args.fixed_total} ranks)",
         grouped_B, args.dists, speedups_B,
-        x_label=f"Number of nodes (total ranks fixed at {args.fixed_total})",
+        x_label="Number of nodes",
     )
 
     # ----- Plot 3: test accuracy curves, side-by-side per strategy ----------
     fig, axes = plt.subplots(1, 2, figsize=(13, 5), sharey=True)
     for ax, curves, label_prefix, title in [
-        (axes[0], curves_A, "A", f"Strategy A: fixed ppn={args.fixed_ppn}"),
-        (axes[1], curves_B, "B", f"Strategy B: fixed total={args.fixed_total}"),
+        (axes[0], curves_A, "A", f"Test accuracy (fixed ppn={args.fixed_ppn})"),
+        (axes[1], curves_B, "B", f"Test accuracy (fixed total={args.fixed_total} ranks)"),
     ]:
         for (dist, nodes) in sorted(curves.keys(), key=lambda k: (k[0], k[1])):
             avg = avg_curves(curves[(dist, nodes)])
@@ -352,7 +352,7 @@ def main():
         ax.grid(True, alpha=0.3)
         ax.legend(fontsize=8, loc="lower right")
     axes[0].set_ylabel("Test accuracy (%)")
-    fig.suptitle(f"Multi-node convergence (avg of {args.reps} reps)")
+    fig.suptitle("Multi-node convergence")
     fig.tight_layout()
     fig.savefig(out / "multinode_test_accuracy.png", dpi=150)
     plt.close(fig)

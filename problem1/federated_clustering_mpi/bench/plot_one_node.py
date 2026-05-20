@@ -152,6 +152,15 @@ def avg_curves(curves):
     return epochs, train_loss, train_acc, test_acc
 
 
+def dist_label(dist: str) -> str:
+    labels = {
+        "round_robin_iid": "IID round robin",
+        "label_shard_noniid": "label shard non-IID",
+        "label_shard_noniid_rotate_feature_skew": "label shard + rotation",
+    }
+    return labels.get(dist, dist)
+
+
 def closest_centralised(ts: datetime, centralised_rows):
     """Pick the centralised summary row with the nearest timestamp."""
     best = None
@@ -172,8 +181,18 @@ def main():
                     help="Read metrics/sweep_<id>/summary_*.csv.")
     ap.add_argument("--reps", type=int, default=3)
     ap.add_argument("--nps", type=int, nargs="+", required=True)
+    ap.add_argument("--curve-nps", type=int, nargs="+",
+                    help="Process counts to show on accuracy-curve plots. "
+                         "Defaults to all --nps values.")
     ap.add_argument("--dists", type=str, nargs="+", required=True)
     args = ap.parse_args()
+    args.nps = sorted(dict.fromkeys(args.nps))
+    curve_nps = sorted(dict.fromkeys(args.curve_nps or args.nps))
+    unknown_curve_nps = [np_count for np_count in curve_nps
+                         if np_count not in args.nps]
+    if unknown_curve_nps:
+        raise SystemExit(
+            f"--curve-nps values must also appear in --nps: {unknown_curve_nps}")
 
     project = args.project_dir
     sweep_dir = project / "metrics" / f"sweep_{args.sweep_id}"
@@ -225,6 +244,27 @@ def main():
         if c is not None:
             fed_curves[(dist, np_count)].append(c)
 
+    missing = [
+        (dist, np_count)
+        for dist in args.dists
+        for np_count in args.nps
+        if not speedups.get((dist, np_count))
+    ]
+    if missing:
+        formatted = ", ".join(f"{dist}/np={np_count}" for dist, np_count in missing)
+        print(f"[plot] warning: no one-node rows for {formatted}", file=sys.stderr)
+
+    missing_curves = [
+        (dist, np_count)
+        for dist in args.dists
+        for np_count in curve_nps
+        if not fed_curves.get((dist, np_count))
+    ]
+    if missing_curves:
+        formatted = ", ".join(
+            f"{dist}/np={np_count}" for dist, np_count in missing_curves)
+        print(f"[plot] warning: no accuracy curves for {formatted}", file=sys.stderr)
+
     # ----- Plot 1: speedup vs num processes -------------------------------
     fig, ax = plt.subplots(figsize=(7, 5))
     for dist in args.dists:
@@ -237,43 +277,44 @@ def main():
             ys.append(float(np.mean(vals)))
             errs.append(float(np.std(vals)))
         if xs:
-            ax.errorbar(xs, ys, yerr=errs, marker="o", capsize=3, label=dist)
+            ax.errorbar(xs, ys, yerr=errs, marker="o", capsize=3,
+                        label=dist_label(dist))
     ax.axhline(1.0, color="grey", linestyle="--", linewidth=0.8,
                label="centralised baseline")
     ax.set_xlabel("Number of MPI processes (server + workers)")
     ax.set_ylabel(r"Speedup ($t_{centralised} / t_{federated}$)")
-    ax.set_title(f"Speedup vs process count (avg of {args.reps} reps)")
+    ax.set_title("Speedup vs process count")
     ax.grid(True, alpha=0.3)
-    ax.legend()
+    ax.legend(fontsize=8)
     fig.tight_layout()
     fig.savefig(out / "speedup_vs_np.png", dpi=150)
     plt.close(fig)
 
     # ----- Plot 2: asymptotic test accuracy vs epoch ----------------------
-    fig, ax = plt.subplots(figsize=(8, 5))
+    fig, ax = plt.subplots(figsize=(11, 6))
     avg_c = avg_curves(central_curves)
     if avg_c is not None:
         ep, _, _, test_acc = avg_c
         ax.plot(ep, test_acc, label="centralised", linewidth=2, color="black")
     for dist in args.dists:
-        for np_count in sorted(args.nps):
+        for np_count in curve_nps:
             avg = avg_curves(fed_curves.get((dist, np_count), []))
             if avg is None:
                 continue
             ep, _, _, test_acc = avg
-            ax.plot(ep, test_acc, label=f"{dist} np={np_count}")
+            ax.plot(ep, test_acc, label=f"{dist_label(dist)} np={np_count}")
     ax.axhline(80.0, color="grey", linestyle=":", linewidth=0.8)
     ax.set_xlabel("Epoch / round")
     ax.set_ylabel("Test accuracy (%)")
-    ax.set_title(f"Asymptotic test accuracy (avg of {args.reps} reps)")
+    ax.set_title("Asymptotic test accuracy")
     ax.grid(True, alpha=0.3)
-    ax.legend(fontsize=8, loc="lower right")
-    fig.tight_layout()
+    ax.legend(fontsize=8, loc="center left", bbox_to_anchor=(1.02, 0.5))
+    fig.tight_layout(rect=[0, 0, 0.78, 1])
     fig.savefig(out / "asymptotic_accuracy.png", dpi=150)
     plt.close(fig)
 
     # ----- Plot 3: test vs training accuracy ------------------------------
-    fig, ax = plt.subplots(figsize=(8, 5))
+    fig, ax = plt.subplots(figsize=(11, 6))
     if avg_c is not None:
         ep, _, train_acc, test_acc = avg_c
         ax.plot(ep, train_acc, color="black", linestyle="--",
@@ -283,7 +324,7 @@ def main():
     colour_cycle = plt.rcParams["axes.prop_cycle"].by_key()["color"]
     ci = 0
     for dist in args.dists:
-        for np_count in sorted(args.nps):
+        for np_count in curve_nps:
             avg = avg_curves(fed_curves.get((dist, np_count), []))
             if avg is None:
                 continue
@@ -291,15 +332,15 @@ def main():
             colour = colour_cycle[ci % len(colour_cycle)]
             ci += 1
             ax.plot(ep, train_acc, color=colour, linestyle="--",
-                    label=f"{dist} np={np_count} train")
+                    label=f"{dist_label(dist)} np={np_count} train")
             ax.plot(ep, test_acc, color=colour, linestyle="-",
-                    label=f"{dist} np={np_count} test")
+                    label=f"{dist_label(dist)} np={np_count} test")
     ax.set_xlabel("Epoch / round")
     ax.set_ylabel("Accuracy (%)")
-    ax.set_title(f"Train vs test accuracy (avg of {args.reps} reps)")
+    ax.set_title("Train vs test accuracy")
     ax.grid(True, alpha=0.3)
-    ax.legend(fontsize=7, loc="lower right", ncol=2)
-    fig.tight_layout()
+    ax.legend(fontsize=7, loc="center left", bbox_to_anchor=(1.02, 0.5))
+    fig.tight_layout(rect=[0, 0, 0.74, 1])
     fig.savefig(out / "train_vs_test.png", dpi=150)
     plt.close(fig)
 

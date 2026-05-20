@@ -21,11 +21,39 @@ cd "$PROJECT_DIR"
 
 REPS="${REPS:-3}"
 NPS=(${NPS:-3 5 7 9 13 16})
+CURVE_NPS=(${CURVE_NPS:-3 9 16})
 
-# Single distribution requested for the sweep. Each entry is a name + the
+# Data distributions requested for the sweep. Each entry is a name + the
 # corresponding -D flags passed to mpicxx via FEDERATED_DEFINES.
-DIST_NAMES=("label_shard_noniid")
-DIST_DEFINES=("-DLABEL_SHARD_NONIID")
+DIST_NAMES=(
+    "round_robin_iid"
+    "label_shard_noniid"
+    "label_shard_noniid_rotate_feature_skew"
+)
+DIST_DEFINES=(
+    "-DROUND_ROBIN_BASELINE"
+    "-DLABEL_SHARD_NONIID"
+    "-DLABEL_SHARD_NONIID -DROTATE_FEATURE_SKEW"
+)
+
+if [[ ${#DIST_NAMES[@]} -ne ${#DIST_DEFINES[@]} ]]; then
+    echo "[config] DIST_NAMES and DIST_DEFINES must have the same length" >&2
+    exit 1
+fi
+
+for curve_np in "${CURVE_NPS[@]}"; do
+    found=0
+    for np in "${NPS[@]}"; do
+        if [[ "$curve_np" == "$np" ]]; then
+            found=1
+            break
+        fi
+    done
+    if [[ "$found" == "0" ]]; then
+        echo "[config] CURVE_NPS value ${curve_np} is not in NPS (${NPS[*]})" >&2
+        exit 1
+    fi
+done
 
 # ----- Allocate the next sweep id -----------------------------------------
 # An incrementing counter; each sweep's entire contents live in its own folder.
@@ -42,6 +70,8 @@ echo "============================================================"
 echo " Problem 1 one-node sweep"
 echo " sweep id: ${SWEEP_ID}   folder: ${SWEEP_DIR}"
 echo " reps: ${REPS}   nps: ${NPS[*]}"
+echo " curve nps: ${CURVE_NPS[*]}"
+echo " dists: ${DIST_NAMES[*]}"
 echo "============================================================"
 
 # ===========================================================================
@@ -110,6 +140,7 @@ python3 "${BENCH_DIR}/plot_one_node.py" \
     --sweep-id "${SWEEP_ID}" \
     --reps "${REPS}" \
     --nps "${NPS[@]}" \
+    --curve-nps "${CURVE_NPS[@]}" \
     --dists "${DIST_NAMES[@]}"
 
 echo
