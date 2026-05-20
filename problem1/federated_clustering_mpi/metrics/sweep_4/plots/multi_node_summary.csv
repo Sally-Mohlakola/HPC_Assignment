@@ -1,0 +1,9 @@
+strategy,data_distribution,num_nodes,num_processes,speedup_mean,speedup_std,fed_time_mean_s,epochs_to_80_mean,n_reps
+fixed_ppn,label_shard_noniid,2,16,2.7644,0.1038,10.471,8.00,3
+fixed_ppn,label_shard_noniid,3,24,1.3930,0.0638,20.797,3.00,3
+fixed_ppn,label_shard_noniid,4,32,2.3061,0.0976,12.557,4.00,3
+fixed_ppn,label_shard_noniid,6,48,2.9340,0.0809,9.860,5.33,3
+fixed_total,label_shard_noniid,3,48,4.1032,0.0079,7.045,5.00,3
+fixed_total,label_shard_noniid,4,48,2.8482,0.0014,10.149,5.67,3
+fixed_total,label_shard_noniid,6,48,2.9340,0.0809,9.860,5.33,3
+fixed_total,label_shard_noniid,8,48,2.8709,0.0265,10.069,5.33,3
