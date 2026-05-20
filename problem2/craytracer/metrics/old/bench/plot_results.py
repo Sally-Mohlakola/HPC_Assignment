@@ -5,6 +5,7 @@ Reads metrics/summary.csv, filters to rows written during this benchmark
 session (date_time >= --since), averages repeated runs of the same config,
 and produces one figure per sweep (block-size, sphere-count, ray-depth)
 with three subplots: kernel time, throughput, speedup vs OpenMP.
+The sphere-count and ray-depth sweeps also get standalone speedup figures.
 """
 
 import argparse
@@ -258,6 +259,53 @@ def plot_sweep(averaged, sweep_var, sweep_label, filter_fn, fixed_desc,
     print(f"  wrote {out_path}")
 
 
+def plot_speedup_only(averaged, sweep_var, sweep_label, filter_fn, fixed_desc,
+                      out_path):
+    """Plot only kernel speedup vs OpenMP for a single sweep."""
+    by_impl = defaultdict(list)
+    for r in averaged:
+        if r["implementation"] == "OPENMP" or not filter_fn(r):
+            continue
+        by_impl[r["implementation"]].append(r)
+
+    if not by_impl:
+        print(f"  [warn] no speedup data for sweep over {sweep_var}",
+              file=sys.stderr)
+        return
+
+    for impl in by_impl:
+        by_impl[impl].sort(key=lambda r: r[sweep_var])
+
+    fig, ax = plt.subplots(figsize=(8, 5.2))
+    ax.set_title(f"Speedup vs OpenMP: {sweep_label} ({fixed_desc})")
+
+    speedups = []
+    impls_present = [i for i in IMPL_ORDER if i in by_impl]
+    for impl in impls_present:
+        rows = by_impl[impl]
+        xs = [r[sweep_var] for r in rows]
+        spd = [r["speedup_vs_openmp_kernel"] for r in rows]
+        style = IMPL_STYLE.get(impl, {})
+
+        speedups.extend(spd)
+        ax.plot(xs, spd, label=impl, **style)
+
+    ax.axhline(1.0, color="grey", linewidth=0.8, linestyle=":")
+    ax.set_xlabel(sweep_label)
+    ax.set_ylabel("Speedup vs OpenMP (kernel)")
+    ax.set_xticks(sorted({r[sweep_var] for rows in by_impl.values()
+                          for r in rows}))
+    ax.grid(True, alpha=0.3)
+    set_zoomed_ylim(ax, speedups)
+    handles, labels = ax.get_legend_handles_labels()
+    fig.legend(handles, labels, loc="lower center", ncol=min(3, len(labels)),
+               bbox_to_anchor=(0.5, -0.02), fontsize=9)
+    fig.tight_layout(rect=(0, 0.15, 1, 0.96))
+    fig.savefig(out_path, dpi=150, bbox_inches="tight")
+    plt.close(fig)
+    print(f"  wrote {out_path}")
+
+
 def main():
     args = parse_args()
     out_dir = Path(args.output_dir)
@@ -308,6 +356,16 @@ def main():
         out_path=out_dir / f"{prefix}sweep_num_spheres.png",
     )
 
+    plot_speedup_only(
+        averaged,
+        sweep_var="num_spheres",
+        sweep_label="Number of spheres",
+        filter_fn=lambda r: (r["block_size"] == base_block
+                             and r["ray_depth"] == base_depth),
+        fixed_desc=f"block={base_block}, depth={base_depth}",
+        out_path=out_dir / f"{prefix}sweep_num_spheres_speedup.png",
+    )
+
     plot_sweep(
         averaged,
         sweep_var="ray_depth",
@@ -316,6 +374,16 @@ def main():
                              and r["num_spheres"] == base_spheres_actual),
         fixed_desc=f"block={base_block}, spheres={base_spheres_actual}",
         out_path=out_dir / f"{prefix}sweep_ray_depth.png",
+    )
+
+    plot_speedup_only(
+        averaged,
+        sweep_var="ray_depth",
+        sweep_label="Max ray bounce depth",
+        filter_fn=lambda r: (r["block_size"] == base_block
+                             and r["num_spheres"] == base_spheres_actual),
+        fixed_desc=f"block={base_block}, spheres={base_spheres_actual}",
+        out_path=out_dir / f"{prefix}sweep_ray_depth_speedup.png",
     )
 
 
