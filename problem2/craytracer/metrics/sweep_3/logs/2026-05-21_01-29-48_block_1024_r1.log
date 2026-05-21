@@ -1,0 +1,85 @@
+Config: blockSize=1024 MAX_SPHERES=512 maxDepth=50 numSpheres=200
+Scene initialized
+
+============= OPENMP =============
+Time:                          656.329 s
+Wrote 'output/openmp.jpg'
+
+Spheres generated: 200 (requested 200)
+CUDA error: too many resources requested for launch
+
+============= GLOBAL =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.005 s
+Total (without mem):             0.000 s
+Total (with mem):                0.005 s
+Throughput:                    6352.36 Mpixels/sec
+Speedup vs OpenMP (kernel):   10178804.49x
+Speedup vs OpenMP (with mem): 138911.56x
+Wrote 'output/cuda_global.jpg'
+CUDA error: too many resources requested for launch
+
+============= CONSTANT =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.010 s
+Total (without mem):             0.000 s
+Total (with mem):                0.010 s
+Throughput:                    5491.21 Mpixels/sec
+Speedup vs OpenMP (kernel):   8798923.44x
+Speedup vs OpenMP (with mem): 62959.81x
+Wrote 'output/cuda_constant.jpg'
+CUDA error: too many resources requested for launch
+
+============= SHARED =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.010 s
+Total (without mem):             0.000 s
+Total (with mem):                0.010 s
+Throughput:                    4327.25 Mpixels/sec
+Speedup vs OpenMP (kernel):   6933837.94x
+Speedup vs OpenMP (with mem): 62695.57x
+Wrote 'output/cuda_shared.jpg'
+CUDA error: too many resources requested for launch
+
+============= 1D TEXTURE =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.004 s
+Total (without mem):             0.000 s
+Total (with mem):                0.004 s
+Throughput:                    4758.36 Mpixels/sec
+Speedup vs OpenMP (kernel):   7624643.83x
+Speedup vs OpenMP (with mem): 163146.53x
+Wrote 'output/cuda_1d_texture.jpg'
+CUDA error: too many resources requested for launch
+
+============= 2D TEXTURE =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.004 s
+Total (without mem):             0.000 s
+Total (with mem):                0.004 s
+Throughput:                    5007.83 Mpixels/sec
+Speedup vs OpenMP (kernel):   8024371.40x
+Speedup vs OpenMP (with mem): 159404.75x
+Wrote 'output/cuda_2d_texture.jpg'
+CUDA error: too many resources requested for launch
+
+============= 2D TEXTURE + CONSTANT =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.010 s
+Total (without mem):             0.000 s
+Total (with mem):                0.010 s
+Throughput:                    4913.63 Mpixels/sec
+Speedup vs OpenMP (kernel):   7873432.62x
+Speedup vs OpenMP (with mem): 63369.67x
+Wrote 'output/cuda_2d_texture_constant.jpg'
+CUDA error: too many resources requested for launch
+
+============= REALISTIC =============
+Kernel time:                     0.000 s
+Memory transfer time:            0.004 s
+Total (without mem):             0.000 s
+Total (with mem):                0.004 s
+Throughput:                    4255.32 Mpixels/sec
+Speedup vs OpenMP (kernel):   6818580.97x
+Speedup vs OpenMP (with mem): 158214.47x
+Wrote 'output/cuda_realistic.jpg'

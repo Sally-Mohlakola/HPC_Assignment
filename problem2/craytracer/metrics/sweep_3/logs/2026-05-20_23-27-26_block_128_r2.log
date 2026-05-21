@@ -1,0 +1,78 @@
+Config: blockSize=128 MAX_SPHERES=512 maxDepth=50 numSpheres=200
+Scene initialized
+
+============= OPENMP =============
+Time:                          656.796 s
+Wrote 'output/openmp.jpg'
+
+Spheres generated: 200 (requested 200)
+
+============= GLOBAL =============
+Kernel time:                    12.256 s
+Memory transfer time:            0.009 s
+Total (without mem):            12.256 s
+Total (with mem):               12.266 s
+Throughput:                       0.03 Mpixels/sec
+Speedup vs OpenMP (kernel):      53.59x
+Speedup vs OpenMP (with mem):    53.55x
+Wrote 'output/cuda_global.jpg'
+
+============= CONSTANT =============
+Kernel time:                    11.791 s
+Memory transfer time:            0.015 s
+Total (without mem):            11.791 s
+Total (with mem):               11.807 s
+Throughput:                       0.03 Mpixels/sec
+Speedup vs OpenMP (kernel):      55.70x
+Speedup vs OpenMP (with mem):    55.63x
+Wrote 'output/cuda_constant.jpg'
+
+============= SHARED =============
+Kernel time:                    12.015 s
+Memory transfer time:            0.015 s
+Total (without mem):            12.015 s
+Total (with mem):               12.031 s
+Throughput:                       0.03 Mpixels/sec
+Speedup vs OpenMP (kernel):      54.66x
+Speedup vs OpenMP (with mem):    54.59x
+Wrote 'output/cuda_shared.jpg'
+
+============= 1D TEXTURE =============
+Kernel time:                    12.213 s
+Memory transfer time:            0.004 s
+Total (without mem):            12.213 s
+Total (with mem):               12.217 s
+Throughput:                       0.03 Mpixels/sec
+Speedup vs OpenMP (kernel):      53.78x
+Speedup vs OpenMP (with mem):    53.76x
+Wrote 'output/cuda_1d_texture.jpg'
+
+============= 2D TEXTURE =============
+Kernel time:                    12.210 s
+Memory transfer time:            0.004 s
+Total (without mem):            12.210 s
+Total (with mem):               12.215 s
+Throughput:                       0.03 Mpixels/sec
+Speedup vs OpenMP (kernel):      53.79x
+Speedup vs OpenMP (with mem):    53.77x
+Wrote 'output/cuda_2d_texture.jpg'
+
+============= 2D TEXTURE + CONSTANT =============
+Kernel time:                    11.830 s
+Memory transfer time:            0.011 s
+Total (without mem):            11.830 s
+Total (with mem):               11.841 s
+Throughput:                       0.03 Mpixels/sec
+Speedup vs OpenMP (kernel):      55.52x
+Speedup vs OpenMP (with mem):    55.47x
+Wrote 'output/cuda_2d_texture_constant.jpg'
+
+============= REALISTIC =============
+Kernel time:                    12.222 s
+Memory transfer time:            0.004 s
+Total (without mem):            12.222 s
+Total (with mem):               12.226 s
+Throughput:                       0.03 Mpixels/sec
+Speedup vs OpenMP (kernel):      53.74x
+Speedup vs OpenMP (with mem):    53.72x
+Wrote 'output/cuda_realistic.jpg'
