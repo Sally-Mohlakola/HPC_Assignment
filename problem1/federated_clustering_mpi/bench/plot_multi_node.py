@@ -189,6 +189,7 @@ def speedup_plot(out_path, title, x_groups, dists, speedups, x_label):
     """x_groups: dict[dist] -> list of (x, mean, std) sorted by x."""
     fig, ax = plt.subplots(figsize=(7, 5))
     plotted = False
+    x_values = []
     for dist in dists:
         pts = x_groups.get(dist, [])
         if not pts:
@@ -197,6 +198,7 @@ def speedup_plot(out_path, title, x_groups, dists, speedups, x_label):
         ys = [p[1] for p in pts]
         errs = [p[2] for p in pts]
         ax.errorbar(xs, ys, yerr=errs, marker="o", capsize=3, label=dist)
+        x_values.extend(xs)
         plotted = True
     if not plotted:
         plt.close(fig)
@@ -206,6 +208,7 @@ def speedup_plot(out_path, title, x_groups, dists, speedups, x_label):
     ax.set_xlabel(x_label)
     ax.set_ylabel(r"Speedup ($t_{centralised} / t_{federated}$)")
     ax.set_title(title)
+    ax.set_xticks(range(int(min(x_values)), int(max(x_values)) + 1))
     ax.grid(True, alpha=0.3)
     ax.legend()
     fig.tight_layout()

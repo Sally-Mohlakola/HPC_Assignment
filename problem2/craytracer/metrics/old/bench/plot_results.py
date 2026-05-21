@@ -5,7 +5,7 @@ Reads metrics/summary.csv, filters to rows written during this benchmark
 session (date_time >= --since), averages repeated runs of the same config,
 and produces one figure per sweep (block-size, sphere-count, ray-depth)
 with three subplots: kernel time, throughput, speedup vs OpenMP.
-The sphere-count and ray-depth sweeps also get standalone speedup figures.
+Each sweep also gets a standalone speedup figure.
 """
 
 import argparse
@@ -293,8 +293,13 @@ def plot_speedup_only(averaged, sweep_var, sweep_label, filter_fn, fixed_desc,
     ax.axhline(1.0, color="grey", linewidth=0.8, linestyle=":")
     ax.set_xlabel(sweep_label)
     ax.set_ylabel("Speedup vs OpenMP (kernel)")
-    ax.set_xticks(sorted({r[sweep_var] for rows in by_impl.values()
-                          for r in rows}))
+    xticks = sorted({r[sweep_var] for rows in by_impl.values()
+                     for r in rows})
+    if sweep_var == "block_size":
+        ax.set_xscale("log", base=2)
+        ax.get_xaxis().set_major_formatter(
+            matplotlib.ticker.ScalarFormatter())
+    ax.set_xticks(xticks)
     ax.grid(True, alpha=0.3)
     set_zoomed_ylim(ax, speedups)
     handles, labels = ax.get_legend_handles_labels()
@@ -344,6 +349,16 @@ def main():
         out_path=out_dir / f"{prefix}sweep_block_size.png",
         plot_title=(f"Sweep: CUDA block size "
                     f"(depth ={base_depth}, spheres ={base_spheres_actual})"),
+    )
+
+    plot_speedup_only(
+        averaged,
+        sweep_var="block_size",
+        sweep_label="Block Size",
+        filter_fn=lambda r: (r["ray_depth"] == base_depth
+                             and r["num_spheres"] == base_spheres_actual),
+        fixed_desc=f"depth={base_depth}, spheres={base_spheres_actual}",
+        out_path=out_dir / f"{prefix}sweep_block_size_speedup.png",
     )
 
     plot_sweep(
