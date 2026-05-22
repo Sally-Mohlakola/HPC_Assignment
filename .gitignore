@@ -3,5 +3,5 @@
 *.ppm
 
 raytracer
-centralised
-federated
+problem1/federated_clustering_mpi/src/centralised
+problem1/federated_clustering_mpi/src/federated
