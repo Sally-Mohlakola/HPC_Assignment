@@ -13,7 +13,7 @@ set -euo pipefail
 #   Phase 3  PLOT       plot_one_node.py renders charts into the sweep's plots/.
 #
 # Everything for the sweep lives under metrics/sweep_<N>/, where N is an
-# incrementing counter kept in metrics/.sweep_counter.
+# incrementing counter kept in metrics/.counter.
 
 PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 BENCH_DIR="${PROJECT_DIR}/bench"
@@ -22,6 +22,7 @@ cd "$PROJECT_DIR"
 REPS="${REPS:-3}"
 NPS=(${NPS:-3 5 7 9 13 16})
 CURVE_NPS=(${CURVE_NPS:-3 9 16})
+BENCH_CXXFLAGS="${CXXFLAGS:--O3} -std=c++17"
 
 # Data distributions requested for the sweep. Each entry is a name + the
 # corresponding -D flags passed to mpicxx via FEDERATED_DEFINES.
@@ -58,8 +59,13 @@ done
 # ----- Allocate the next sweep id -----------------------------------------
 # An incrementing counter; each sweep's entire contents live in its own folder.
 mkdir -p metrics
-COUNTER="metrics/.sweep_counter"
-SWEEP_ID=$(( $(cat "$COUNTER" 2>/dev/null || echo 0) + 1 ))
+COUNTER="metrics/.counter"
+CURRENT_COUNTER="$(cat "$COUNTER" 2>/dev/null || echo 0)"
+if [[ ! "$CURRENT_COUNTER" =~ ^[0-9]+$ ]]; then
+    echo "[config] invalid counter value in ${COUNTER}: ${CURRENT_COUNTER}" >&2
+    exit 1
+fi
+SWEEP_ID=$((CURRENT_COUNTER + 1))
 echo "$SWEEP_ID" > "$COUNTER"
 
 SWEEP_DIR="${PROJECT_DIR}/metrics/sweep_${SWEEP_ID}"
@@ -72,6 +78,7 @@ echo " sweep id: ${SWEEP_ID}   folder: ${SWEEP_DIR}"
 echo " reps: ${REPS}   nps: ${NPS[*]}"
 echo " curve nps: ${CURVE_NPS[*]}"
 echo " dists: ${DIST_NAMES[*]}"
+echo " cxxflags: ${BENCH_CXXFLAGS}"
 echo "============================================================"
 
 # ===========================================================================
@@ -85,7 +92,7 @@ echo "============================================================"
 echo
 echo "[phase 1/3] RUN"
 echo "[build] centralised"
-make centralised
+make centralised CXXFLAGS="${BENCH_CXXFLAGS}"
 
 echo
 echo "--- Centralised baseline: ${REPS} repetitions ---"
@@ -107,7 +114,7 @@ for d_idx in "${!DIST_NAMES[@]}"; do
     echo
     echo "--- Federated build: ${dist_name} (${dist_define}) ---"
     make clean
-    make federated FEDERATED_DEFINES="${dist_define}"
+    make federated CXXFLAGS="${BENCH_CXXFLAGS}" FEDERATED_DEFINES="${dist_define}"
 
     for np in "${NPS[@]}"; do
         for rep in $(seq 1 "${REPS}"); do

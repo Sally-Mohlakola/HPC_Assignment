@@ -362,7 +362,7 @@ def main():
     plt.close(fig)
 
     # ----- Plot 2: asymptotic test accuracy vs epoch ----------------------
-    fig, ax = plt.subplots(figsize=(12.5, 6))
+    fig, ax = plt.subplots(figsize=(12, 6))
     avg_c = avg_curves(central_curves)
     if avg_c is not None:
         ep, _, _, test_acc = avg_c
@@ -386,10 +386,18 @@ def main():
     ax.set_ylabel("Test accuracy (%)")
     ax.set_title("Asymptotic test accuracy")
     ax.grid(True, alpha=0.3)
-    ax.legend(fontsize=8, loc="center left", bbox_to_anchor=(1.02, 0.5),
-              handlelength=3.0)
-    fig.tight_layout(rect=[0, 0, 0.78, 1])
-    fig.savefig(out / "asymptotic_accuracy.png", dpi=150)
+    leg = ax.legend(fontsize=9, loc="upper left", bbox_to_anchor=(1.02, 1.0),
+                    handlelength=3.0)
+    fig.tight_layout()
+    fig.canvas.draw()
+    renderer = fig.canvas.get_renderer()
+    leg_h = leg.get_window_extent(renderer).height
+    ax_h = ax.get_window_extent(renderer).height
+    if abs(leg_h - ax_h) > 2:
+        w, h = fig.get_size_inches()
+        fig.set_size_inches(w, h * leg_h / ax_h)
+        fig.tight_layout()
+    fig.savefig(out / "asymptotic_accuracy.png", dpi=150, bbox_inches="tight")
     plt.close(fig)
 
     # ----- Plot 3: test vs training accuracy ------------------------------
@@ -462,6 +470,41 @@ def main():
     fig.tight_layout(rect=[0, 0, 0.78, 1])
     fig.savefig(out / "train_vs_test.png", dpi=150)
     plt.close(fig)
+
+    # ----- Plot 3b: per-np train vs test (inline legend) ------------------
+    for np_count in curve_nps:
+        fig_np, ax_np = plt.subplots(figsize=(8, 7))
+        handles = []
+        if avg_c is not None:
+            ep, _, train_acc, test_acc = avg_c
+            ax_np.plot(ep, train_acc, color="black", linestyle="--", linewidth=2)
+            ax_np.plot(ep, test_acc, color="black", linestyle="-", linewidth=2)
+            handles.append(Line2D([0], [0], color="black", linestyle="--",
+                                  linewidth=2, label="centralised train"))
+            handles.append(Line2D([0], [0], color="black", linestyle="-",
+                                  linewidth=2, label="centralised test"))
+        for dist in args.dists:
+            avg = avg_curves(fed_curves.get((dist, np_count), []))
+            if avg is None:
+                continue
+            ep, _, train_acc, test_acc = avg
+            colour = curve_colour(dist, np_count, curve_nps)
+            ax_np.plot(ep, train_acc, color=colour, linestyle="--", linewidth=1.8)
+            ax_np.plot(ep, test_acc, color=colour, linestyle="-", linewidth=1.8)
+            lbl = dist_label(dist)
+            handles.append(Line2D([0], [0], color=colour, linestyle="--",
+                                  linewidth=1.8, label=f"{lbl} np={np_count} train"))
+            handles.append(Line2D([0], [0], color=colour, linestyle="-",
+                                  linewidth=1.8, label=f"{lbl} np={np_count} test"))
+        ax_np.set_xlabel("Epoch / round")
+        ax_np.set_ylabel("Accuracy (%)")
+        ax_np.set_title(f"Train vs test accuracy (np={np_count})")
+        ax_np.grid(True, alpha=0.3)
+        ax_np.legend(handles=handles, fontsize=9, loc="lower center")
+        fig_np.tight_layout()
+        fig_np.savefig(out / f"train_vs_test_np{np_count}.png", dpi=150,
+                       bbox_inches="tight")
+        plt.close(fig_np)
 
     # ----- Companion CSV for the report -----------------------------------
     with (out / "speedup_summary.csv").open("w", newline="") as f:

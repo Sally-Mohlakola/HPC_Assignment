@@ -1,6 +1,6 @@
 CXX ?= g++
 MPICXX ?= mpicxx
-CXXFLAGS ?= -O3 -std=c++17
+CXXFLAGS ?= -O3
 FEDERATED_DEFINES ?=
 
 SRC_DIR := src

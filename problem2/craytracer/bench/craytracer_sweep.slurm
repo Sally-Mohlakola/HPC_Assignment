@@ -57,8 +57,13 @@ RUNS_PER_TEST=3
 
 # ----- Allocate the next sweep id -----------------------------------------
 # All generated files for this run live under metrics/sweep_<N>/.
-COUNTER="${METRICS_ROOT}/.sweep_counter"
-SWEEP_ID=$(( $(cat "$COUNTER" 2>/dev/null || echo 0) + 1 ))
+COUNTER="${METRICS_ROOT}/.counter"
+CURRENT_COUNTER="$(cat "$COUNTER" 2>/dev/null || echo 0)"
+if [[ ! "$CURRENT_COUNTER" =~ ^[0-9]+$ ]]; then
+    echo "Invalid counter value in ${COUNTER}: ${CURRENT_COUNTER}" >&2
+    exit 1
+fi
+SWEEP_ID=$((CURRENT_COUNTER + 1))
 echo "$SWEEP_ID" > "$COUNTER"
 
 SWEEP_DIR="${METRICS_ROOT}/sweep_${SWEEP_ID}"

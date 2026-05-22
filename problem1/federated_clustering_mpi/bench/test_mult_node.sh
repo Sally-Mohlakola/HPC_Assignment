@@ -64,6 +64,7 @@ NODES_B=(${NODES_B:-3 4 6 8})
 # Distribution baked into the binary at compile time (same default as
 # test_one_node.sh so the two sweeps are comparable).
 FEDERATED_DEFINES="${FEDERATED_DEFINES:--DLABEL_SHARD_NONIID}"
+BENCH_CXXFLAGS="${CXXFLAGS:--O3} -std=c++17"
 
 # Toggle which strategies to run.
 RUN_STRATEGY_A="${RUN_STRATEGY_A:-1}"
@@ -78,8 +79,13 @@ SBATCH_TIME="${SBATCH_TIME:-02:00:00}"
 # metrics/sweep_<N>/. The id is exported into every job and carried in each
 # run's summary row.
 mkdir -p "$PROJECT_DIR/metrics"
-COUNTER="$PROJECT_DIR/metrics/.sweep_counter"
-SWEEP_ID=$(( $(cat "$COUNTER" 2>/dev/null || echo 0) + 1 ))
+COUNTER="$PROJECT_DIR/metrics/.counter"
+CURRENT_COUNTER="$(cat "$COUNTER" 2>/dev/null || echo 0)"
+if [[ ! "$CURRENT_COUNTER" =~ ^[0-9]+$ ]]; then
+    echo "[config] invalid counter value in ${COUNTER}: ${CURRENT_COUNTER}" >&2
+    exit 1
+fi
+SWEEP_ID=$((CURRENT_COUNTER + 1))
 echo "$SWEEP_ID" > "$COUNTER"
 
 SWEEP_DIR="${PROJECT_DIR}/metrics/sweep_${SWEEP_ID}"
@@ -88,9 +94,9 @@ mkdir -p "${SWEEP_DIR}/federated" "${SWEEP_DIR}/logs" "${SWEEP_DIR}/plots"
 # ---------------------------------------------------------------------------
 # Build once. All sbatched jobs share src/federated.
 # ---------------------------------------------------------------------------
-echo "[build] federated  defines=${FEDERATED_DEFINES}"
+echo "[build] federated  defines=${FEDERATED_DEFINES}  cxxflags=${BENCH_CXXFLAGS}"
 make clean
-make federated FEDERATED_DEFINES="${FEDERATED_DEFINES}"
+make federated CXXFLAGS="${BENCH_CXXFLAGS}" FEDERATED_DEFINES="${FEDERATED_DEFINES}"
 
 # Job ids of every submitted sweep job, so the aggregate phase can depend on
 # all of them.

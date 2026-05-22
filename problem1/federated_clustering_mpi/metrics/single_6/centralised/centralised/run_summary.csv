@@ -1,0 +1,2 @@
+sweep_id,run_id,date_time_started,epochs_to_80,test_acc,run_time_seconds
+6,centralised,2026-05-22_09-56-18,1,92.41,15.6889

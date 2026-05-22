@@ -99,7 +99,7 @@ make clean && make federated FEDERATED_DEFINES="-DLABEL_SHARD_NONIID"
 make clean && make federated FEDERATED_DEFINES="-DLABEL_SHARD_NONIID -DROTATE_FEATURE_SKEW"
 ```
 
-If no distribution flag is provided, the federated binary falls back to label-shard non-IID distribution.
+If no distribution flag is provided, the federated binary falls back to label-shard non-IID distribution and records it as `label_shard_noniid_default`.
 
 ### How To Benchmark It
 
@@ -107,7 +107,7 @@ Run the one-node benchmark sweep:
 
 ```bash
 cd problem1/federated_clustering_mpi
-REPS=3 NPS="3 5 7 9 13" bench/test_one_node.sh
+REPS=3 NPS="3 5 7 9 13 16" CURVE_NPS="3 9 16" bench/test_one_node.sh
 ```
 
 Run the multi-node Slurm benchmark sweep:
@@ -119,7 +119,7 @@ bench/test_mult_node.sh
 
 `test_mult_node.sh` submits the Slurm jobs itself. Run the wrapper directly rather than submitting it with `sbatch`.
 
-Each new sweep gets the next integer id from `metrics/.sweep_counter` and writes to:
+Each new sweep gets the next integer id from `metrics/.counter` and writes to:
 
 ```text
 metrics/sweep_<N>/
@@ -143,8 +143,9 @@ python3 bench/plot_one_node.py \
     --project-dir . \
     --sweep-id <N> \
     --reps 3 \
-    --nps 3 5 7 9 13 \
-    --dists label_shard_noniid
+    --nps 3 5 7 9 13 16 \
+    --curve-nps 3 9 16 \
+    --dists round_robin_iid label_shard_noniid label_shard_noniid_rotate_feature_skew
 ```
 
 Re-plot a multi-node sweep:
@@ -160,16 +161,36 @@ python3 bench/plot_multi_node.py \
 
 ### Outputs
 
-#### Direct-run outputs
+#### Single-run outputs
 
-Direct runs write metrics under:
+The helper script `./run.sh` increments `metrics/.counter` and writes each single run under:
+
+- `problem1/federated_clustering_mpi/metrics/single_<N>/centralised/centralised/`
+- `problem1/federated_clustering_mpi/metrics/single_<N>/federated/federated_np<NP>/`
+- `problem1/federated_clustering_mpi/metrics/single_<N>/logs/`
+
+Override the normal run output root with:
+
+```bash
+RUN_OUTPUT_DIR=/path/to/output ./run.sh
+```
+
+When launched directly from `src/` without the helper script, the binaries default to:
 
 - `problem1/federated_clustering_mpi/centralised_metrics/<run_id>/`
 - `problem1/federated_clustering_mpi/federated_metrics/<run_id>/`
 
-Each run directory contains:
+Override those direct binary output roots with `CENTRALISED_OUTPUT_ROOT` and `FEDERATED_OUTPUT_ROOT`.
 
-- `centralised_metrics.csv` or `federated_metrics.csv`
+Centralised run directories contain:
+
+- `centralised_metrics.csv`
+- `run_summary.csv`
+
+Federated run directories contain:
+
+- `federated_metrics.csv`
+- `worker_<rank>_metrics.csv`
 - `run_summary.csv`
 
 #### Benchmark outputs
@@ -182,15 +203,16 @@ Locations:
 - federated per-run metrics: `metrics/sweep_<N>/federated/<run_id>/`
 - logs: `metrics/sweep_<N>/logs/`
 - plots: `metrics/sweep_<N>/plots/`
-- centralised summary: `metrics/sweep_<N>/summary_centralised.csv`
-- one-node federated summary: `metrics/sweep_<N>/summary_onenode.csv`
-- multi-node federated summary: `metrics/sweep_<N>/summary_multinode.csv`
+- centralised summary, when the sweep includes centralised runs: `metrics/sweep_<N>/summary_centralised.csv`
+- one-node federated summary, when the sweep includes one-node federated runs: `metrics/sweep_<N>/summary_onenode.csv`
+- multi-node federated summary, when the sweep includes multi-node federated runs: `metrics/sweep_<N>/summary_multinode.csv`
 
-Plot outputs include:
+Depending on which plotting script you run, plot outputs include:
 
 - `speedup_vs_np.png`
 - `asymptotic_accuracy.png`
 - `train_vs_test.png`
+- `train_vs_test_np<NP>.png`
 - `speedup_summary.csv`
 - `multinode_speedup_fixed_ppn.png`
 - `multinode_speedup_fixed_total.png`
@@ -335,7 +357,7 @@ The benchmark sweep runs 3 repeats for:
 - sphere counts: `50 100 200 400 800`
 - ray depths: `5 10 25 50 75 100`
 
-Each new sweep gets the next integer id from `metrics/.sweep_counter` and writes to:
+Each new sweep gets the next integer id from `metrics/.counter` and writes to:
 
 ```text
 metrics/sweep_<N>/
@@ -381,7 +403,14 @@ Generated image files:
 - `cuda_2d_texture_constant.jpg`
 - `cuda_realistic.jpg`
 
-Direct runs append metrics to:
+The helper script `./run.sh` increments `metrics/.counter`, sets `CRAYTRACER_METRICS_DIR`, and writes metrics to:
+
+```text
+problem2/craytracer/metrics/single_<N>/summary.csv
+problem2/craytracer/metrics/single_<N>/run.log
+```
+
+When launched directly without `CRAYTRACER_METRICS_DIR`, the executable appends metrics to:
 
 ```text
 problem2/craytracer/metrics/summary.csv
@@ -402,9 +431,10 @@ Locations:
 
 Plot outputs include:
 
-- `sweep_block_size.png`
-- `sweep_num_spheres.png`
-- `sweep_ray_depth.png`
+- `sweep_block_size_speedup.png`
+- `sweep_num_spheres_speedup.png`
+
+The ray-depth sweep is retained in `summary.csv` and `plots/averaged.csv`; the current plotting script does not emit a separate ray-depth PNG.
 
 ### Experimental Setup
 

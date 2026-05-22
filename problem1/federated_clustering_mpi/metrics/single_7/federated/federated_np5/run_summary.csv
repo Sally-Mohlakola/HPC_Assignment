@@ -1,0 +1,2 @@
+sweep_id,run_id,date_time_started,num_processes,num_nodes,data_distribution,epochs_to_80,run_time_seconds
+7,federated_np5,2026-05-22_10-09-00,5,1,label_shard_noniid_default,9,13.2718
