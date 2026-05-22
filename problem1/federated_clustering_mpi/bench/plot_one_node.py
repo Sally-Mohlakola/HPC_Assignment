@@ -20,6 +20,7 @@ from pathlib import Path
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
+from matplotlib.lines import Line2D
 import numpy as np
 
 TS_FMT = "%Y-%m-%d_%H-%M-%S"
@@ -161,6 +162,75 @@ def dist_label(dist: str) -> str:
     return labels.get(dist, dist)
 
 
+DIST_COLOURMAPS = {
+    "round_robin_iid": "Blues",
+    "label_shard_noniid": "Oranges",
+    "label_shard_noniid_rotate_feature_skew": "Purples",
+}
+FALLBACK_DIST_COLOURS = [
+    "#1b9e77",
+    "#d95f02",
+    "#7570b3",
+    "#e7298a",
+    "#66a61e",
+    "#e6ab02",
+]
+PROCESS_LINESTYLES = [
+    "-",
+    "--",
+    "-.",
+    ":",
+    (0, (5, 1)),
+    (0, (3, 1, 1, 1)),
+    (0, (7, 2, 1, 2)),
+]
+PROCESS_MARKERS = ["o", "s", "^", "D", "P", "X", "v"]
+
+
+def _fallback_dist_colour(dist: str):
+    idx = sum(ord(ch) for ch in dist) % len(FALLBACK_DIST_COLOURS)
+    return FALLBACK_DIST_COLOURS[idx]
+
+
+def dist_base_colour(dist: str):
+    cmap_name = DIST_COLOURMAPS.get(dist)
+    if cmap_name is None:
+        return _fallback_dist_colour(dist)
+    return plt.get_cmap(cmap_name)(0.78)
+
+
+def curve_colour(dist: str, np_count: int, process_counts):
+    cmap_name = DIST_COLOURMAPS.get(dist)
+    if cmap_name is None:
+        return _fallback_dist_colour(dist)
+    process_counts = list(process_counts)
+    try:
+        idx = process_counts.index(np_count)
+    except ValueError:
+        idx = 0
+    shade = (
+        0.72 if len(process_counts) == 1
+        else np.linspace(0.48, 0.90, len(process_counts))[idx]
+    )
+    return plt.get_cmap(cmap_name)(shade)
+
+
+def process_style(np_count: int, process_counts):
+    process_counts = list(process_counts)
+    try:
+        idx = process_counts.index(np_count)
+    except ValueError:
+        idx = 0
+    return (
+        PROCESS_LINESTYLES[idx % len(PROCESS_LINESTYLES)],
+        PROCESS_MARKERS[idx % len(PROCESS_MARKERS)],
+    )
+
+
+def markevery_for(epochs):
+    return max(1, len(epochs) // 8)
+
+
 def closest_centralised(ts: datetime, centralised_rows):
     """Pick the centralised summary row with the nearest timestamp."""
     best = None
@@ -278,6 +348,7 @@ def main():
             errs.append(float(np.std(vals)))
         if xs:
             ax.errorbar(xs, ys, yerr=errs, marker="o", capsize=3,
+                        color=dist_base_colour(dist),
                         label=dist_label(dist))
     ax.axhline(1.0, color="grey", linestyle="--", linewidth=0.8,
                label="centralised baseline")
@@ -291,24 +362,32 @@ def main():
     plt.close(fig)
 
     # ----- Plot 2: asymptotic test accuracy vs epoch ----------------------
-    fig, ax = plt.subplots(figsize=(11, 6))
+    fig, ax = plt.subplots(figsize=(12.5, 6))
     avg_c = avg_curves(central_curves)
     if avg_c is not None:
         ep, _, _, test_acc = avg_c
-        ax.plot(ep, test_acc, label="centralised", linewidth=2, color="black")
+        ax.plot(ep, test_acc, linewidth=2.2, color="black",
+                label="centralised")
     for dist in args.dists:
         for np_count in curve_nps:
             avg = avg_curves(fed_curves.get((dist, np_count), []))
             if avg is None:
                 continue
             ep, _, _, test_acc = avg
-            ax.plot(ep, test_acc, label=f"{dist_label(dist)} np={np_count}")
-    ax.axhline(80.0, color="grey", linestyle=":", linewidth=0.8)
+            ax.plot(
+                ep, test_acc,
+                color=curve_colour(dist, np_count, curve_nps),
+                linestyle="-",
+                linewidth=1.8,
+                label=f"{dist_label(dist)} np={np_count}",
+            )
+    ax.axhline(80.0, color="grey", linestyle="-", linewidth=0.8, alpha=0.8)
     ax.set_xlabel("Epoch / round")
     ax.set_ylabel("Test accuracy (%)")
     ax.set_title("Asymptotic test accuracy")
     ax.grid(True, alpha=0.3)
-    ax.legend(fontsize=8, loc="center left", bbox_to_anchor=(1.02, 0.5))
+    ax.legend(fontsize=8, loc="center left", bbox_to_anchor=(1.02, 0.5),
+              handlelength=3.0)
     fig.tight_layout(rect=[0, 0, 0.78, 1])
     fig.savefig(out / "asymptotic_accuracy.png", dpi=150)
     plt.close(fig)
@@ -321,26 +400,66 @@ def main():
                 label="centralised train")
         ax.plot(ep, test_acc, color="black", linestyle="-",
                 label="centralised test")
-    colour_cycle = plt.rcParams["axes.prop_cycle"].by_key()["color"]
-    ci = 0
+    plotted_dists = set()
+    plotted_nps = set()
     for dist in args.dists:
         for np_count in curve_nps:
             avg = avg_curves(fed_curves.get((dist, np_count), []))
             if avg is None:
                 continue
             ep, _, train_acc, test_acc = avg
-            colour = colour_cycle[ci % len(colour_cycle)]
-            ci += 1
+            marker = process_style(np_count, curve_nps)[1]
+            colour = curve_colour(dist, np_count, curve_nps)
             ax.plot(ep, train_acc, color=colour, linestyle="--",
-                    label=f"{dist_label(dist)} np={np_count} train")
+                    marker=marker, markevery=markevery_for(ep),
+                    markersize=3, linewidth=1.5)
             ax.plot(ep, test_acc, color=colour, linestyle="-",
-                    label=f"{dist_label(dist)} np={np_count} test")
+                    marker=marker, markevery=markevery_for(ep),
+                    markersize=3, linewidth=1.5)
+            plotted_dists.add(dist)
+            plotted_nps.add(np_count)
     ax.set_xlabel("Epoch / round")
     ax.set_ylabel("Accuracy (%)")
     ax.set_title("Train vs test accuracy")
     ax.grid(True, alpha=0.3)
-    ax.legend(fontsize=7, loc="center left", bbox_to_anchor=(1.02, 0.5))
-    fig.tight_layout(rect=[0, 0, 0.74, 1])
+    dist_handles = []
+    if avg_c is not None:
+        dist_handles.append(Line2D([0], [0], color="black", linewidth=2,
+                                   label="centralised"))
+    dist_handles.extend(
+        Line2D([0], [0], color=dist_base_colour(dist), linewidth=2,
+               label=dist_label(dist))
+        for dist in args.dists
+        if dist in plotted_dists
+    )
+    metric_handles = [
+        Line2D([0], [0], color="0.25", linestyle="-", linewidth=1.8,
+               label="test"),
+        Line2D([0], [0], color="0.25", linestyle="--", linewidth=1.8,
+               label="train"),
+    ]
+    np_handles = []
+    for np_count in curve_nps:
+        if np_count not in plotted_nps:
+            continue
+        marker = process_style(np_count, curve_nps)[1]
+        np_handles.append(
+            Line2D([0], [0], color="0.25", linestyle="None",
+                   marker=marker, markersize=4, label=f"np={np_count}")
+        )
+    dist_legend = ax.legend(handles=dist_handles, title="Colour family",
+                            fontsize=7, title_fontsize=8, loc="upper left",
+                            bbox_to_anchor=(1.02, 1.0))
+    ax.add_artist(dist_legend)
+    metric_legend = ax.legend(handles=metric_handles, title="Curve",
+                              fontsize=7, title_fontsize=8, loc="center left",
+                              bbox_to_anchor=(1.02, 0.52))
+    ax.add_artist(metric_legend)
+    if np_handles:
+        ax.legend(handles=np_handles, title="Marker",
+                  fontsize=7, title_fontsize=8, loc="lower left",
+                  bbox_to_anchor=(1.02, 0.0))
+    fig.tight_layout(rect=[0, 0, 0.78, 1])
     fig.savefig(out / "train_vs_test.png", dpi=150)
     plt.close(fig)
 

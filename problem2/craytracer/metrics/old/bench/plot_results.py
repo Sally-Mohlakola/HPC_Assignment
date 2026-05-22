@@ -56,6 +56,8 @@ IMPL_STYLE = {
     "REALISTIC": {"color": "#e377c2", "marker": "*"},
 }
 
+EXCLUDED_SPHERE_SWEEP_COUNTS = {203}
+
 
 def parse_args():
     p = argparse.ArgumentParser()
@@ -160,6 +162,11 @@ def set_zoomed_ylim(ax, values):
     ax.yaxis.set_major_locator(matplotlib.ticker.MaxNLocator(nbins=6))
 
 
+def is_excluded_sphere_sweep_point(row, sweep_var):
+    return (sweep_var == "num_spheres"
+            and row["num_spheres"] in EXCLUDED_SPHERE_SWEEP_COUNTS)
+
+
 def plot_sweep(averaged, sweep_var, sweep_label, filter_fn, fixed_desc,
                out_path, plot_title=None):
     """Plot a sweep: one figure with 3 subplots (kernel time, throughput,
@@ -167,6 +174,8 @@ def plot_sweep(averaged, sweep_var, sweep_label, filter_fn, fixed_desc,
     x-axis. filter_fn(row) selects rows belonging to this sweep."""
     by_impl = defaultdict(list)
     for r in averaged:
+        if is_excluded_sphere_sweep_point(r, sweep_var):
+            continue
         if not filter_fn(r):
             continue
         by_impl[r["implementation"]].append(r)
@@ -264,6 +273,8 @@ def plot_speedup_only(averaged, sweep_var, sweep_label, filter_fn, fixed_desc,
     """Plot only kernel speedup vs OpenMP for a single sweep."""
     by_impl = defaultdict(list)
     for r in averaged:
+        if is_excluded_sphere_sweep_point(r, sweep_var):
+            continue
         if r["implementation"] == "OPENMP" or not filter_fn(r):
             continue
         by_impl[r["implementation"]].append(r)

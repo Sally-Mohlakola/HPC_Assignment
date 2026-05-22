@@ -2,12 +2,12 @@
 """Aggregate craytracer benchmark CSV rows and plot sweep results.
 
 Reads metrics/sweep_<N>/summary.csv, averages repeated runs of the same
-config, and produces one figure per sweep (block-size, sphere-count,
-ray-depth) with three subplots: kernel time, throughput, speedup vs OpenMP.
+config, and produces a block-size vs kernel speedup figure.
 """
 
 import argparse
 import csv
+import math
 import sys
 from collections import defaultdict
 from pathlib import Path
@@ -56,6 +56,7 @@ IMPL_STYLE = {
 BASE_BLOCK = 256
 BASE_DEPTH = 50
 BASE_SPHERES = 200
+EXCLUDED_SPHERE_SWEEP_COUNTS = {203}
 
 
 def parse_args():
@@ -141,6 +142,27 @@ def closest_num_spheres(averaged, target):
     return min(counts, key=lambda c: abs(c - target))
 
 
+def set_zoomed_ylim(ax, values):
+    values = [v for v in values if math.isfinite(v)]
+    if not values:
+        return
+
+    y_min = min(values)
+    y_max = max(values)
+    if y_min == y_max:
+        padding = max(abs(y_min) * 0.05, 1.0)
+    else:
+        padding = (y_max - y_min) * 0.08
+
+    ax.set_ylim(y_min - padding, y_max + padding)
+    ax.yaxis.set_major_locator(matplotlib.ticker.MaxNLocator(nbins=6))
+
+
+def is_excluded_sphere_sweep_point(row, sweep_var):
+    return (sweep_var == "num_spheres"
+            and row["num_spheres"] in EXCLUDED_SPHERE_SWEEP_COUNTS)
+
+
 def plot_sweep(averaged, sweep_var, sweep_label, filter_fn, fixed_desc,
                out_path):
     """Plot a sweep: one figure with 3 subplots (kernel time, throughput,
@@ -148,6 +170,8 @@ def plot_sweep(averaged, sweep_var, sweep_label, filter_fn, fixed_desc,
     x-axis. filter_fn(row) selects rows belonging to this sweep."""
     by_impl = defaultdict(list)
     for r in averaged:
+        if is_excluded_sphere_sweep_point(r, sweep_var):
+            continue
         if not filter_fn(r):
             continue
         by_impl[r["implementation"]].append(r)
@@ -210,6 +234,61 @@ def plot_sweep(averaged, sweep_var, sweep_label, filter_fn, fixed_desc,
     print(f"  wrote {out_path}")
 
 
+def plot_speedup_only(averaged, sweep_var, sweep_label, filter_fn, fixed_desc,
+                      out_path):
+    """Plot only kernel speedup vs OpenMP for a single sweep."""
+    by_impl = defaultdict(list)
+    for r in averaged:
+        if is_excluded_sphere_sweep_point(r, sweep_var):
+            continue
+        if r["implementation"] == "OPENMP" or not filter_fn(r):
+            continue
+        by_impl[r["implementation"]].append(r)
+
+    if not by_impl:
+        print(f"  [warn] no speedup data for sweep over {sweep_var}",
+              file=sys.stderr)
+        return
+
+    for impl in by_impl:
+        by_impl[impl].sort(key=lambda r: r[sweep_var])
+
+    fig, ax = plt.subplots(figsize=(8, 5.2))
+    ax.set_title(f"Speedup vs OpenMP: {sweep_label} ({fixed_desc})")
+
+    all_speedups = []
+    impls_present = [i for i in IMPL_ORDER if i in by_impl]
+    for impl in impls_present:
+        rows = by_impl[impl]
+        xs = [r[sweep_var] for r in rows]
+        speedups = [r["speedup_vs_openmp_kernel"] for r in rows]
+        style = IMPL_STYLE.get(impl, {})
+        all_speedups.extend(speedups)
+        ax.plot(xs, speedups, label=impl, **style)
+
+    ax.axhline(1.0, color="grey", linewidth=0.8, linestyle=":")
+    ax.set_xlabel(sweep_label)
+    ax.set_ylabel("Speedup vs OpenMP (kernel)")
+    ax.grid(True, alpha=0.3)
+
+    xticks = sorted({r[sweep_var] for rows in by_impl.values()
+                     for r in rows})
+    ax.set_xticks(xticks)
+    if sweep_var == "block_size":
+        ax.set_xscale("log", base=2)
+        ax.get_xaxis().set_major_formatter(
+            matplotlib.ticker.ScalarFormatter())
+    set_zoomed_ylim(ax, all_speedups)
+
+    handles, labels = ax.get_legend_handles_labels()
+    fig.legend(handles, labels, loc="lower center", ncol=min(3, len(labels)),
+               bbox_to_anchor=(0.5, -0.02), fontsize=9)
+    fig.tight_layout(rect=(0, 0.15, 1, 0.96))
+    fig.savefig(out_path, dpi=150, bbox_inches="tight")
+    plt.close(fig)
+    print(f"  wrote {out_path}")
+
+
 def main():
     args = parse_args()
     sweep_dir = args.project_dir / "metrics" / f"sweep_{args.sweep_id}"
@@ -232,7 +311,6 @@ def main():
     write_averaged_csv(averaged, avg_csv)
     print(f"  wrote {avg_csv}")
 
-    base_block = BASE_BLOCK
     base_depth = BASE_DEPTH
     base_spheres_actual = closest_num_spheres(averaged, BASE_SPHERES)
     print(f"Using actual base sphere count = {base_spheres_actual} "
@@ -250,34 +328,24 @@ def main():
     gpu_block_sizes = {r["block_size"] for r in averaged
                        if block_sweep_base(r) and r["implementation"] != "OPENMP"}
 
-    plot_sweep(
+    plot_speedup_only(
         averaged,
         sweep_var="block_size",
         sweep_label="CUDA block size (threads)",
         filter_fn=lambda r: (block_sweep_base(r)
                              and r["block_size"] in gpu_block_sizes),
         fixed_desc=f"depth={base_depth}, spheres={base_spheres_actual}",
-        out_path=out_dir / "sweep_block_size.png",
+        out_path=out_dir / "sweep_block_size_speedup.png",
     )
 
-    plot_sweep(
+    plot_speedup_only(
         averaged,
         sweep_var="num_spheres",
         sweep_label="Number of spheres",
-        filter_fn=lambda r: (r["block_size"] == base_block
+        filter_fn=lambda r: (r["block_size"] == BASE_BLOCK
                              and r["ray_depth"] == base_depth),
-        fixed_desc=f"block={base_block}, depth={base_depth}",
-        out_path=out_dir / "sweep_num_spheres.png",
-    )
-
-    plot_sweep(
-        averaged,
-        sweep_var="ray_depth",
-        sweep_label="Max ray bounce depth",
-        filter_fn=lambda r: (r["block_size"] == base_block
-                             and r["num_spheres"] == base_spheres_actual),
-        fixed_desc=f"block={base_block}, spheres={base_spheres_actual}",
-        out_path=out_dir / "sweep_ray_depth.png",
+        fixed_desc=f"block={BASE_BLOCK}, depth={base_depth}",
+        out_path=out_dir / "sweep_num_spheres_speedup.png",
     )
 
 
