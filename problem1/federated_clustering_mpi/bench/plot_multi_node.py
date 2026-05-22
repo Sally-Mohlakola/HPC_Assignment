@@ -238,8 +238,7 @@ def main():
     out = sweep_dir / "plots"
     out.mkdir(parents=True, exist_ok=True)
 
-    # Multi-node sweeps have no centralised phase of their own, so speedup is
-    # taken against the closest-in-time centralised run from any sweep.
+    # Use pooled centralised runs as the baseline.
     central_rows = read_pooled_centralised(metrics_dir)
     fed_rows = read_summary(sweep_dir / "summary_multinode.csv")
 
@@ -249,8 +248,7 @@ def main():
         raise SystemExit(
             "summary_multinode.csv has no num_nodes column. Rebuild federated and rerun.")
 
-    # ----- Bucket per (strategy, dist, nodes) -------------------------------
-    # Each bucket aggregates reps across runs that share the tuple.
+    # Bucket runs by strategy, split, and node count.
     speedups_A = defaultdict(list)  # (dist, nodes) -> [speedup]
     speedups_B = defaultdict(list)
     fed_times_A = defaultdict(list)
@@ -309,7 +307,7 @@ def main():
             if e80 is not None:
                 epochs_to_80_B[key].append(e80)
 
-    # ----- Plot 1: Strategy A — speedup vs nodes at fixed ppn ---------------
+    # Plot 1: fixed-PPN speedup.
     grouped_A = defaultdict(list)
     for (dist, nodes), vals in speedups_A.items():
         if vals:
@@ -323,7 +321,7 @@ def main():
         x_label="Number of nodes",
     )
 
-    # ----- Plot 2: Strategy B — speedup vs nodes at fixed total -------------
+    # Plot 2: fixed-total speedup.
     grouped_B = defaultdict(list)
     for (dist, nodes), vals in speedups_B.items():
         if vals:
@@ -337,7 +335,7 @@ def main():
         x_label="Number of nodes",
     )
 
-    # ----- Plot 3: test accuracy curves, stacked per strategy ----------------
+    # Plot 3: test accuracy curves.
     fig, axes = plt.subplots(2, 1, figsize=(8, 9), sharex=True, sharey=True)
     for ax, curves, label_prefix, title in [
         (axes[0], curves_A, "A", f"Test accuracy (fixed ppn={args.fixed_ppn})"),
@@ -360,7 +358,7 @@ def main():
     fig.savefig(out / "multinode_test_accuracy.png", dpi=150)
     plt.close(fig)
 
-    # ----- Companion CSV ----------------------------------------------------
+    # Write summary CSV.
     with (out / "multi_node_summary.csv").open("w", newline="") as f:
         w = csv.writer(f)
         w.writerow(["strategy", "data_distribution", "num_nodes",

@@ -1,68 +1,27 @@
 #!/bin/bash
 set -euo pipefail
 
-# Multi-node experiment sweep for Problem 1.
-#
-# Submits one sbatch per (nodes, ntasks-per-node) tuple, covering two
-# strategies:
-#
-#   A) fixed PPN, varying nodes  — process count per node is held constant
-#      while node count grows. Total ranks scale linearly with N.
-#        e.g.  PPN_FIXED=8, NODES_A=(2 3 4)
-#              -> --nodes=2 --ntasks-per-node=8 --ntasks=16
-#                 --nodes=3 --ntasks-per-node=8 --ntasks=24
-#                 --nodes=4 --ntasks-per-node=8 --ntasks=32
-#
-#   B) fixed total ranks, varying nodes — TOTAL_B is held constant and
-#      split evenly across nodes. Only node counts that divide TOTAL_B
-#      cleanly are kept (uneven splits produce non-uniform per-node loads
-#      that complicate analysis).
-#        e.g.  TOTAL_B=48, NODES_B=(3 4 6 8)
-#              -> --nodes=3 --ntasks-per-node=16 --ntasks=48
-#                 --nodes=4 --ntasks-per-node=12 --ntasks=48
-#                 --nodes=6 --ntasks-per-node=8  --ntasks=48
-#                 --nodes=8 --ntasks-per-node=6  --ntasks=48
-#
-#      The cluster caps tasks-per-node at 16 (one rank per physical core),
-#      so configurations with PPN > 16 are skipped automatically.
-#
-# Rank 0 is the federated server (lives on node 0). All other ranks are
-# workers. Output goes to this sweep's own metrics/sweep_<N>/ folder; the
-# aggregate phase writes it to summary_multinode.csv.
+# Multi-node sweep for Problem 1.
 
 PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 BENCH_DIR="${PROJECT_DIR}/bench"
 cd "$PROJECT_DIR"
 
-# ---------------------------------------------------------------------------
-# Sweep configuration — override via env vars when invoking the script.
-# ---------------------------------------------------------------------------
+# Sweep settings can be overridden with env vars.
 REPS="${REPS:-3}"
 
-# Cluster caps per-node task count at 16 (one rank per physical core on the
-# Xeon E5-2680 nodes). Any (TOTAL_B, nodes) pair where TOTAL_B/nodes > 16
-# will be rejected by sbatch ("CPU count per node can not be satisfied").
+# Cluster cap is 16 ranks per node.
 MAX_PPN=16
 
-# Strategy A (weak scaling): PPN=8 pins one rank per physical core within a
-# single NUMA socket (8 cores/socket, 2 sockets/node). This keeps each
-# worker's L1/L2 private and gives a clean share of one L3 domain, so
-# per-rank performance is constant as nodes are added.
+# Strategy A varies nodes at fixed PPN.
 PPN_FIXED="${PPN_FIXED:-8}"
 NODES_A=(${NODES_A:-2 3 4})
 
-# Strategy B (strong scaling): total=48 factors over every node count in
-# NODES_B, giving high-utilisation per-node PPN values (16, 12, 8, 6) that
-# all respect the 16-rank-per-node cluster cap. nodes=2 is intentionally
-# excluded because TOTAL_B/2 = 24 > 16 and would be rejected by sbatch.
-# 48 keeps per-rank work meaningful even at 8 nodes (6 ranks/node), whereas
-# the earlier total=24 fell to 3 ranks/node — most cores idle and per-rank
-# work too small to dominate communication cost.
+# Strategy B varies nodes at fixed total ranks.
 TOTAL_B="${TOTAL_B:-48}"
 NODES_B=(${NODES_B:-3 4 6 8})
 
-# Distribution baked into the binary at compile time (same default as
-# test_one_node.sh so the two sweeps are comparable).
+# Compile-time data split.
 FEDERATED_DEFINES="${FEDERATED_DEFINES:--DLABEL_SHARD_NONIID}"
 BENCH_CXXFLAGS="${CXXFLAGS:--O3} -std=c++17"
 
@@ -74,10 +33,7 @@ RUN_STRATEGY_B="${RUN_STRATEGY_B:-1}"
 SBATCH_PARTITION="${SBATCH_PARTITION:-stampede}"
 SBATCH_TIME="${SBATCH_TIME:-02:00:00}"
 
-# ----- Allocate the next sweep id -----------------------------------------
-# An incrementing counter; this multi-node sweep's entire contents live under
-# metrics/sweep_<N>/. The id is exported into every job and carried in each
-# run's summary row.
+# Allocate the next sweep id.
 mkdir -p "$PROJECT_DIR/metrics"
 COUNTER="$PROJECT_DIR/metrics/.counter"
 CURRENT_COUNTER="$(cat "$COUNTER" 2>/dev/null || echo 0)"
@@ -91,15 +47,12 @@ echo "$SWEEP_ID" > "$COUNTER"
 SWEEP_DIR="${PROJECT_DIR}/metrics/sweep_${SWEEP_ID}"
 mkdir -p "${SWEEP_DIR}/federated" "${SWEEP_DIR}/logs" "${SWEEP_DIR}/plots"
 
-# ---------------------------------------------------------------------------
-# Build once. All sbatched jobs share src/federated.
-# ---------------------------------------------------------------------------
+# Build once for all jobs.
 echo "[build] federated  defines=${FEDERATED_DEFINES}  cxxflags=${BENCH_CXXFLAGS}"
 make clean
 make federated CXXFLAGS="${BENCH_CXXFLAGS}" FEDERATED_DEFINES="${FEDERATED_DEFINES}"
 
-# Job ids of every submitted sweep job, so the aggregate phase can depend on
-# all of them.
+# Job ids for the aggregate dependency.
 JOB_IDS=()
 
 submit_job() {
@@ -133,9 +86,7 @@ submit_job() {
     echo "         submitted job ${jid}"
 }
 
-# ---------------------------------------------------------------------------
-# Strategy A — fixed PPN, varying nodes.
-# ---------------------------------------------------------------------------
+# Strategy A: fixed PPN.
 if [[ "${RUN_STRATEGY_A}" == "1" ]]; then
     echo
     echo "============================================================"
@@ -146,9 +97,7 @@ if [[ "${RUN_STRATEGY_A}" == "1" ]]; then
     done
 fi
 
-# ---------------------------------------------------------------------------
-# Strategy B — fixed total, varying nodes (only divisors of TOTAL_B).
-# ---------------------------------------------------------------------------
+# Strategy B: fixed total ranks.
 if [[ "${RUN_STRATEGY_B}" == "1" ]]; then
     echo
     echo "============================================================"
@@ -170,11 +119,7 @@ if [[ ${#JOB_IDS[@]} -eq 0 ]]; then
     exit 0
 fi
 
-# Phase 2 (aggregate) runs automatically once every sweep job has finished, via
-# a Slurm dependency. afterany (not afterok) so a partial sweep still aggregates
-# whatever succeeded -- aggregate.sh is robust to missing/failed runs.
-# Aggregation is pure bash and so cluster-safe, unlike plotting, which needs
-# matplotlib and is done locally afterwards.
+# Aggregate after all jobs finish.
 DEP="$(IFS=:; echo "${JOB_IDS[*]}")"
 AGG_JID="$(sbatch --parsable \
     --partition="${SBATCH_PARTITION}" \

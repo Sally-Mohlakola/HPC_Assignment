@@ -79,11 +79,7 @@ def load_rows(csv_path, sweep_id):
                 row[col] = int(row[col])
             for col in NUMERIC_COLS:
                 row[col] = float(row[col])
-            # A non-positive kernel time means the kernel never actually ran
-            # (e.g. a CUDA launch that failed because the block size exceeds
-            # the kernel's per-block resource budget). Such rows carry a ~0 s
-            # time and a meaningless throughput/speedup, so drop them rather
-            # than let them skew the averages and autoscale the plots.
+            # Drop rows from failed kernel launches.
             if row["kernel_time_s"] <= 0.0:
                 skipped += 1
                 continue
@@ -316,11 +312,7 @@ def main():
     print(f"Using actual base sphere count = {base_spheres_actual} "
           f"(requested {BASE_SPHERES})")
 
-    # A block size is only a meaningful sweep point if at least one CUDA
-    # implementation produced a valid run at it. A size where every GPU
-    # kernel launch failed (e.g. 1024 exceeds the kernel's per-block resource
-    # budget) leaves only the block-size-independent OpenMP baseline, which
-    # would just dangle an empty tick on the axis.
+    # Keep block sizes with at least one valid GPU run.
     def block_sweep_base(r):
         return (r["ray_depth"] == base_depth
                 and r["num_spheres"] == base_spheres_actual)

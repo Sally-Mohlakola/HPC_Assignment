@@ -1,15 +1,7 @@
 #!/bin/bash
 set -euo pipefail
 
-# Submit the one-node Problem 1 sweep to Slurm.
-#
-# Optional overrides:
-#   SLURM_PARTITION=stampede
-#   SLURM_TIME=02:00:00
-#   SLURM_TASKS_PER_NODE=16  # defaults to max(NPS)
-#   REPS=3
-#   NPS="3 5 7 9 13 16"
-#   CURVE_NPS="3 9 16"
+# Submit the one-node sweep to Slurm.
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"

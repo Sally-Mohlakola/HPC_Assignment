@@ -2,17 +2,11 @@
 #SBATCH --partition=stampede
 #SBATCH --cpus-per-task=1
 #SBATCH --time=02:00:00
-# --output / --error are set explicitly by test_mult_node.sh so logs always
-# land under the sweep's metrics/sweep_<N>/logs/ dir. The defaults below are
-# only used if you sbatch this file directly.
+# test_mult_node.sh usually sets log paths.
 #SBATCH --output=metrics/mult_node_%x_%j.out
 #SBATCH --error=metrics/mult_node_%x_%j.err
 
-# Parameterised multi-node federated run. test_mult_node.sh submits this once
-# per (nodes, ppn) tuple, overriding --nodes / --ntasks / --ntasks-per-node /
-# --job-name on the sbatch command line and exporting REPS + STRATEGY_NAME.
-#
-# Output goes to the current sweep's metrics/sweep_<N>/federated/ tree.
+# Multi-node federated run payload.
 
 set -euo pipefail
 
@@ -21,9 +15,7 @@ cd "$PROJECT_DIR"
 
 REPS="${REPS:-3}"
 STRATEGY_NAME="${STRATEGY_NAME:-unspecified}"
-# Sweep id ties every run of this sweep together. Passed in by
-# test_mult_node.sh via --export; fallback keeps direct sbatch invocations
-# contained under metrics/sweep_0/.
+# Fallback keeps direct sbatch runs under sweep_0.
 SWEEP_ID="${SWEEP_ID:-0}"
 SWEEP_DIR="${SWEEP_DIR:-${PROJECT_DIR}/metrics/sweep_${SWEEP_ID}}"
 
@@ -43,7 +35,7 @@ if ! command -v mpicxx >/dev/null 2>&1; then
     exit 1
 fi
 
-# Binary is pre-built by test_mult_node.sh so every sbatch hits the same one.
+# Binary is built by test_mult_node.sh.
 if [[ ! -x "${PROJECT_DIR}/src/federated" ]]; then
     echo "src/federated not built. Run test_mult_node.sh (which builds once) before sbatching directly." >&2
     exit 1
@@ -57,11 +49,7 @@ export FEDERATED_OUTPUT_ROOT="${SWEEP_DIR}/federated"
 PPN="${SLURM_NTASKS_PER_NODE:-na}"
 
 for rep in $(seq 1 "${REPS}"); do
-    # Run id is unique across every concurrent job: the Slurm job id alone
-    # guarantees it, and rep disambiguates within a job. The federated binary
-    # uses it verbatim as its output directory name, so two jobs that start in
-    # the same wall-clock second can no longer collide on (and corrupt) a
-    # shared directory -- the root cause of the old garbled metrics files.
+    # Slurm job id keeps run folders unique.
     export FEDERATED_RUN_ID="${STRATEGY_NAME}_n${SLURM_JOB_NUM_NODES}_p${PPN}_rep${rep}_j${SLURM_JOB_ID}"
     echo
     echo "[mult_node] run_id=${FEDERATED_RUN_ID} rep=${rep}/${REPS}"

@@ -1,14 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Submission wrapper for the craytracer benchmark sweep. Run this directly:
-#
-#   cd problem2/craytracer
-#   bench/test.sh
-#
-# Do not submit this wrapper with sbatch; it submits the Slurm script below.
-# If it is submitted with sbatch anyway, Slurm runs a copied script from its
-# spool directory and the wrapper can no longer locate this repository.
+# Submit the craytracer sweep from the repo.
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"

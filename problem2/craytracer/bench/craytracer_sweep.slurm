@@ -55,8 +55,7 @@ RAY_DEPTHS=(5 10 25 50 75 100)
 
 RUNS_PER_TEST=3
 
-# ----- Allocate the next sweep id -----------------------------------------
-# All generated files for this run live under metrics/sweep_<N>/.
+# Allocate the next sweep id.
 COUNTER="${METRICS_ROOT}/.counter"
 CURRENT_COUNTER="$(cat "$COUNTER" 2>/dev/null || echo 0)"
 if [[ ! "$CURRENT_COUNTER" =~ ^[0-9]+$ ]]; then

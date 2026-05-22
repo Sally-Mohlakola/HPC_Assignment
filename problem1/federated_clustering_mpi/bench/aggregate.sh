@@ -1,23 +1,7 @@
 #!/bin/bash
 set -euo pipefail
 
-# Phase 2 of the Problem 1 benchmark pipeline: aggregate one sweep.
-#
-# Every run wrote its own self-contained <kind>/<run_id>/run_summary.csv inside
-# the sweep folder and never touched a shared file (see src/csv_utils.h). This
-# script gathers those per-run rows into the sweep's summary sheets. It is
-# single-threaded and runs only after every (possibly concurrent) run has
-# finished, so there is no live writer to race against.
-#
-# Rows whose field count does not match the header -- the signature of a
-# truncated or merged write -- are dropped with a warning.
-#
-# Federated runs are split by node count into separate, respective sheets:
-#   summary_onenode.csv     num_nodes == 1   (read by plot_one_node.py)
-#   summary_multinode.csv   num_nodes  > 1   (read by plot_multi_node.py)
-# Centralised runs go to summary_centralised.csv.
-#
-# Usage: aggregate.sh <sweep_dir>        e.g.  aggregate.sh metrics/sweep_3
+# Aggregate one Problem 1 sweep.
 
 SWEEP_DIR="${1:?usage: aggregate.sh <sweep_dir>}"
 if [[ ! -d "$SWEEP_DIR" ]]; then
@@ -28,10 +12,7 @@ fi
 # field_count <csv-line> -> number of comma-separated fields
 field_count() { awk -F, '{print NF}' <<<"$1"; }
 
-# collect_rows <kind_dir> <tmp_out>
-# Appends every valid data row found under <kind_dir>/*/run_summary.csv to
-# <tmp_out> and echoes the (consistent) header on stdout. Malformed rows are
-# dropped; echoes nothing if no run_summary.csv files are present.
+# collect_rows <kind_dir> <tmp_out> -> shared header
 collect_rows() {
     local kind_dir="$1" tmp_out="$2"
     local header="" rs h row
@@ -57,7 +38,7 @@ collect_rows() {
     printf '%s' "$header"
 }
 
-# ----- Centralised --------------------------------------------------------
+# Centralised rows.
 ctmp="$(mktemp)"
 cheader="$(collect_rows "$SWEEP_DIR/centralised" "$ctmp")"
 if [[ -n "$cheader" ]]; then
@@ -68,7 +49,7 @@ else
 fi
 rm -f "$ctmp"
 
-# ----- Federated, split by num_nodes (field 5) ----------------------------
+# Federated rows split by num_nodes.
 ftmp="$(mktemp)"
 fheader="$(collect_rows "$SWEEP_DIR/federated" "$ftmp")"
 if [[ -n "$fheader" ]]; then

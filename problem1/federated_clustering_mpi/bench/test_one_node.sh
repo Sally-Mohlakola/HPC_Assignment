@@ -1,19 +1,7 @@
 #!/bin/bash
 set -euo pipefail
 
-# One-node experiment sweep for Problem 1, run as three phases:
-#
-#   Phase 1  RUN        centralised baseline + federated runs across MPI
-#                       process counts. Each run writes only its own private
-#                       <kind>/<run_id>/ directory inside this sweep's folder
-#                       -- no shared file is touched, so nothing can race.
-#   Phase 2  AGGREGATE  aggregate.sh gathers each run_summary.csv into the
-#                       sweep's summary sheets (summary_centralised.csv and
-#                       summary_onenode.csv).
-#   Phase 3  PLOT       plot_one_node.py renders charts into the sweep's plots/.
-#
-# Everything for the sweep lives under metrics/sweep_<N>/, where N is an
-# incrementing counter kept in metrics/.counter.
+# One-node sweep for Problem 1.
 
 PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 BENCH_DIR="${PROJECT_DIR}/bench"
@@ -24,8 +12,7 @@ NPS=(${NPS:-3 5 7 9 13 16})
 CURVE_NPS=(${CURVE_NPS:-3 9 16})
 BENCH_CXXFLAGS="${CXXFLAGS:--O3} -std=c++17"
 
-# Data distributions requested for the sweep. Each entry is a name + the
-# corresponding -D flags passed to mpicxx via FEDERATED_DEFINES.
+# Data splits and matching compile flags.
 DIST_NAMES=(
     "round_robin_iid"
     "label_shard_noniid"
@@ -56,8 +43,7 @@ for curve_np in "${CURVE_NPS[@]}"; do
     fi
 done
 
-# ----- Allocate the next sweep id -----------------------------------------
-# An incrementing counter; each sweep's entire contents live in its own folder.
+# Allocate the next sweep id.
 mkdir -p metrics
 COUNTER="metrics/.counter"
 CURRENT_COUNTER="$(cat "$COUNTER" 2>/dev/null || echo 0)"
@@ -81,14 +67,7 @@ echo " dists: ${DIST_NAMES[*]}"
 echo " cxxflags: ${BENCH_CXXFLAGS}"
 echo "============================================================"
 
-# ===========================================================================
-# PHASE 1 -- RUN
-#
-# Build centralised once; federated is rebuilt per distribution because the
-# flags are baked in at compile time. Each run is handed its sweep id and a
-# run id unique within the sweep; the binary uses the run id as its output
-# directory name, so runs never collide.
-# ===========================================================================
+# Phase 1: run the benchmark.
 echo
 echo "[phase 1/3] RUN"
 echo "[build] centralised"
@@ -130,16 +109,12 @@ for d_idx in "${!DIST_NAMES[@]}"; do
     done
 done
 
-# ===========================================================================
-# PHASE 2 -- AGGREGATE
-# ===========================================================================
+# Phase 2: aggregate results.
 echo
 echo "[phase 2/3] AGGREGATE"
 "${BENCH_DIR}/aggregate.sh" "${SWEEP_DIR}"
 
-# ===========================================================================
-# PHASE 3 -- PLOT
-# ===========================================================================
+# Phase 3: plot results.
 echo
 echo "[phase 3/3] PLOT"
 python3 "${BENCH_DIR}/plot_one_node.py" \

@@ -1,19 +1,3 @@
-// ============================================================
-// NON-IID DISTRIBUTION HELPERS
-// Use compile-time flags:
-//
-// -DROUND_ROBIN_BASELINE
-// -DLABEL_SHARD_NONIID
-// -DROTATE_FEATURE_SKEW
-//
-// Example:
-//
-// mpicxx main.cpp -DROUND_ROBIN_BASELINE
-//
-// mpicxx main.cpp -DLABEL_SHARD_NONIID -DROTATE_FEATURE_SKEW
-//
-// ============================================================
-
 #include <cmath>
 #include <vector>
 // ------------------------------------------------------------

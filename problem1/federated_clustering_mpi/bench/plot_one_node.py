@@ -279,7 +279,7 @@ def main():
     if not fed_rows:
         raise SystemExit(f"No one-node federated runs found in {sweep_dir}")
 
-    # ----- Per-run metric curves -------------------------------------------
+    # Read per-run metric curves.
     central_curves = []
     for r in central_rows:
         m = cdir / run_dir_name(r) / "centralised_metrics.csv"
@@ -288,7 +288,7 @@ def main():
         if c is not None:
             central_curves.append(c)
 
-    # federated curves bucketed by (dist, np)
+    # Bucket federated curves by split and process count.
     fed_curves = defaultdict(list)
     fed_times = defaultdict(list)
     fed_epochs_to_80 = defaultdict(list)
@@ -335,7 +335,7 @@ def main():
             f"{dist}/np={np_count}" for dist, np_count in missing_curves)
         print(f"[plot] warning: no accuracy curves for {formatted}", file=sys.stderr)
 
-    # ----- Plot 1: speedup vs num processes -------------------------------
+    # Plot 1: speedup vs processes.
     fig, ax = plt.subplots(figsize=(7, 5))
     for dist in args.dists:
         xs, ys, errs = [], [], []
@@ -361,7 +361,7 @@ def main():
     fig.savefig(out / "speedup_vs_np.png", dpi=150)
     plt.close(fig)
 
-    # ----- Plot 2: asymptotic test accuracy vs epoch ----------------------
+    # Plot 2: test accuracy vs epoch.
     fig, ax = plt.subplots(figsize=(12, 6))
     avg_c = avg_curves(central_curves)
     if avg_c is not None:
@@ -400,7 +400,7 @@ def main():
     fig.savefig(out / "asymptotic_accuracy.png", dpi=150, bbox_inches="tight")
     plt.close(fig)
 
-    # ----- Plot 3: test vs training accuracy ------------------------------
+    # Plot 3: train vs test accuracy.
     fig, ax = plt.subplots(figsize=(11, 6))
     if avg_c is not None:
         ep, _, train_acc, test_acc = avg_c
@@ -471,7 +471,7 @@ def main():
     fig.savefig(out / "train_vs_test.png", dpi=150)
     plt.close(fig)
 
-    # ----- Plot 3b: per-np train vs test (inline legend) ------------------
+    # Plot 3b: per-process train vs test.
     for np_count in curve_nps:
         fig_np, ax_np = plt.subplots(figsize=(8, 7))
         handles = []
@@ -506,7 +506,7 @@ def main():
                        bbox_inches="tight")
         plt.close(fig_np)
 
-    # ----- Companion CSV for the report -----------------------------------
+    # Write summary CSV.
     with (out / "speedup_summary.csv").open("w", newline="") as f:
         w = csv.writer(f)
         w.writerow(["data_distribution", "num_processes",
