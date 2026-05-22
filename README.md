@@ -263,7 +263,7 @@ The reported Problem 1 experiments were run on the Wits MS cluster.
 
 This codebase builds and benchmarks an OpenMP and CUDA ray tracer. It includes:
 
-- an `OPENMP` CPU renderer for baseline timing
+- an OpenMP CPU renderer for baseline timing
 - CUDA renderers using global memory, constant memory, shared memory, and texture memory
 - a realistic-scene CUDA variant
 - scripts to run benchmark sweeps over block size, object count, and ray depth
@@ -331,6 +331,10 @@ Run through the helper script:
 ```bash
 ./run.sh --block-size 256 --max-depth 50 --num-spheres 200
 ```
+
+The helper script runs `make` first, creates the next
+`metrics/single_<N>/` directory, sets the metrics environment variables, and
+captures the run log.
 
 Runtime options:
 
@@ -409,7 +413,11 @@ Generated image files:
 - `cuda_2d_texture_constant.jpg`
 - `cuda_realistic.jpg`
 
-The helper script `./run.sh` increments `metrics/.counter`, sets `CRAYTRACER_METRICS_DIR`, and writes metrics to:
+The helper script `./run.sh` increments `metrics/.counter`, sets
+`CRAYTRACER_METRICS_DIR` and `CRAYTRACER_SWEEP_ID`, then captures the program
+log while the executable writes the metrics CSV.
+
+The single-run files are:
 
 ```text
 problem2/craytracer/metrics/single_<N>/summary.csv
@@ -461,23 +469,6 @@ The reported Problem 2 experiments were run on the Wits MS cluster.
 - CUDA runtime/driver stack: reported by `nvidia-smi`
 - Python: Python 3 with `matplotlib` for plotting
 
-#### Double-check commands
-
-Run these on the cluster node or inside the Slurm allocation used for Problem 2:
-
-```bash
-scontrol show partition stampede
-hostname
-lscpu
-free -h
-gcc --version
-nvcc --version
-nvidia-smi
-nvidia-smi -L
-nvidia-smi --query-gpu=name,memory.total,power.limit,driver_version,compute_cap --format=csv
-python3 --version
-```
-
 ### Implementations
 
 - `OPENMP`: CPU baseline renderer
@@ -494,5 +485,4 @@ python3 --version
 - CUDA block size should be positive and should not exceed the device limit, usually 1024 threads per block.
 - Requested sphere count should not exceed the compile-time `MAX_SPHERES` capacity.
 - The shared-memory CUDA variant stores spheres in block shared memory, so large `MAX_SPHERES` values can exceed the GPU shared-memory limit.
-- `run.sh` creates the output directories, rebuilds the binary, and forwards all arguments to `renders/raytracer`.
 - `bench/test.sh` must be run on a system where `sbatch` is available.
