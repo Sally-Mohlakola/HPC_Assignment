@@ -35,6 +35,8 @@ HPC_Assignment/
         └── run.sh       
 ```
 
+The code of interest for this submission is in `src/`.
+
 ### Setup
 
 Problem 1 needs a C++ compiler and OpenMPI.
@@ -280,6 +282,8 @@ HPC_Assignment/
         ├── makefile        
         └── run.sh          
 ```
+
+The code of interest for this submission is in `renders/`.
 
 ### Setup
 
