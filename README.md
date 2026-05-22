@@ -169,29 +169,24 @@ The helper script `./run.sh` increments `metrics/.counter` and writes each singl
 - `problem1/federated_clustering_mpi/metrics/single_<N>/federated/federated_np<NP>/`
 - `problem1/federated_clustering_mpi/metrics/single_<N>/logs/`
 
+The created `single_<N>` directory contains:
+
+- centralised epoch metrics: `centralised/centralised/centralised_metrics.csv`
+- centralised run summary: `centralised/centralised/run_summary.csv`
+- federated server metrics: `federated/federated_np<NP>/federated_metrics.csv`
+- federated worker metrics: `federated/federated_np<NP>/worker_<rank>_metrics.csv`
+- federated run summary: `federated/federated_np<NP>/run_summary.csv`
+- run logs: `logs/centralised.log` and `logs/federated_np<NP>.log`
+- aggregated summaries: `summary_centralised.csv` and `summary_onenode.csv`
+
 Override the normal run output root with:
 
 ```bash
 RUN_OUTPUT_DIR=/path/to/output ./run.sh
 ```
 
-When launched directly from `src/` without the helper script, the binaries default to:
-
-- `problem1/federated_clustering_mpi/centralised_metrics/<run_id>/`
-- `problem1/federated_clustering_mpi/federated_metrics/<run_id>/`
-
-Override those direct binary output roots with `CENTRALISED_OUTPUT_ROOT` and `FEDERATED_OUTPUT_ROOT`.
-
-Centralised run directories contain:
-
-- `centralised_metrics.csv`
-- `run_summary.csv`
-
-Federated run directories contain:
-
-- `federated_metrics.csv`
-- `worker_<rank>_metrics.csv`
-- `run_summary.csv`
+You can also override the centralised and federated sub-roots separately with
+`CENTRALISED_OUTPUT_ROOT` and `FEDERATED_OUTPUT_ROOT`.
 
 #### Benchmark outputs
 
@@ -424,11 +419,14 @@ problem2/craytracer/metrics/single_<N>/summary.csv
 problem2/craytracer/metrics/single_<N>/run.log
 ```
 
-When launched directly without `CRAYTRACER_METRICS_DIR`, the executable appends metrics to:
+For direct executable launches, metrics are appended to:
 
 ```text
-problem2/craytracer/metrics/summary.csv
+${CRAYTRACER_METRICS_DIR}/summary.csv
 ```
+
+If `CRAYTRACER_METRICS_DIR` is unset, the executable falls back to
+`metrics/summary.csv` relative to the current working directory.
 
 #### Benchmark outputs
 
